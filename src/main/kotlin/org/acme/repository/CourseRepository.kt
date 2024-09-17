@@ -3,13 +3,10 @@ package org.acme.repository
 import io.quarkus.hibernate.orm.panache.PanacheRepository
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.transaction.Transactional
-import org.acme.model.Student
+import org.acme.model.Course
 
 @ApplicationScoped
-class StudentRepository: PanacheRepositoryBase<Student, Long> {
+class CourseRepository: PanacheRepositoryBase<Course, Long> {
 
-    @Transactional
-    fun deleteByIds(ids: List<Long>) = delete("id in (?1)", ids)
 
 }

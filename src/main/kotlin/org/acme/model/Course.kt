@@ -1,22 +1,24 @@
 package org.acme.model
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToMany
-import java.util.UUID
+import jakarta.persistence.Table
 
 
 @Entity
-class Course(
+data class Course(
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val uuid: Long? = null,
+    var id: Long? = null,
 
-    var name: String,
+    var name: String = "",
 
-    //@ManyToMany(fetch = FetchType.LAZY)
-    //var students: List<Student>
-)
+    @ManyToMany(mappedBy = "courses")
+    var students: MutableSet<Student> = mutableSetOf()
+): PanacheEntityBase()

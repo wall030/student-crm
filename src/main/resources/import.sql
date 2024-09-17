@@ -1,4 +1,14 @@
-INSERT INTO Student(firstName, lastName, email)
-VALUES ('Alice', 'Gabel', 'test1@mail.com');
-INSERT INTO Student(firstName, lastName, email)
-VALUES ('Bob', 'Miller', 'test2@mail.com');
+INSERT INTO Course (name)
+VALUES
+    ('Mathematics'),
+    ('Physics'),
+    ('Computer Science'),
+    ('History');
+
+INSERT INTO Student (firstname, lastname, email)
+VALUES
+    ('Alice', 'Smith', 'alice@example.com'),
+    ('Bob', 'Johnson', 'bob@example.com'),
+    ('Charlie', 'Brown', 'charlie@example.com');
+
+
