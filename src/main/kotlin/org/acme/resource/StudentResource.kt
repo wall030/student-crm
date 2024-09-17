@@ -10,6 +10,7 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.acme.model.Course
 import org.acme.model.Student
 import org.acme.service.StudentService
 import org.jboss.resteasy.reactive.RestResponse
@@ -24,9 +25,16 @@ class StudentResource(
 
     @GET
     @Path("/all")
-    fun findAllStudents(): Response {
+    fun findAllStudents(): RestResponse<String> {
         val students = studentService.findAllStudents()
-        return Response.ok(students).build()
+        return ResponseBuilder.ok("All students successfully found").build()
+    }
+
+    @GET
+    @Path("/findByID")
+    fun findCourseByID(student: Student) : RestResponse<Student> {
+        var foundStudent = studentService.findStudent(student)
+        return ResponseBuilder.ok(foundStudent).build()
     }
 
     @Transactional

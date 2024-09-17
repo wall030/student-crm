@@ -2,6 +2,7 @@ package org.acme.service
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
+import org.acme.model.Course
 import org.acme.model.Student
 import org.acme.repository.StudentRepository
 
@@ -11,6 +12,8 @@ class StudentService(
 ) {
 
     fun findAllStudents() = studentRepository.listAll()
+
+    fun findStudent(student: Student) = studentRepository.findById(student.id)
 
     @Transactional
     fun createStudent(student: Student) {
