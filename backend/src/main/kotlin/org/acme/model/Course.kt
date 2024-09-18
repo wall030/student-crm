@@ -19,6 +19,6 @@ data class Course(
 
     var name: String = "",
 
-    @ManyToMany(mappedBy = "courses")
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
     var students: MutableSet<Student> = mutableSetOf()
 ): PanacheEntityBase()

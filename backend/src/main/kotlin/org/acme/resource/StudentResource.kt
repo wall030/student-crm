@@ -7,6 +7,7 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -31,9 +32,9 @@ class StudentResource(
     }
 
     @GET
-    @Path("/findByID")
-    fun findCourseByID(student: Student) : RestResponse<Student> {
-        var foundStudent = studentService.findStudent(student)
+    @Path("/{id}")
+    fun findStudentByID(@PathParam("id") id: Long) : RestResponse<Student> {
+        var foundStudent = studentService.findStudent(id)
         return ResponseBuilder.ok(foundStudent).build()
     }
 

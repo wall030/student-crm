@@ -13,7 +13,7 @@ class StudentService(
 
     fun findAllStudents() = studentRepository.listAll()
 
-    fun findStudent(student: Student) = studentRepository.findById(student.id)
+    fun findStudent(id: Long) = studentRepository.findById(id)
 
     @Transactional
     fun createStudent(student: Student) {

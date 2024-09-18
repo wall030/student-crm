@@ -24,7 +24,7 @@ data class Student(
     var lastName: String = "",
     var email: String = "",
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "student_course",
         joinColumns = [JoinColumn(name = "student_id")],

@@ -7,6 +7,7 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import org.acme.model.Course
@@ -28,9 +29,9 @@ class CourseResource(
     fun getAllCourses() = courseService.getAllCourses()
 
     @GET
-    @Path("/findByID")
-    fun findCourseByID(course: Course) : RestResponse<Course> {
-        var foundCourse = courseService.findCourse(course)
+    @Path("/{id}")
+    fun findCourseByID(@PathParam("id") id: Long) : RestResponse<Course> {
+        var foundCourse = courseService.findCourse(id)
         return ResponseBuilder.ok(foundCourse).build()
     }
 
