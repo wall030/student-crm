@@ -1,5 +1,6 @@
 package org.acme.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -16,10 +17,11 @@ data class Course(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
 
     var name: String = "",
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("courses")
     var students: MutableList<Student> = mutableListOf()
 ): PanacheEntityBase()

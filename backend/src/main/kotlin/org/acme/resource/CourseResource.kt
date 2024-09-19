@@ -11,11 +11,9 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import org.acme.model.Course
-import org.acme.model.Student
 import org.acme.service.CourseService
 import org.jboss.resteasy.reactive.ResponseStatus
-import org.jboss.resteasy.reactive.RestResponse
-import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder
+
 
 @Path("/api/course")
 @Produces(MediaType.APPLICATION_JSON)
@@ -52,4 +50,9 @@ class CourseResource(
     @ResponseStatus(204)
     @Path("/delete")
     fun deleteStudents(courses: List<Course>) = courseService.deleteCourses(courses)
+
+    @Transactional
+    @PUT
+    @Path("/{id}/assignStudents")
+    fun assignStudents(@PathParam("id") id: Long,  students: List<Long>) = courseService.assignStudents(id, students)
 }

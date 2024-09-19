@@ -18,24 +18,24 @@ CREATE TABLE student_course (
     FOREIGN KEY (course_id) REFERENCES course(id)
 );
 
-INSERT INTO course (id, name)
+INSERT INTO course (name)
 VALUES
-    (1, 'Jedi Training'),
-    (2, 'Piloting 101'),
-    (3, 'Lightsaber Combat'),
-    (4, 'Force Mastery'),
-    (5, 'Galactic Diplomacy'),
-    (6, 'Tactical Warfare'),
-    (7, 'Sith Arts'),
-    (8, 'Starship Engineering');
+    ('Jedi Training'),
+    ('Piloting 101'),
+    ('Lightsaber Combat'),
+    ('Force Mastery'),
+    ('Galactic Diplomacy'),
+    ('Tactical Warfare'),
+    ('Sith Arts'),
+    ('Starship Engineering');
 
-INSERT INTO student (id, firstname, lastname, email)
+INSERT INTO student (firstname, lastname, email)
 VALUES
-    (1, 'Luke', 'Skywalker', 'luke@jedi.com'),
-    (2, 'Leia', 'Organa', 'leia@rebel.com'),
-    (3, 'Han', 'Solo', 'han@smuggler.com'),
-    (4, 'Yoda', 'Yolo', 'yoda@jedi.com'),
-    (5, 'Rey', 'Palpatine', 'rey@scavenger.com');
+    ('Luke', 'Skywalker', 'luke@jedi.com'),
+    ('Leia', 'Organa', 'leia@rebel.com'),
+    ('Han', 'Solo', 'han@smuggler.com'),
+    ('Yoda', 'Yolo', 'yoda@jedi.com'),
+    ('Rey', 'Palpatine', 'rey@scavenger.com');
 
 INSERT INTO student_course (student_id, course_id)
 VALUES

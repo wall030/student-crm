@@ -1,5 +1,6 @@
 package org.acme.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import io.quarkus.runtime.annotations.RegisterForReflection
 import jakarta.persistence.Entity
@@ -20,7 +21,7 @@ data class Student(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: Long = 0L,
 
     var firstName: String = "",
     var lastName: String = "",
@@ -32,5 +33,6 @@ data class Student(
         joinColumns = [JoinColumn(name = "student_id")],
         inverseJoinColumns = [JoinColumn(name = "course_id")]
     )
+    @JsonIgnoreProperties("students")
     var courses: MutableList<Course> = mutableListOf()
 ): PanacheEntityBase()
