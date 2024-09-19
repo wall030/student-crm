@@ -2,7 +2,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "2.0.10"
     id "org.jetbrains.kotlin.plugin.allopen" version "2.0.10"
     id 'io.quarkus'
-   // id("org.flywaydb.flyway") version "10.18.0"
 }
 
 repositories {
@@ -20,6 +19,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation("io.quarkus:quarkus-flyway")
+    implementation("io.quarkus:quarkus-jdbc-postgresql")
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }

@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.Response
 import org.acme.model.Course
 import org.acme.model.Student
 import org.acme.service.StudentService
+import org.jboss.resteasy.reactive.ResponseStatus
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder
 
@@ -25,42 +26,38 @@ class StudentResource(
 ) {
 
     @GET
+    @ResponseStatus(200)
     @Path("/all")
-    fun findAllStudents(): RestResponse<String> {
-        val students = studentService.findAllStudents()
-        return ResponseBuilder.ok("All students successfully found").build()
-    }
+    fun findAllStudents() = studentService.findAllStudents()
 
     @GET
+    @ResponseStatus(200)
     @Path("/{id}")
-    fun findStudentByID(@PathParam("id") id: Long) : RestResponse<Student> {
-        var foundStudent = studentService.findStudent(id)
-        return ResponseBuilder.ok(foundStudent).build()
-    }
+    fun findStudentByID(@PathParam("id") id: Long) = studentService.findStudent(id)
+
 
     @Transactional
     @POST
+    @ResponseStatus(201)
     @Path("/create")
-    fun createStudent(student: Student) : RestResponse<String> {
-        studentService.createStudent(student)
-        return ResponseBuilder.ok("Student successfully created").build()
-    }
+    fun createStudent(student: Student) = studentService.createStudent(student)
+
 
     @Transactional
     @PUT
+    @ResponseStatus(200)
     @Path("/update")
-    fun updateStudent(student: Student) : RestResponse<String> {
-        studentService.updateStudent(student)
-        return ResponseBuilder.ok("Student successfully updated").build()
-    }
+    fun updateStudent(student: Student) = studentService.updateStudent(student)
 
     @Transactional
     @DELETE
+    @ResponseStatus(204)
     @Path("/delete")
-    fun deleteStudents(students: List<Student>): RestResponse<String> {
-        studentService.deleteStudents(students)
-        return ResponseBuilder.ok("Student/s successfully deleted").build()
+    fun deleteStudents(studentIDs: List<Long>) = studentService.deleteStudents(studentIDs)
 
-    }
+    @Transactional
+    @PUT
+    @Path("/{id}/assignCourses")
+    fun assignCourses(@PathParam("id") id: Long,  courses: List<Long>) = studentService.assignCourses(id, courses)
 
 }

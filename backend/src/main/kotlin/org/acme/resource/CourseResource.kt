@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType
 import org.acme.model.Course
 import org.acme.model.Student
 import org.acme.service.CourseService
+import org.jboss.resteasy.reactive.ResponseStatus
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.RestResponse.ResponseBuilder
 
@@ -25,38 +26,30 @@ class CourseResource(
 
 
     @GET
+    @ResponseStatus(200)
     @Path("/all")
     fun getAllCourses() = courseService.getAllCourses()
 
     @GET
+    @ResponseStatus(200)
     @Path("/{id}")
-    fun findCourseByID(@PathParam("id") id: Long) : RestResponse<Course> {
-        var foundCourse = courseService.findCourse(id)
-        return ResponseBuilder.ok(foundCourse).build()
-    }
+    fun findCourseByID(@PathParam("id") id: Long) = courseService.findCourse(id)
 
     @Transactional
     @POST
+    @ResponseStatus(201)
     @Path("/create")
-    fun createStudent(course: Course) : RestResponse<String> {
-        courseService.createCourse(course)
-        return ResponseBuilder.ok("Course successfully created").build()
-    }
+    fun createStudent(course: Course) = courseService.createCourse(course)
 
     @Transactional
     @PUT
+    @ResponseStatus(200)
     @Path("/update")
-    fun updateStudent(course: Course) : RestResponse<String> {
-        courseService.updateCourse(course)
-        return ResponseBuilder.ok("Course successfully updated").build()
-    }
+    fun updateStudent(course: Course) = courseService.updateCourse(course)
 
     @Transactional
     @DELETE
+    @ResponseStatus(204)
     @Path("/delete")
-    fun deleteStudents(courses: List<Course>): RestResponse<String> {
-        courseService.deleteCourses(courses)
-        return ResponseBuilder.ok("Course/s successfully deleted").build()
-
-    }
+    fun deleteStudents(courses: List<Course>) = courseService.deleteCourses(courses)
 }

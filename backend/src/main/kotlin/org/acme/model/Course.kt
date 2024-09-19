@@ -11,6 +11,7 @@ import jakarta.persistence.Table
 
 
 @Entity
+@Table(name="course")
 data class Course(
 
     @Id
@@ -20,5 +21,5 @@ data class Course(
     var name: String = "",
 
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
-    var students: MutableSet<Student> = mutableSetOf()
+    var students: MutableList<Student> = mutableListOf()
 ): PanacheEntityBase()

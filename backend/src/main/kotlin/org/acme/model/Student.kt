@@ -10,10 +10,12 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
+import jakarta.persistence.Table
 import java.util.UUID
 
 
 @Entity
+@Table(name="student")
 data class Student(
 
     @Id
@@ -30,5 +32,5 @@ data class Student(
         joinColumns = [JoinColumn(name = "student_id")],
         inverseJoinColumns = [JoinColumn(name = "course_id")]
     )
-    var courses: MutableSet<Course> = mutableSetOf()
+    var courses: MutableList<Course> = mutableListOf()
 ): PanacheEntityBase()

@@ -1,14 +1,17 @@
 package org.acme.service
 
+import io.vertx.core.impl.ConcurrentHashSet
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.Course
 import org.acme.model.Student
+import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
 
 @ApplicationScoped
 class StudentService(
-    val studentRepository: StudentRepository
+    val studentRepository: StudentRepository,
+    val courseRepository: CourseRepository
 ) {
 
     fun findAllStudents() = studentRepository.listAll()
@@ -26,12 +29,23 @@ class StudentService(
         updatedStudent.firstName, updatedStudent.lastName, updatedStudent.email, updatedStudent.id)
 
     @Transactional
-    fun deleteStudents(students: List<Student>) {
-        val ids = students.mapNotNull { it.id }
+    fun deleteStudents(studentIDs: List<Long>) {
 
-        if (ids.isNotEmpty()) {
-            studentRepository.deleteByIds(ids)
+
+        if (studentIDs.isNotEmpty()) {
+            studentRepository.deleteByIds(studentIDs)
         }
+    }
+
+    @Transactional
+    fun assignCourses(id: Long, addedCourses: List<Long>) {
+        val student = studentRepository.findById(id) ?: throw Exception("Student not found")
+
+        val fetchedAddedCourses = courseRepository.findByIds(addedCourses)
+        val coursesToAdd = fetchedAddedCourses.filter { it !in student.courses }
+        student.courses.addAll(coursesToAdd)
+
+        studentRepository.persist(student)
     }
 
 
