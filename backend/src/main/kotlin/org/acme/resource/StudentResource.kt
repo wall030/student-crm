@@ -19,9 +19,8 @@ import org.jboss.resteasy.reactive.ResponseStatus
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class StudentResource(
-    val studentService: StudentService
+    val studentService: StudentService,
 ) {
-
     @GET
     @ResponseStatus(200)
     @Path("/all")
@@ -30,15 +29,15 @@ class StudentResource(
     @GET
     @ResponseStatus(200)
     @Path("/{id}")
-    fun findStudentByID(@PathParam("id") id: Long) = studentService.findStudent(id)
-
+    fun findStudentByID(
+        @PathParam("id") id: Long,
+    ) = studentService.findStudent(id)
 
     @Transactional
     @POST
     @ResponseStatus(201)
     @Path("/create")
     fun createStudent(student: CreateStudentDTO) = studentService.createStudent(student)
-
 
     @Transactional
     @PUT
@@ -55,6 +54,8 @@ class StudentResource(
     @Transactional
     @PUT
     @Path("/{id}/assignCourses")
-    fun assignCourses(@PathParam("id") id: Long,  courses: List<Long>) = studentService.assignCourses(id, courses)
-
+    fun assignCourses(
+        @PathParam("id") id: Long,
+        courses: List<Long>,
+    ) = studentService.assignCourses(id, courses)
 }

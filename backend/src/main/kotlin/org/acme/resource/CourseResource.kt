@@ -14,15 +14,14 @@ import org.acme.model.Course
 import org.acme.service.CourseService
 import org.jboss.resteasy.reactive.ResponseStatus
 
+// test ktlint
 
 @Path("/api/course")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class CourseResource(
-    var courseService: CourseService
+    var courseService: CourseService,
 ) {
-
-
     @GET
     @ResponseStatus(200)
     @Path("/all")
@@ -31,7 +30,9 @@ class CourseResource(
     @GET
     @ResponseStatus(200)
     @Path("/{id}")
-    fun findCourseByID(@PathParam("id") id: Long) = courseService.findCourse(id)
+    fun findCourseByID(
+        @PathParam("id") id: Long,
+    ) = courseService.findCourse(id)
 
     @Transactional
     @POST
@@ -54,5 +55,8 @@ class CourseResource(
     @Transactional
     @PUT
     @Path("/{id}/assignStudents")
-    fun assignStudents(@PathParam("id") id: Long,  students: List<Long>) = courseService.assignStudents(id, students)
+    fun assignStudents(
+        @PathParam("id") id: Long,
+        students: List<Long>,
+    ) = courseService.assignStudents(id, students)
 }

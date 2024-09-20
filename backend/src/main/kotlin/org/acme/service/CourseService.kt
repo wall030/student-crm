@@ -11,16 +11,15 @@ import org.acme.repository.StudentRepository
 @ApplicationScoped
 class CourseService(
     val courseRepository: CourseRepository,
-    val studentRepository: StudentRepository
+    val studentRepository: StudentRepository,
 ) {
-
     fun getAllCourses() = courseRepository.listAll()
 
     fun findCourse(id: Long) = courseRepository.findById(id)
 
     @Transactional
     fun createCourse(courseDTO: Course): Course {
-        val createdCourse = Course(0,courseDTO.name)
+        val createdCourse = Course(0, courseDTO.name)
         courseRepository.persist(createdCourse)
         return createdCourse
     }
@@ -29,7 +28,8 @@ class CourseService(
     fun updateCourse(updatedCourse: Course): CourseDTO {
         courseRepository.update(
             "name = ?1 where id = ?2",
-            updatedCourse.name, updatedCourse.id
+            updatedCourse.name,
+            updatedCourse.id,
         )
         return CourseDTO(updatedCourse.id, updatedCourse.name)
     }
@@ -44,7 +44,10 @@ class CourseService(
     }
 
     @Transactional
-    fun assignStudents(id: Long, addedStudents: List<Long>): List<StudentDTO> {
+    fun assignStudents(
+        id: Long,
+        addedStudents: List<Long>,
+    ): List<StudentDTO> {
         val course = courseRepository.findById(id) ?: throw Exception("Course not found")
 
         val fetchedAddedStudents = studentRepository.findByIds(addedStudents)
@@ -57,5 +60,4 @@ class CourseService(
         course.students.forEach { studentDTOs.add(StudentDTO(it.id, it.firstName, it.lastName, it.email)) }
         return studentDTOs
     }
-
 }
