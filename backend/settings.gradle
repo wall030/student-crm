@@ -8,5 +8,4 @@ pluginManagement {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
     }
 }
-rootProject.name='student-crm'
-include('backend')
+rootProject.name='backend'
