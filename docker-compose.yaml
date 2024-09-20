@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15.8-alpine3.20
+    restart: always
+    shm_size: 128mb
+    container_name: student-crm-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: student_crm_db
+    ports:
+      - "5432:5432"
+
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
