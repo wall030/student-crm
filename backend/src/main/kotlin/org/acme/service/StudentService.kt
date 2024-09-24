@@ -11,8 +11,8 @@ import org.acme.repository.StudentRepository
 
 @ApplicationScoped
 class StudentService(
-    val studentRepository: StudentRepository,
-    val courseRepository: CourseRepository,
+    private val studentRepository: StudentRepository,
+    private val courseRepository: CourseRepository,
 ) {
     fun findAllStudents() = studentRepository.listAll()
 
@@ -22,7 +22,7 @@ class StudentService(
     fun createStudent(studentDTO: CreateStudentDTO): Student {
         val createdStudent = studentDTO.toStudentEntity()
         studentRepository.persist(createdStudent)
-        return createdStudent
+        return createdStudent   
     }
 
     @Transactional

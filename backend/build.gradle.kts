@@ -6,8 +6,6 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
-
-
 repositories {
     mavenCentral()
     mavenLocal()
@@ -18,7 +16,7 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 
 dependencies {
-    implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
+    implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -27,12 +25,14 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-flyway")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
+    testImplementation("io.strikt:strikt-core:0.34.0")
+
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation ("io.quarkiverse.mockk:quarkus-junit5-mockk:3.0.0")
+
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }
-
-
 
 group = "org.acme"
 version = "1.0.0-SNAPSHOT"

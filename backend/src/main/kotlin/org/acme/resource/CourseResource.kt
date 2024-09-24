@@ -14,8 +14,6 @@ import org.acme.model.Course
 import org.acme.service.CourseService
 import org.jboss.resteasy.reactive.ResponseStatus
 
-// test ktlint
-
 @Path("/api/course")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
