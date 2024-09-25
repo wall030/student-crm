@@ -60,4 +60,21 @@ class StudentService(
         student.courses.forEach { courseDTOs.add(CourseDTO(it.id, it.name)) }
         return courseDTOs
     }
+
+    @Transactional
+    fun removeCourses(
+        id: Long,
+        addedCourses: List<Long>,
+    ): List<CourseDTO> {
+        val student = studentRepository.findById(id) ?: throw Exception("Student not found")
+
+        val fetchedCoursesToRemove = courseRepository.findByIds(addedCourses)
+        val coursesToRemove = fetchedCoursesToRemove.filter { it in student.courses }
+        student.courses.removeAll(coursesToRemove)
+
+        studentRepository.persist(student)
+        var courseDTOs = mutableListOf<CourseDTO>()
+        student.courses.forEach { courseDTOs.add(CourseDTO(it.id, it.name)) }
+        return courseDTOs
+    }
 }

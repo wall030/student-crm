@@ -58,4 +58,12 @@ class StudentResource(
         @PathParam("id") id: Long,
         courses: List<Long>,
     ) = studentService.assignCourses(id, courses)
+
+    @Transactional
+    @PUT
+    @Path("/{id}/removeCourses")
+    fun removeCourses(
+        @PathParam("id") id: Long,
+        courses: List<Long>,
+    ) = studentService.removeCourses(id, courses)
 }
