@@ -10,7 +10,7 @@ data class CreateStudentDTO(
     fun toStudentEntity(): Student {
         var student =
             Student(
-                0,
+                0L,
                 this.firstName,
                 this.lastName,
                 this.email,

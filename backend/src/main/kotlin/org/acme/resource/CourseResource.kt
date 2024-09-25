@@ -11,6 +11,8 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import org.acme.model.Course
+import org.acme.model.dto.CourseDTO
+import org.acme.model.dto.CreateCourseDTO
 import org.acme.service.CourseService
 import org.jboss.resteasy.reactive.ResponseStatus
 
@@ -36,19 +38,19 @@ class CourseResource(
     @POST
     @ResponseStatus(201)
     @Path("/create")
-    fun createStudent(course: Course) = courseService.createCourse(course)
+    fun createStudent(course: CreateCourseDTO) : Course = courseService.createCourse(course)
 
     @Transactional
     @PUT
     @ResponseStatus(200)
     @Path("/update")
-    fun updateStudent(course: Course) = courseService.updateCourse(course)
+    fun updateStudent(course: CourseDTO) = courseService.updateCourse(course)
 
     @Transactional
     @DELETE
     @ResponseStatus(204)
     @Path("/delete")
-    fun deleteStudents(courses: List<Course>) = courseService.deleteCourses(courses)
+    fun deleteStudents(courses: List<Long>) = courseService.deleteCourses(courses)
 
     @Transactional
     @PUT

@@ -4,6 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.Course
 import org.acme.model.dto.CourseDTO
+import org.acme.model.dto.CreateCourseDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
@@ -18,14 +19,14 @@ class CourseService(
     fun findCourse(id: Long) = courseRepository.findById(id)
 
     @Transactional
-    fun createCourse(courseDTO: Course): Course {
+    fun createCourse(courseDTO: CreateCourseDTO): Course {
         val createdCourse = Course(0, courseDTO.name)
         courseRepository.persist(createdCourse)
         return createdCourse
     }
 
     @Transactional
-    fun updateCourse(updatedCourse: Course): CourseDTO {
+    fun updateCourse(updatedCourse: CourseDTO): CourseDTO {
         courseRepository.update(
             "name = ?1 where id = ?2",
             updatedCourse.name,
@@ -35,11 +36,9 @@ class CourseService(
     }
 
     @Transactional
-    fun deleteCourses(courses: List<Course>) {
-        val ids = courses.mapNotNull { it.id }
-
-        if (ids.isNotEmpty()) {
-            courseRepository.deleteByIds(ids)
+    fun deleteCourses(courses: List<Long>) {
+        if (courses.isNotEmpty()) {
+            courseRepository.deleteByIds(courses)
         }
     }
 
@@ -55,7 +54,7 @@ class CourseService(
         course.students.addAll(studentsToAdd)
 
         courseRepository.persist(course)
-        courseRepository.flush()
+        // courseRepository.flush()
         var studentDTOs = mutableListOf<StudentDTO>()
         course.students.forEach { studentDTOs.add(StudentDTO(it.id, it.firstName, it.lastName, it.email)) }
         return studentDTOs

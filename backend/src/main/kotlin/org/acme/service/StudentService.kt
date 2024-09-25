@@ -22,7 +22,7 @@ class StudentService(
     fun createStudent(studentDTO: CreateStudentDTO): Student {
         val createdStudent = studentDTO.toStudentEntity()
         studentRepository.persist(createdStudent)
-        return createdStudent   
+        return createdStudent
     }
 
     @Transactional
