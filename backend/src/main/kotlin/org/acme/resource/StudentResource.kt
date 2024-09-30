@@ -10,10 +10,10 @@ import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import org.acme.model.dto.CreateStudentDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.service.StudentService
-import org.jboss.resteasy.reactive.ResponseStatus
 
 @Path("/api/student")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,34 +22,45 @@ class StudentResource(
     val studentService: StudentService,
 ) {
     @GET
-    @ResponseStatus(200)
     @Path("/all")
-    fun findAllStudents() = studentService.findAllStudents()
+    fun findAllStudents(): Response {
+        val students = studentService.findAllStudents()
+        return Response.ok(students).build()
+    }
 
     @GET
-    @ResponseStatus(200)
     @Path("/{id}")
     fun findStudentByID(
         @PathParam("id") id: Long,
-    ) = studentService.findStudent(id)
+    ): Response {
+        return studentService.findStudent(id)?.let {
+            Response.ok(it).build()
+        } ?: Response.status(Response.Status.NOT_FOUND).build()
+    }
 
     @Transactional
     @POST
-    @ResponseStatus(201)
     @Path("/create")
-    fun createStudent(student: CreateStudentDTO) = studentService.createStudent(student)
+    fun createStudent(student: CreateStudentDTO): Response {
+        val createdStudent = studentService.createStudent(student)
+        return Response.status(Response.Status.CREATED).entity(createdStudent).build()
+    }
 
     @Transactional
     @PUT
-    @ResponseStatus(200)
     @Path("/update")
-    fun updateStudent(student: StudentDTO) = studentService.updateStudent(student)
+    fun updateStudent(student: StudentDTO): Response {
+        val updatedStudent = studentService.updateStudent(student)
+        return Response.ok(updatedStudent).build()
+    }
 
     @Transactional
     @DELETE
-    @ResponseStatus(204)
     @Path("/delete")
-    fun deleteStudents(studentIDs: List<Long>) = studentService.deleteStudents(studentIDs)
+    fun deleteStudents(studentIDs: List<Long>): Response {
+        studentService.deleteStudents(studentIDs)
+        return Response.noContent().build()
+    }
 
     @Transactional
     @PUT
@@ -57,7 +68,10 @@ class StudentResource(
     fun assignCourses(
         @PathParam("id") id: Long,
         courses: List<Long>,
-    ) = studentService.assignCourses(id, courses)
+    ): Response {
+        val updatedStudent = studentService.assignCourses(id, courses)
+        return Response.ok(updatedStudent).build()
+    }
 
     @Transactional
     @PUT
@@ -65,5 +79,8 @@ class StudentResource(
     fun removeCourses(
         @PathParam("id") id: Long,
         courses: List<Long>,
-    ) = studentService.removeCourses(id, courses)
+    ): Response {
+        val updatedStudent = studentService.removeCourses(id, courses)
+        return Response.ok(updatedStudent).build()
+    }
 }

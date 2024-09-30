@@ -7,10 +7,8 @@ import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.acme.model.Course
-import org.acme.model.Student
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateCourseDTO
-import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
 import org.junit.jupiter.api.Test
@@ -37,7 +35,7 @@ class CourseServiceTest {
             )
 
         every { courseRepository.listAll() } returns courses
-        val result = courseService.getAllCourses()
+        val result = courseService.findAllCourses()
         expectThat(result).isEqualTo(courses)
     }
 
