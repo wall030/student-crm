@@ -1,6 +1,7 @@
 package org.acme.resource
 
 import jakarta.transaction.Transactional
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -38,7 +39,9 @@ class CourseResource(
     @Transactional
     @POST
     @Path("/create")
-    fun createCourse(courseDTO: CreateCourseDTO): Response {
+    fun createCourse(
+        @Valid courseDTO: CreateCourseDTO,
+    ): Response {
         val createdCourse = courseService.createCourse(courseDTO)
         return Response.status(Response.Status.CREATED).entity(createdCourse).build()
     }

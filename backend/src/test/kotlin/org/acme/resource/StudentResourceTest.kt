@@ -83,8 +83,6 @@ class StudentResourceTest {
             .statusCode(500)
     }
 
-
-
     @Test
     fun `test updateStudent returns 200`() {
         val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com")

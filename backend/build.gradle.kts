@@ -4,6 +4,7 @@ plugins {
     id("io.quarkus")
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
+    id("org.asciidoctor.jvm.convert") version "4.0.2"
 }
 
 repositories {
@@ -59,4 +60,10 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile> {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
         javaParameters.set(true)
     }
+}
+
+tasks.asciidoctor {
+    dependsOn("build")
+    setSourceDir("src/main/docs/asciidoc")
+    setOutputDir("build/docs/html/asciidoc")
 }

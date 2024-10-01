@@ -15,6 +15,6 @@ class StudentRepository : PanacheRepositoryBase<Student, Long> {
     }
 
     fun findByEmail(email: String): Student? {
-        return find("email",email).firstResult<Student>()
+        return find("email", email).firstResult<Student>()
     }
 }

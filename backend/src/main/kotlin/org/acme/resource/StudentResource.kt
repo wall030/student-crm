@@ -42,7 +42,9 @@ class StudentResource(
     @Transactional
     @POST
     @Path("/create")
-    fun createStudent(@Valid student: CreateStudentDTO): Response {
+    fun createStudent(
+        @Valid student: CreateStudentDTO,
+    ): Response {
         val createdStudent = studentService.createStudent(student)
         return Response.status(Response.Status.CREATED).entity(createdStudent).build()
     }

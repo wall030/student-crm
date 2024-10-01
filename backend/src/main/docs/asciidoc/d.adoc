@@ -1,0 +1,22 @@
+== Introduction
+
+This is a placeholder for the project documentation.
+
+== Project Overview
+
+overview of the project.
+
+=== Features
+
+* Feature 1: Explanation of the first feature.
+* Feature 2: Explanation of the second feature.
+
+=== Technologies Used
+
+* **Language**: Kotlin
+* **Framework**: Quarkus
+* **Build Tool**: Gradle
+
+== Setup and Installation
+
+To set up and run this project, follow these steps:
