@@ -71,6 +71,21 @@ class StudentResourceTest {
     }
 
     @Test
+    fun `test createStudent returns 500 when email already exists`() {
+        val createStudentDTO = CreateStudentDTO("Anakin", "Skywalker", "anakin@jedi.com")
+        every { studentService.createStudent(createStudentDTO) } throws Exception("Student with email anakin@jedi.com already exists")
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(createStudentDTO)
+            .`when`().post("/api/student/create")
+            .then()
+            .statusCode(500)
+    }
+
+
+
+    @Test
     fun `test updateStudent returns 200`() {
         val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com")
         every { studentService.updateStudent(studentDTO) } returns studentDTO

@@ -1,6 +1,7 @@
 package org.acme.resource
 
 import jakarta.transaction.Transactional
+import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
 import jakarta.ws.rs.GET
@@ -41,7 +42,7 @@ class StudentResource(
     @Transactional
     @POST
     @Path("/create")
-    fun createStudent(student: CreateStudentDTO): Response {
+    fun createStudent(@Valid student: CreateStudentDTO): Response {
         val createdStudent = studentService.createStudent(student)
         return Response.status(Response.Status.CREATED).entity(createdStudent).build()
     }

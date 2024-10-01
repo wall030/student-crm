@@ -25,8 +25,9 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-flyway")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
-    testImplementation("io.strikt:strikt-core:0.34.0")
+    implementation("io.quarkus:quarkus-hibernate-validator")
 
+    testImplementation("io.strikt:strikt-core:0.34.0")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkiverse.mockk:quarkus-junit5-mockk:3.0.0")

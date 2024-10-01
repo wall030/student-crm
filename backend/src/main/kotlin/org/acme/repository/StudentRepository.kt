@@ -8,9 +8,13 @@ import org.acme.model.Student
 @ApplicationScoped
 class StudentRepository : PanacheRepositoryBase<Student, Long> {
     @Transactional
-    fun deleteByIds(ids: List<Long>) = delete("id in (?1)", ids)
+    fun deleteByIds(ids: List<Long>) = delete("id in ?1", ids)
 
     fun findByIds(ids: List<Long>): List<Student> {
-        return find("id IN ?1", ids).list()
+        return find("id in ?1", ids).list()
+    }
+
+    fun findByEmail(email: String): Student? {
+        return find("email",email).firstResult<Student>()
     }
 }

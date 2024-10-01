@@ -58,6 +58,11 @@ class StudentServiceTest {
         every {
             studentRepository.persist(Student(0L, studentDTO.firstName, studentDTO.lastName, studentDTO.email))
         } returns Unit
+
+        every {
+            studentRepository.findByEmail(studentDTO.email)
+        } returns null
+
         val result = studentService.createStudent(studentDTO)
 
         expectThat(result)

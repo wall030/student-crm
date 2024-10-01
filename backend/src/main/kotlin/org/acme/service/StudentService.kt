@@ -20,6 +20,9 @@ class StudentService(
 
     @Transactional
     fun createStudent(studentDTO: CreateStudentDTO): Student {
+        studentRepository.findByEmail(studentDTO.email)?.let {
+            throw Exception("Student with email ${studentDTO.email} already exists")
+        }
         val createdStudent = studentDTO.toStudentEntity()
         studentRepository.persist(createdStudent)
         return createdStudent
