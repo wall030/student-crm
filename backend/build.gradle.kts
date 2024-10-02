@@ -32,6 +32,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkiverse.mockk:quarkus-junit5-mockk:3.0.0")
+    testImplementation("org.testcontainers:postgresql")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }

@@ -13,7 +13,7 @@ class CourseService(
 ) {
     fun findAllCourses() = courseRepository.listAll()
 
-    fun findCourse(id: Long) = courseRepository.findById(id)
+    fun findCourse(id: Long): Course? = courseRepository.findById(id)
 
     @Transactional
     fun createCourse(courseDTO: CreateCourseDTO): Course {
