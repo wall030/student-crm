@@ -1,7 +1,6 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import StudentCard from './StudentCard'
-
 
 type Course = {
   id: number
@@ -14,44 +13,97 @@ type Student = {
   lastName: string
   email: string
   courses: Course[]
-};
+}
 
-
-const StudentsList = () => {
+const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const limit = 5
+  const observer = useRef<IntersectionObserver | null>(null)
+
+  const fetchStudents = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/student/?page=${page}&limit=${limit}&search=${searchTerm}`
+      )
+      if (!res.ok) throw new Error('Failed to fetch students')
+      const data: Student[] = await res.json()
+
+      if (data.length < limit) {
+        setHasMore(false) 
+      }
+
+      setStudents(prev => {
+        if (page === 1) {
+          return data
+        } else {
+          return [...prev, ...data]
+        }
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await fetch('http://localhost:8080/api/student/all')
-        if (!res.ok) {
-          throw new Error('Failed to fetch students')
-        }
-        const data: Student[] = await res.json()
-        setStudents(data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchStudents()
-  }, [])
+  }, [page, searchTerm])
 
-  if (loading) return <p>Loading...</p>
+  useEffect(() => {
+    setStudents([])
+    setPage(1)
+    setHasMore(true)
+  }, [searchTerm])
+
+
+  const lastStudentRef = (node: HTMLDivElement | null) => {
+    if (loading) return
+    if (observer.current) observer.current.disconnect()
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        setPage(prevPage => prevPage + 1)
+      }
+    })
+
+    if (node) observer.current.observe(node)
+  }
+
+  if (loading && students.length === 0) return <p>Loading...</p>
   if (error) return <p>Error: {error}</p>
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Students List</h1>
-      <div className="border border-gray-300 rounded-lg overflow-hidden">
-        {students.map((student) => (
-          <StudentCard key={student.id} student={student} />
-        ))}
+    <div className="space-y-4">
+      <div className="flex bg-gray-200 p-2 rounded-md font-bold">
+        <div className="w-1/3">Name</div>
+        <div className="w-1/3">Email</div>
+        <div className="w-1/3">Courses</div>
       </div>
+
+      <div className="space-y-4">
+        {students.length > 0 ? (
+          students.map((student, index) =>
+            index === students.length - 1 ? (
+              <div ref={lastStudentRef} key={student.id}>
+                <StudentCard student={student} />
+              </div>
+            ) : (
+              <StudentCard key={student.id} student={student} />
+            )
+          )
+        ) : (
+          !loading && <p>No students found.</p>
+        )}
+      </div>
+
+      {loading && students.length > 0 && <p>Loading more...</p>}
     </div>
   )
 }

@@ -17,7 +17,7 @@ type StudentCardProps = {
 
 const StudentCard = ({ student }: StudentCardProps) => {
   return (
-    <div className="flex justify-between items-center p-4 border-b border-gray-300">
+    <div className="flex justify-between items-center p-1 border-b border-gray-300">
       <div className="flex-1 font-bold">{student.firstName} {student.lastName}</div>
       <div className="flex-1 text-gray-600">{student.email}</div>
       <div className="flex-1 text-gray-600">

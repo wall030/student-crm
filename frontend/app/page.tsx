@@ -7,7 +7,7 @@ const Home = () => {
         Manage your students and courses easily. Use the navigation to get started.
       </p>
     </div>
-  );
-};
+  )
+}
 
 export default Home

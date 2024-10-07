@@ -10,8 +10,10 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import org.acme.model.Student
 import org.acme.model.dto.CreateStudentDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.service.StudentService
@@ -26,6 +28,21 @@ class StudentResource(
     @Path("/all")
     fun findAllStudents(): Response {
         val students = studentService.findAllStudents()
+        return Response.ok(students).build()
+    }
+
+    @GET
+    @Path("/")
+    fun findStudents(
+        @QueryParam("page") page: Int?,
+        @QueryParam("limit") limit: Int?,
+        @QueryParam("search") search: String?
+    ): Response {
+        val pageNumber = page ?: 1
+        val pageLimit = limit ?: 10
+
+        val students: List<Student> = studentService.findStudents(pageNumber, pageLimit, search)
+
         return Response.ok(students).build()
     }
 
