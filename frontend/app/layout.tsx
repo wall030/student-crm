@@ -1,5 +1,5 @@
 import '@/styles/globals.css'
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/Navbar'
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,4 +12,4 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default RootLayout;
+export default RootLayout

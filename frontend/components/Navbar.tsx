@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 
 const Navbar = () => {
     const pathname = usePathname();
-    const isMainPage = pathname === '/';
-    const isStudentsPage = pathname === '/students';
-    const isCoursesPage = pathname === '/courses';
+    const isMainPage = pathname === '/'
+    const isStudentsPage = pathname === '/students'
+    const isCoursesPage = pathname === '/courses'
 
     return (
         <nav className="flex justify-between items-center p-5 bg-white shadow-lg">

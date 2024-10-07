@@ -1,7 +1,3 @@
-import { useState } from 'react'
-import StudentsList from '@/components/StudentsList'
-import CoursesList from '@/components/CoursesList'
-
 
 const Home = () => {
   return (
@@ -14,4 +10,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Home
