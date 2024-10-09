@@ -1,15 +1,4 @@
-type Student = {
-  id: number
-  firstName: string
-  lastName: string
-  email: string
-  courses: Course[]
-}
-
-type Course = {
-  id: number
-  name: string
-}
+import { Student } from "../types/Student"
 
 const StudentCard: React.FC<{ 
   student: Student

@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const Navbar = () => {
-  const location = useLocation();
+  const location = useLocation()
   const isMainPage = location.pathname === '/'
   const isStudentsPage = location.pathname === '/students'
   const isCoursesPage = location.pathname === '/courses'
@@ -29,7 +29,7 @@ const Navbar = () => {
         </Link>
       </div>
     </nav>
-  );
+  )
 }
 
 export default Navbar
