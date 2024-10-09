@@ -21,42 +21,37 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([])
   const limit = 5
   const observer = useRef<IntersectionObserver | null>(null)
 
   const fetchStudents = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const res = await axios.get<Student[]>(
-        `http://localhost:8080/api/student/?page=${page}&limit=${limit}&search=${searchTerm}`, 
+      const response = await axios.get<Student[]>(
+        `http://localhost:8080/api/student`,
         {
           params: {
             page,
             limit,
-            search: searchTerm
-          }
+            search: searchTerm,
+          },
         }
-      );
-      const data = res.data
+      )
+      const data = response.data;
 
       if (data.length < limit) {
         setHasMore(false)
       }
 
-      setStudents(prev => {
-        if (page === 1) {
-          return data;
-        } else {
-          return [...prev, ...data]
-        }
-      });
+      setStudents((prev) => (page === 1 ? data : [...prev, ...data]))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
     fetchStudents()
@@ -68,13 +63,41 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     setHasMore(true)
   }, [searchTerm])
 
+  const handleSelectStudent = (id: number) => {
+    setSelectedStudents((prevSelected) => {
+      if (prevSelected.includes(id)) {
+        return prevSelected.filter((studentId) => studentId !== id)
+      } else {
+        return [...prevSelected, id]
+      }
+    })
+  }
+
+  const handleDelete = async () => {
+    try {
+      console.log('Deleting the following students:', selectedStudents)
+      const response = await axios.delete('http://localhost:8080/api/student/delete', {
+        data: selectedStudents
+      })
+      console.log('Delete response:', response)
+  
+      setStudents((prev) => prev.filter((student) => !selectedStudents.includes(student.id)))
+      setSelectedStudents([])
+    } catch (error) {
+      console.error('Error deleting students:', error)
+    }
+  }
+  
+
+  const isEditDisabled = selectedStudents.length !== 1
+
   const lastStudentRef = (node: HTMLDivElement | null) => {
-    if (loading) return;
+    if (loading) return
     if (observer.current) observer.current.disconnect()
 
-    observer.current = new IntersectionObserver(entries => {
+    observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1)
+        setPage((prevPage) => prevPage + 1)
       }
     })
 
@@ -86,6 +109,22 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end space-x-4">
+        <button
+          className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isEditDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={isEditDisabled}
+        >
+          Edit
+        </button>
+        <button
+          className={`bg-red-500 text-white px-4 py-2 rounded-md ${selectedStudents.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={selectedStudents.length === 0}
+          onClick={handleDelete}
+        >
+          Delete
+        </button>
+      </div>
+
       <div className="flex bg-gray-200 p-2 rounded-md font-bold">
         <div className="w-1/3">Name</div>
         <div className="w-1/3">Email</div>
@@ -97,10 +136,19 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           students.map((student, index) =>
             index === students.length - 1 ? (
               <div ref={lastStudentRef} key={student.id}>
-                <StudentCard student={student} />
+                <StudentCard
+                  student={student}
+                  isSelected={selectedStudents.includes(student.id)}
+                  onSelect={() => handleSelectStudent(student.id)}
+                />
               </div>
             ) : (
-              <StudentCard key={student.id} student={student} />
+              <StudentCard
+                key={student.id}
+                student={student}
+                isSelected={selectedStudents.includes(student.id)}
+                onSelect={() => handleSelectStudent(student.id)}
+              />
             )
           )
         ) : (
