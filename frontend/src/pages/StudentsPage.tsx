@@ -1,8 +1,7 @@
-"use client"
 import React, { useState } from 'react'
-import StudentsList from '@/components/StudentsList'
+import StudentsList from '../components/StudentsList'
 
-const StudentsView = () => {
+const StudentsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   return (
@@ -20,4 +19,4 @@ const StudentsView = () => {
   )
 }
 
-export default StudentsView
+export default StudentsPage

@@ -1,5 +1,5 @@
-"use client"
 import React, { useEffect, useState, useRef } from 'react'
+import axios from 'axios'
 import StudentCard from './StudentCard'
 
 type Course = {
@@ -25,32 +25,38 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const observer = useRef<IntersectionObserver | null>(null)
 
   const fetchStudents = async () => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/student/?page=${page}&limit=${limit}&search=${searchTerm}`
-      )
-      if (!res.ok) throw new Error('Failed to fetch students')
-      const data: Student[] = await res.json()
+      const res = await axios.get<Student[]>(
+        `http://localhost:8080/api/student/?page=${page}&limit=${limit}&search=${searchTerm}`, 
+        {
+          params: {
+            page,
+            limit,
+            search: searchTerm
+          }
+        }
+      );
+      const data = res.data
 
       if (data.length < limit) {
-        setHasMore(false) 
+        setHasMore(false)
       }
 
       setStudents(prev => {
         if (page === 1) {
-          return data
+          return data;
         } else {
           return [...prev, ...data]
         }
-      })
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
-  }
+  };
 
   useEffect(() => {
     fetchStudents()
@@ -62,9 +68,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     setHasMore(true)
   }, [searchTerm])
 
-
   const lastStudentRef = (node: HTMLDivElement | null) => {
-    if (loading) return
+    if (loading) return;
     if (observer.current) observer.current.disconnect()
 
     observer.current = new IntersectionObserver(entries => {
