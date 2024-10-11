@@ -36,7 +36,7 @@ class StudentResource(
     fun findStudents(
         @QueryParam("page") page: Int?,
         @QueryParam("limit") limit: Int?,
-        @QueryParam("search") search: String?
+        @QueryParam("search") search: String?,
     ): Response {
         val pageNumber = page ?: 1
         val pageLimit = limit ?: 10

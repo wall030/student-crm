@@ -16,7 +16,11 @@ class StudentService(
 ) {
     fun findAllStudents() = studentRepository.listAll()
 
-    fun findStudents(page: Int, limit: Int, search: String?): List<Student> {
+    fun findStudents(
+        page: Int,
+        limit: Int,
+        search: String?,
+    ): List<Student> {
         return studentRepository.findStudents(page, limit, search.toString())
     }
 
