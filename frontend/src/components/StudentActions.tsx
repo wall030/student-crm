@@ -3,11 +3,13 @@ const StudentActions: React.FC<{
   selectedStudents: number[]
   onDelete: () => void
   onOpenCreateModal: () => void
-}> = ({ isEditDisabled, selectedStudents, onDelete, onOpenCreateModal }) => (
+  onOpenEditModal: () => void
+}> = ({ isEditDisabled, selectedStudents, onDelete, onOpenCreateModal, onOpenEditModal }) => (
   <div className="flex justify-end space-x-4">
     <button
       className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isEditDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       disabled={isEditDisabled}
+      onClick={onOpenEditModal}
     >
       Edit
     </button>

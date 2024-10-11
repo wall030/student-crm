@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
 import { Student } from '../types/Student'
 import CreateStudentModal from './CreateStudentModal'
 import StudentActions from './StudentActions'
+import EditStudentModal from './EditStudentModal'
 import useInfiniteScroll from '../hooks/useInfiniteScroll'
+import { StudentUpdated } from '../types/StudentUpdated'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -14,12 +16,23 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [hasMore, setHasMore] = useState(true)
   const [selectedStudents, setSelectedStudents] = useState<number[]>([])
 
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false)
   const [newStudent, setNewStudent] = useState<{ firstName: string; lastName: string; email: string }>({
     firstName: '',
     lastName: '',
     email: ''
   })
-  const [isCreateModalOpen, setCreateModalOpen] = useState(false)
+  
+  const [isEditModalOpen, setEditModalOpen] = useState(false)
+  const [editableStudent, setEditableStudent] = useState<StudentUpdated>({
+    id: 0,
+    firstName: '',
+    lastName: '',
+    email: ''
+  })
+ 
+
+
 
   const fetchStudents = async () => {
     setLoading(true)
@@ -89,8 +102,35 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
-  const isEditDisabled = selectedStudents.length !== 1
+  const handleStudentUpdated = async (updatedStudent: StudentUpdated) => {
+    try {
+      await axios.put(`http://localhost:8080/api/student/update`, updatedStudent)
+  
+      setStudents((prev) =>
+        prev.map((student) =>
+          student.id === updatedStudent.id
+            ? { ...student, ...updatedStudent }
+            : student
+        )
+      )
+      
+      setEditModalOpen(false)
+    } catch (error) {
+      console.error('Error updating student:', error)
+    }
+  }
 
+  const handleOpenEditModal = () => {
+    if (selectedStudents.length === 1) {
+      const studentToEdit = students.find(student => student.id === selectedStudents[0])
+      if (studentToEdit) {
+        setEditableStudent(studentToEdit)
+        setEditModalOpen(true)
+      }
+    }
+  }
+
+  const isEditDisabled = selectedStudents.length !== 1
   const lastStudentRef = useInfiniteScroll(loading, hasMore, setPage)
 
   if (loading && students.length === 0) return <p>Loading...</p>
@@ -103,6 +143,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         selectedStudents={selectedStudents} 
         onDelete={handleDelete} 
         onOpenCreateModal={() => setCreateModalOpen(true)} 
+        onOpenEditModal={handleOpenEditModal}
       />
 
       {isCreateModalOpen && (
@@ -114,13 +155,22 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         />
       )}
 
+      {isEditModalOpen && (
+        <EditStudentModal
+          student={editableStudent}
+          setStudent={setEditableStudent}
+          onUpdate={() => handleStudentUpdated(editableStudent)}
+          onClose={() => setEditModalOpen(false)}
+        />
+      )}
+
       <div className="flex bg-gray-200 p-2 rounded-md font-bold">
         <div className="w-1/3">Name</div>
         <div className="w-1/3">Email</div>
         <div className="w-1/3">Courses</div>
       </div>
 
-      <div className="space-y-4">
+      <div>
         {students.map((student, index) => {
           const isSelected = selectedStudents.includes(student.id)
           const cardProps = {
@@ -128,7 +178,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
             isSelected,
             onSelect: () => handleSelectStudent(student.id),
           }
-          
+
           const ref = index === students.length - 1 ? lastStudentRef : null
 
           return (
