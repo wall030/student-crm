@@ -14,7 +14,7 @@ const StudentCard: React.FC<{
       <div className="flex-1 text-gray-600">{student.email}</div>
       <div className="flex-1 text-gray-600">
         <ul>
-          {student.courses.map((course) => (
+          {student.courses?.map((course) => (
             <li key={course.id} className="text-gray-700">
               {course.name}
             </li>

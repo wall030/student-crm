@@ -1,6 +1,5 @@
 package org.acme.resource
 
-import jakarta.transaction.Transactional
 import jakarta.validation.Valid
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.DELETE
@@ -10,10 +9,10 @@ import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateCourseDTO
 import org.acme.service.CourseService
+import org.jboss.resteasy.reactive.ResponseStatus
 
 @Path("/api/course")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,45 +21,31 @@ class CourseResource(
     var courseService: CourseService,
 ) {
     @GET
+    @ResponseStatus(200)
     @Path("/all")
-    fun getAllCourses(): Response {
-        val courses = courseService.findAllCourses()
-        return Response.ok(courses).build()
-    }
+    fun findAllCourses() = courseService.findAllCourses()
 
     @GET
+    @ResponseStatus(200)
     @Path("/{id}")
-    fun findCourse(id: Long): Response {
-        return courseService.findCourse(id)?.let {
-            Response.ok(it).build()
-        } ?: Response.status(Response.Status.NOT_FOUND).build()
-    }
+    fun findCourse(id: Long) = courseService.findCourse(id)
 
-    @Transactional
     @POST
+    @ResponseStatus(201)
     @Path("/create")
     fun createCourse(
         @Valid courseDTO: CreateCourseDTO,
-    ): Response {
-        val createdCourse = courseService.createCourse(courseDTO)
-        return Response.status(Response.Status.CREATED).entity(createdCourse).build()
-    }
+    ) = courseService.createCourse(courseDTO.name)
 
-    @Transactional
     @PUT
+    @ResponseStatus(200)
     @Path("/update")
-    fun updateCourse(updatedCourseDTO: CourseDTO): Response {
-        val updatedCourse = courseService.updateCourse(updatedCourseDTO)
-        return Response.ok(updatedCourse).build()
-    }
+    fun updateCourse(
+        @Valid courseDTO: CourseDTO,
+    ) = courseService.updateCourse(courseDTO.id, courseDTO.name)
 
-    @Transactional
     @DELETE
+    @ResponseStatus(204)
     @Path("/delete")
-    fun deleteCourses(courses: List<Long>): Response {
-        if (courses.isNotEmpty()) {
-            courseService.deleteCourses(courses)
-        }
-        return Response.noContent().build()
-    }
+    fun deleteCourses(courses: List<Long>) = courseService.deleteCourses(courses)
 }

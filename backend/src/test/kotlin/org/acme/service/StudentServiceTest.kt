@@ -38,7 +38,7 @@ class StudentServiceTest {
 
         every { studentRepository.listAll() } returns students
         val result = studentService.findAllStudents()
-        expectThat(result).isEqualTo(students)
+        expectThat(result).isEqualTo(students.map { student -> student.toStudentDTO() })
     }
 
     @Test
@@ -47,7 +47,7 @@ class StudentServiceTest {
 
         every { studentRepository.findById(student.id) } returns student
         val result = studentService.findStudent(student.id)
-        expectThat(result).isEqualTo(student)
+        expectThat(result).isEqualTo(student.toStudentDTO())
     }
 
     @Test
@@ -63,7 +63,7 @@ class StudentServiceTest {
             studentRepository.findByEmail(studentDTO.email)
         } returns null
 
-        val result = studentService.createStudent(studentDTO)
+        val result = studentService.createStudent(studentDTO.firstName, studentDTO.lastName, studentDTO.email)
 
         expectThat(result)
             .and {
@@ -91,7 +91,13 @@ class StudentServiceTest {
                 updatedStudent.id,
             )
         } returns 1
-        val result = studentService.updateStudent(updatedStudent)
+        val result =
+            studentService.updateStudent(
+                updatedStudent.id,
+                updatedStudent.firstName,
+                updatedStudent.lastName,
+                updatedStudent.email,
+            )
         expectThat(result).isEqualTo(updatedStudent)
     }
 

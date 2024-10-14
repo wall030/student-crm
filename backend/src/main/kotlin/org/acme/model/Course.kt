@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
+import org.acme.model.dto.CourseDTO
 
 @Entity
 @Table(name = "course")
@@ -20,4 +21,12 @@ data class Course(
     @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("courses")
     var students: MutableList<Student> = mutableListOf(),
-) : PanacheEntityBase()
+) : PanacheEntityBase() {
+    constructor(name: String) : this() {
+        this.name = name
+    }
+
+    fun toCourseDTO(): CourseDTO {
+        return CourseDTO(this.id, this.name)
+    }
+}

@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
+import org.acme.model.dto.StudentDTO
 
 @Entity
 @Table(name = "student")
@@ -29,4 +30,14 @@ data class Student(
     )
     @JsonIgnoreProperties("students")
     var courses: MutableList<Course> = mutableListOf(),
-) : PanacheEntityBase()
+) : PanacheEntityBase() {
+    constructor(firstName: String, lastName: String, email: String) : this() {
+        this.firstName = firstName
+        this.lastName = lastName
+        this.email = email
+    }
+
+    fun toStudentDTO(): StudentDTO {
+        return StudentDTO(this.id, this.firstName, this.lastName, this.email)
+    }
+}

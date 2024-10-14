@@ -7,4 +7,5 @@ data class StudentDTO(
     val firstName: String,
     val lastName: String,
     val email: String,
+    val courses: List<CourseDTO>? = null,
 )

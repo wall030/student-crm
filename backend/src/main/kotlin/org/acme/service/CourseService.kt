@@ -4,32 +4,30 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.Course
 import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.CreateCourseDTO
 import org.acme.repository.CourseRepository
 
 @ApplicationScoped
 class CourseService(
-    val courseRepository: CourseRepository,
+    private val courseRepository: CourseRepository,
 ) {
-    fun findAllCourses() = courseRepository.listAll()
+    fun findAllCourses(): List<CourseDTO> = courseRepository.listAll().map { course -> course.toCourseDTO() }
 
-    fun findCourse(id: Long): Course? = courseRepository.findById(id)
+    fun findCourse(id: Long): CourseDTO? = courseRepository.findById(id).toCourseDTO()
 
     @Transactional
-    fun createCourse(courseDTO: CreateCourseDTO): Course {
-        val createdCourse = Course(0, courseDTO.name)
+    fun createCourse(name: String): CourseDTO {
+        val createdCourse = Course(name)
         courseRepository.persist(createdCourse)
-        return createdCourse
+        return createdCourse.toCourseDTO()
     }
 
     @Transactional
-    fun updateCourse(updatedCourse: CourseDTO): CourseDTO {
-        courseRepository.update(
-            "name = ?1 where id = ?2",
-            updatedCourse.name,
-            updatedCourse.id,
-        )
-        return CourseDTO(updatedCourse.id, updatedCourse.name)
+    fun updateCourse(
+        id: Long,
+        name: String,
+    ): CourseDTO {
+        courseRepository.update("name = ?1 where id = ?2", name, id)
+        return CourseDTO(id, name)
     }
 
     @Transactional
