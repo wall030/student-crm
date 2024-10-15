@@ -10,7 +10,6 @@ import org.acme.model.Course
 import org.acme.model.Student
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateStudentDTO
-import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
 import org.junit.jupiter.api.Test
@@ -32,8 +31,8 @@ class StudentServiceTest {
     fun `should list all students`() {
         val students =
             mutableListOf<Student>(
-                Student(firstName = "Luke", lastName = "Skywalker", email = "luke@jedi.com"),
-                Student(firstName = "Leia", lastName = "Organa", email = "leia@rebel.com"),
+                Student("Luke", "Skywalker", "luke@jedi.com"),
+                Student("Leia", "Organa", "leia@rebel.com"),
             )
 
         every { studentRepository.listAll() } returns students
@@ -43,7 +42,7 @@ class StudentServiceTest {
 
     @Test
     fun `find student by id`() {
-        val student = Student(id = 1L, firstName = "Han", lastName = "Solo", email = "solo@smuggler.com")
+        val student = Student(1L, "Han", "Solo", "solo@smuggler.com")
 
         every { studentRepository.findById(student.id) } returns student
         val result = studentService.findStudent(student.id)
@@ -80,35 +79,37 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `should update student attributes`() {
-        val updatedStudent = StudentDTO(1L, "Darth", "Maul", "noleg@sith.com")
+        val student = Student(1L, "Darth", "Maul", "noleg@sith.com")
+        val studentDTO = student.toStudentDTO()
 
-        every {
-            studentRepository.update(
-                "firstName = ?1, lastName = ?2, email = ?3 where id = ?4",
-                updatedStudent.firstName,
-                updatedStudent.lastName,
-                updatedStudent.email,
-                updatedStudent.id,
-            )
-        } returns 1
+        every { studentRepository.findById(studentDTO.id) } returns student
+        every { studentRepository.findByEmail(studentDTO.email) } returns student
+        every { studentRepository.persist(student) } returns Unit
+
         val result =
             studentService.updateStudent(
-                updatedStudent.id,
-                updatedStudent.firstName,
-                updatedStudent.lastName,
-                updatedStudent.email,
+                studentDTO.id,
+                studentDTO.firstName,
+                studentDTO.lastName,
+                studentDTO.email,
             )
-        expectThat(result).isEqualTo(updatedStudent)
+        expectThat(result).isEqualTo(studentDTO)
     }
 
     @Test
     @Transactional
     fun `should delete a list of students`() {
         val studentIDs = listOf(1L, 2L)
+        val students = listOf(
+            Student(1L, "Darth", "Maul", "noleg@sith.com"),
+            Student(2L, "Han", "Solo", "solo@smuggler.com")
+        )
 
+        every { studentRepository.findByIds(studentIDs) } returns students
         every { studentRepository.deleteByIds(studentIDs) } returns 2
         studentService.deleteStudents(studentIDs)
-        verify(exactly = 1) { studentRepository.deleteByIds(studentIDs) }
+
+        verify { studentRepository.deleteByIds(studentIDs) }
     }
 
     @Test
@@ -133,5 +134,25 @@ class StudentServiceTest {
             ),
         )
         verify { studentRepository.persist(updatedStudent) }
+    }
+
+    @Test
+    @Transactional
+    fun `should remove a list of courses from a student`() {
+        val courseIDs = listOf(1L)
+        val student = Student(1L, "Rey", "Palpatine", "rey@scavenger.com")
+        val course1 = Course(1L, "Piloting 101")
+        val course2 = Course(2L, "Lightsaber Combat")
+        val courses = mutableListOf(course1, course2)
+        student.courses.addAll(courses)
+
+        every { courseRepository.findByIds(courseIDs) } returns listOf(course1)
+        every { studentRepository.findById(student.id) } returns student
+        every { studentRepository.persist(student) } returns Unit
+
+        val result = studentService.removeCourses(student.id, courseIDs)
+
+        expectThat(result).isEqualTo(listOf(course2.toCourseDTO()))
+        verify { studentRepository.persist(student) }
     }
 }

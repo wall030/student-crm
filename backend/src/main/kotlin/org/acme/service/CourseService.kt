@@ -2,6 +2,7 @@ package org.acme.service
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
+import org.acme.exception.ServiceException
 import org.acme.model.Course
 import org.acme.model.dto.CourseDTO
 import org.acme.repository.CourseRepository
@@ -16,6 +17,9 @@ class CourseService(
 
     @Transactional
     fun createCourse(name: String): CourseDTO {
+        courseRepository.findByName(name)?.let {
+            throw ServiceException.DuplicateCourseException(name)
+        }
         val createdCourse = Course(name)
         courseRepository.persist(createdCourse)
         return createdCourse.toCourseDTO()
@@ -26,14 +30,26 @@ class CourseService(
         id: Long,
         name: String,
     ): CourseDTO {
-        courseRepository.update("name = ?1 where id = ?2", name, id)
-        return CourseDTO(id, name)
+        val course = courseRepository.findById(id) ?: throw ServiceException.CourseNotFoundException(id.toString())
+
+        courseRepository.findByName(name)?.let {
+            if (it.name != name) throw ServiceException.DuplicateCourseException(name)
+        }
+        course.name = name
+        courseRepository.persist(course)
+
+        return course.toCourseDTO()
     }
 
     @Transactional
-    fun deleteCourses(courses: List<Long>) {
-        if (courses.isNotEmpty()) {
-            courseRepository.deleteByIds(courses)
+    fun deleteCourses(courseIDs: List<Long>) {
+        if (courseIDs.isNotEmpty()) {
+            val courses = courseRepository.findByIds(courseIDs)
+            val missingCourses = courseIDs.filter { id -> courses.none { it.id == id } }
+
+            if (missingCourses.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingCourses.toString())
+
+            courseRepository.deleteByIds(courseIDs)
         }
     }
 }

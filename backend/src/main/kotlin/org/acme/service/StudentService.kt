@@ -2,6 +2,7 @@ package org.acme.service
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
+import org.acme.exception.ServiceException
 import org.acme.model.Student
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.StudentDTO
@@ -23,7 +24,10 @@ class StudentService(
     ) = studentRepository.findStudents(page, limit, search.toString())
         .map { student -> student.toStudentDTO() }
 
-    fun findStudent(id: Long) = studentRepository.findById(id).toStudentDTO()
+    fun findStudent(id: Long): StudentDTO {
+        val student = studentRepository.findById(id) ?: throw ServiceException.StudentNotFoundException(id.toString())
+        return student.toStudentDTO()
+    }
 
     @Transactional
     fun createStudent(
@@ -32,7 +36,7 @@ class StudentService(
         email: String,
     ): StudentDTO {
         studentRepository.findByEmail(email)?.let {
-            throw Exception("Student with email $email already exists")
+            throw ServiceException.DuplicateStudentException(email)
         }
         val createdStudent = Student(firstName, lastName, email)
         studentRepository.persist(createdStudent)
@@ -46,38 +50,53 @@ class StudentService(
         lastName: String,
         email: String,
     ): StudentDTO {
-        studentRepository.update(
-            "firstName = ?1, lastName = ?2, email = ?3 where id = ?4",
-            firstName,
-            lastName,
-            email,
-            id,
-        )
-        return StudentDTO(id, firstName, lastName, email)
+        val student = studentRepository.findById(id) ?: throw ServiceException.StudentNotFoundException(id.toString())
+
+        studentRepository.findByEmail(email)?.let {
+            if (it.id != id) throw ServiceException.DuplicateStudentException(email)
+        }
+        student.firstName = firstName
+        student.lastName = lastName
+        student.email = email
+        studentRepository.persist(student)
+
+        return student.toStudentDTO()
     }
 
     @Transactional
     fun deleteStudents(studentIDs: List<Long>) {
         if (studentIDs.isNotEmpty()) {
+            val students = studentRepository.findByIds(studentIDs)
+            val missingStudents = studentIDs.filter { id -> students.none { it.id == id } }
+
+            if (missingStudents.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudents.toString())
+
             studentRepository.deleteByIds(studentIDs)
         }
     }
+
 
     @Transactional
     fun assignCourses(
         id: Long,
         addedCourses: List<Long>,
     ): List<CourseDTO> {
-        val student = studentRepository.findById(id) ?: throw Exception("Student not found")
+        val student = studentRepository.findById(id)
+            ?: throw ServiceException.StudentNotFoundException(id.toString())
 
         val fetchedAddedCourses = courseRepository.findByIds(addedCourses)
+        val missingCourses = addedCourses.filter { courseId ->
+            fetchedAddedCourses.none { it.id == courseId }
+        }
+        if (missingCourses.isNotEmpty()) {
+            throw ServiceException.CourseNotFoundException(missingCourses.toString())
+        }
+
         val coursesToAdd = fetchedAddedCourses.filter { it !in student.courses }
         student.courses.addAll(coursesToAdd)
-
         studentRepository.persist(student)
-        var courseDTOs = mutableListOf<CourseDTO>()
-        student.courses.forEach { courseDTOs.add(CourseDTO(it.id, it.name)) }
-        return courseDTOs
+
+        return student.courses.map { CourseDTO(it.id, it.name) }
     }
 
     @Transactional
@@ -85,15 +104,21 @@ class StudentService(
         id: Long,
         addedCourses: List<Long>,
     ): List<CourseDTO> {
-        val student = studentRepository.findById(id) ?: throw Exception("Student not found")
+        val student = studentRepository.findById(id)
+            ?: throw ServiceException.StudentNotFoundException(id.toString())
 
         val fetchedCoursesToRemove = courseRepository.findByIds(addedCourses)
+        val missingCourses = addedCourses.filter { courseId ->
+            fetchedCoursesToRemove.none { it.id == courseId }
+        }
+        if (missingCourses.isNotEmpty()) {
+            throw ServiceException.CourseNotFoundException(missingCourses.toString())
+        }
+
         val coursesToRemove = fetchedCoursesToRemove.filter { it in student.courses }
         student.courses.removeAll(coursesToRemove)
-
         studentRepository.persist(student)
-        var courseDTOs = mutableListOf<CourseDTO>()
-        student.courses.forEach { courseDTOs.add(CourseDTO(it.id, it.name)) }
-        return courseDTOs
+
+        return student.courses.map { CourseDTO(it.id, it.name) }
     }
 }

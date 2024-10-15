@@ -54,7 +54,7 @@ class StudentResource(
     @ResponseStatus(200)
     @Path("/update")
     fun updateStudent(
-        @Valid student: StudentDTO,
+        student: StudentDTO,
     ) = studentService.updateStudent(student.id, student.firstName, student.lastName, student.email)
 
     @DELETE

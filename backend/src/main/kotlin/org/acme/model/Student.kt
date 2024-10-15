@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
+import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.StudentDTO
 
 @Entity
@@ -38,6 +39,9 @@ data class Student(
     }
 
     fun toStudentDTO(): StudentDTO {
-        return StudentDTO(this.id, this.firstName, this.lastName, this.email)
+        val coursesDTOs = this.courses.map { course ->
+            CourseDTO(course.id, course.name)}
+            return StudentDTO(this.id, this.firstName, this.lastName, this.email, coursesDTOs)
+
     }
 }

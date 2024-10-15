@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.Course
+import org.acme.model.Student
 
 @ApplicationScoped
 class CourseRepository : PanacheRepositoryBase<Course, Long> {
@@ -12,5 +13,9 @@ class CourseRepository : PanacheRepositoryBase<Course, Long> {
 
     fun findByIds(ids: List<Long>): List<Course> {
         return find("id in ?1", ids).list()
+    }
+
+    fun findByName(name: String): Course? {
+        return find("name", name).firstResult<Course>()
     }
 }

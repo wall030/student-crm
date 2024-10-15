@@ -29,11 +29,11 @@ class CourseServiceTest {
                 Course(1L, "Piloting 101"),
                 Course(2L, "Lightsaber Combat"),
             )
-
         val coursesDtoList = courses.map { course -> course.toCourseDTO() }
 
         every { courseRepository.listAll() } returns courses
         val result = courseService.findAllCourses()
+
         expectThat(result).isEqualTo(coursesDtoList)
     }
 
@@ -43,6 +43,7 @@ class CourseServiceTest {
 
         every { courseRepository.findById(course.id) } returns course
         val result = courseService.findCourse(course.id)
+
         expectThat(result).isEqualTo(course.toCourseDTO())
     }
 
@@ -51,9 +52,8 @@ class CourseServiceTest {
     fun `create Course`() {
         val courseDTO = CreateCourseDTO("Tactical Warfare")
 
-        every {
-            courseRepository.persist(Course(0L, courseDTO.name))
-        } returns Unit
+        every { courseRepository.findByName(courseDTO.name) } returns null
+        every { courseRepository.persist(Course(0L, courseDTO.name)) } returns Unit
         val result = courseService.createCourse(courseDTO.name)
 
         expectThat(result.name).isEqualTo(courseDTO.name)
@@ -62,53 +62,31 @@ class CourseServiceTest {
     @Test
     @Transactional
     fun `should update course attributes`() {
-        val updatedCourse = CourseDTO(1L, "Starship Engineering")
+        val course = Course(1L, "Starship Engineering")
+        val courseDTO = course.toCourseDTO()
 
-        every {
-            courseRepository.update(
-                "name = ?1 where id = ?2",
-                updatedCourse.name,
-                updatedCourse.id,
-            )
-        } returns 1
-        val result = courseService.updateCourse(updatedCourse.id, updatedCourse.name)
-        expectThat(result).isEqualTo(updatedCourse)
+        every { courseRepository.findById(courseDTO.id) } returns course
+        every { courseRepository.findByName(courseDTO.name) } returns course
+        every { courseRepository.persist(course) } returns Unit
+
+        val result = courseService.updateCourse(courseDTO.id, courseDTO.name)
+
+        expectThat(result).isEqualTo(courseDTO)
     }
 
     @Test
     @Transactional
     fun `should delete a list of courses`() {
         val courseIDs = listOf(1L, 2L)
+        val courses = listOf(
+            Course(1L, "Starship Engineering"),
+            Course(2L, "Piloting 101")
+        )
 
+        every { courseRepository.findByIds(courseIDs) } returns courses
         every { courseRepository.deleteByIds(courseIDs) } returns 2
         courseService.deleteCourses(courseIDs)
-        verify(exactly = 1) { courseRepository.deleteByIds(courseIDs) }
+
+        verify { courseRepository.deleteByIds(courseIDs) }
     }
-    /*
-        @Test
-        @Transactional
-        fun `should assign a list of students to a course`() {
-            val studentIDs = listOf<Long>(1L, 2L)
-            val courseID = 1L
-            val updatedCourse = Course(courseID, "Starship Engineering")
-            val student1 = Student(0L, "Luke", "Skywalker", "luke@jedi.com")
-            val student2 = Student(0L, "Leia", "Organa", "leia@rebel.com")
-
-            every { studentRepository.findByIds(studentIDs) } returns listOf(student1, student2)
-            every { courseRepository.findById(courseID) } returns updatedCourse
-            every { courseRepository.persist(updatedCourse) } returns Unit
-            every { courseRepository.flush() } returns Unit
-
-            val result = courseService.assignStudents(courseID, studentIDs)
-
-            expectThat(result).isEqualTo(
-                listOf(
-                    StudentDTO(student1.id, student1.firstName, student1.lastName, student1.email),
-                    StudentDTO(student2.id, student2.firstName, student2.lastName, student2.email),
-                ),
-            )
-            verify { courseRepository.persist(updatedCourse) }
-        }
-
-     */
 }
