@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
 import { Student } from '../types/Student'
 import CreateStudentModal from './CreateStudentModal'
 import StudentActions from './StudentActions'
 import EditStudentModal from './EditStudentModal'
-import useInfiniteScroll from '../hooks/useInfiniteScroll'
 import { StudentUpdated } from '../types/StudentUpdated'
+import ManageCoursesModal from './ManageCoursesModal'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -15,24 +15,14 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [selectedStudents, setSelectedStudents] = useState<number[]>([])
-
   const [isCreateModalOpen, setCreateModalOpen] = useState(false)
-  const [newStudent, setNewStudent] = useState<{ firstName: string; lastName: string; email: string }>({
-    firstName: '',
-    lastName: '',
-    email: ''
-  })
-  
+  const [newStudent, setNewStudent] = useState({ firstName: '', lastName: '', email: '' })
   const [isEditModalOpen, setEditModalOpen] = useState(false)
-  const [editableStudent, setEditableStudent] = useState<StudentUpdated>({
-    id: 0,
-    firstName: '',
-    lastName: '',
-    email: ''
-  })
- 
+  const [editableStudent, setEditableStudent] = useState<StudentUpdated>({ id: 0, firstName: '', lastName: '', email: '' })
+  const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
-
+  const observer = useRef<IntersectionObserver | null>(null)
 
   const fetchStudents = async () => {
     setLoading(true)
@@ -64,28 +54,34 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   }, [page, searchTerm])
 
   useEffect(() => {
-    setStudents([])
     setPage(1)
     setHasMore(true)
+    fetchStudents()
   }, [searchTerm])
 
-  const handleSelectStudent = (id: number) => {
-    setSelectedStudents((prevSelected) => {
-      if (prevSelected.includes(id)) {
-        return prevSelected.filter((studentId) => studentId !== id)
-      } else {
-        return [...prevSelected, id]
+  const lastStudentRef = (node: HTMLDivElement | null) => {
+    if (observer.current) observer.current.disconnect()
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !loading) {
+        setPage((prevPage) => prevPage + 1)
       }
     })
+
+    if (node) observer.current.observe(node)
+  }
+
+  const handleSelectStudent = (id: number) => {
+    setSelectedStudents((prevSelected) =>
+      prevSelected.includes(id) ? prevSelected.filter((studentId) => studentId !== id) : [...prevSelected, id]
+    )
   }
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/student/delete`, {
-        data: selectedStudents
-      })
-      setStudents((prev) => prev.filter((student) => !selectedStudents.includes(student.id)))
+      await axios.delete(`http://localhost:8080/api/student/delete`, { data: selectedStudents })
       setSelectedStudents([])
+      fetchStudents()
     } catch (error) {
       console.error('Error deleting students:', error)
     }
@@ -93,10 +89,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
   const handleCreateStudent = async () => {
     try {
-      const response = await axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
-      setStudents((prev) => [...prev, response.data])
+      await axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
       setCreateModalOpen(false)
-      setNewStudent({ firstName: '', lastName: '', email: '' })
+      fetchStudents()
     } catch (error) {
       console.error('Error creating student:', error)
     }
@@ -105,16 +100,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const handleStudentUpdated = async (updatedStudent: StudentUpdated) => {
     try {
       await axios.put(`http://localhost:8080/api/student/update`, updatedStudent)
-  
-      setStudents((prev) =>
-        prev.map((student) =>
-          student.id === updatedStudent.id
-            ? { ...student, ...updatedStudent }
-            : student
-        )
-      )
-      
       setEditModalOpen(false)
+      fetchStudents()
     } catch (error) {
       console.error('Error updating student:', error)
     }
@@ -122,7 +109,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
   const handleOpenEditModal = () => {
     if (selectedStudents.length === 1) {
-      const studentToEdit = students.find(student => student.id === selectedStudents[0])
+      const studentToEdit = students.find((student) => student.id === selectedStudents[0])
       if (studentToEdit) {
         setEditableStudent(studentToEdit)
         setEditModalOpen(true)
@@ -130,20 +117,30 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleOpenManageCoursesModal = () => {
+    if (selectedStudents.length === 1) {
+      const student = students.find((student) => student.id === selectedStudents[0])
+      if (student) {
+        setSelectedStudent(student)
+        setManageCoursesModalOpen(true)
+      }
+    }
+  }
+
   const isEditDisabled = selectedStudents.length !== 1
-  const lastStudentRef = useInfiniteScroll(loading, hasMore, setPage)
 
   if (loading && students.length === 0) return <p>Loading...</p>
   if (error) return <p>Error: {error}</p>
 
   return (
     <div className="space-y-4">
-      <StudentActions 
-        isEditDisabled={isEditDisabled} 
-        selectedStudents={selectedStudents} 
-        onDelete={handleDelete} 
-        onOpenCreateModal={() => setCreateModalOpen(true)} 
+      <StudentActions
+        isEditDisabled={isEditDisabled}
+        selectedStudents={selectedStudents}
+        onDelete={handleDelete}
+        onOpenCreateModal={() => setCreateModalOpen(true)}
         onOpenEditModal={handleOpenEditModal}
+        onOpenManageCoursesModal={handleOpenManageCoursesModal}
       />
 
       {isCreateModalOpen && (
@@ -151,7 +148,10 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           newStudent={newStudent}
           setNewStudent={setNewStudent}
           onCreate={handleCreateStudent}
-          onClose={() => setCreateModalOpen(false)}
+          onClose={() => {
+            setCreateModalOpen(false)
+            setNewStudent({ firstName: '', lastName: '', email: '' })
+          }}
         />
       )}
 
@@ -159,8 +159,16 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         <EditStudentModal
           student={editableStudent}
           setStudent={setEditableStudent}
-          onUpdate={() => handleStudentUpdated(editableStudent)}
+          onUpdate={() => handleStudentUpdated}
           onClose={() => setEditModalOpen(false)}
+        />
+      )}
+
+      {isManageCoursesModalOpen && selectedStudent && (
+        <ManageCoursesModal
+          student={selectedStudent}
+          onUpdate={fetchStudents}
+          onClose={() => setManageCoursesModalOpen(false)}
         />
       )}
 
@@ -173,17 +181,10 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
       <div>
         {students.map((student, index) => {
           const isSelected = selectedStudents.includes(student.id)
-          const cardProps = {
-            student,
-            isSelected,
-            onSelect: () => handleSelectStudent(student.id),
-          }
-
           const ref = index === students.length - 1 ? lastStudentRef : null
-
           return (
             <div key={student.id} ref={ref}>
-              <StudentCard {...cardProps} />
+              <StudentCard student={student} isSelected={isSelected} onSelect={() => handleSelectStudent(student.id)} />
             </div>
           )
         })}

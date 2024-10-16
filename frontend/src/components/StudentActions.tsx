@@ -4,8 +4,16 @@ const StudentActions: React.FC<{
   onDelete: () => void
   onOpenCreateModal: () => void
   onOpenEditModal: () => void
-}> = ({ isEditDisabled, selectedStudents, onDelete, onOpenCreateModal, onOpenEditModal }) => (
+  onOpenManageCoursesModal: () => void
+}> = ({ isEditDisabled, selectedStudents, onDelete, onOpenCreateModal, onOpenEditModal, onOpenManageCoursesModal }) => (
   <div className="flex justify-end space-x-4">
+    <button
+      className={`bg-purple-500 text-white px-4 py-2 rounded-md ${isEditDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      disabled={isEditDisabled}
+      onClick={onOpenManageCoursesModal}
+    >
+      Manage Courses
+    </button>
     <button
       className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isEditDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       disabled={isEditDisabled}
