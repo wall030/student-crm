@@ -25,10 +25,7 @@ const StudentCard: React.FC<{
       <input
         type="checkbox"
         checked={isSelected}
-        onChange={(e) => {
-          e.stopPropagation()
-          onSelect()
-        }}
+        onChange={ () => onSelect() }
         className="ml-2"
       />
     </div>

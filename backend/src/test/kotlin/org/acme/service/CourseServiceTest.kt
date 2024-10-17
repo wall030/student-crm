@@ -7,7 +7,6 @@ import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.acme.model.Course
-import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateCourseDTO
 import org.acme.repository.CourseRepository
 import org.junit.jupiter.api.Test
@@ -78,10 +77,11 @@ class CourseServiceTest {
     @Transactional
     fun `should delete a list of courses`() {
         val courseIDs = listOf(1L, 2L)
-        val courses = listOf(
-            Course(1L, "Starship Engineering"),
-            Course(2L, "Piloting 101")
-        )
+        val courses =
+            listOf(
+                Course(1L, "Starship Engineering"),
+                Course(2L, "Piloting 101"),
+            )
 
         every { courseRepository.findByIds(courseIDs) } returns courses
         every { courseRepository.deleteByIds(courseIDs) } returns 2

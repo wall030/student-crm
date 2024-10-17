@@ -10,7 +10,6 @@ import io.restassured.http.ContentType
 import org.acme.exception.ServiceException
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateCourseDTO
-import org.acme.model.dto.StudentDTO
 import org.acme.service.CourseService
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.jupiter.api.Test
@@ -48,18 +47,17 @@ class CourseResourceTest {
             .body("name", equalTo("Piloting 101"))
     }
 
+    @Test
+    fun `test findCourse returns 404 when course does not exist`() {
+        val courseID = 1L
 
-        @Test
-        fun `test findCourse returns 404 when course does not exist`() {
-            val courseID = 1L
+        every { courseService.findCourse(courseID) } throws ServiceException.CourseNotFoundException(courseID.toString())
 
-            every { courseService.findCourse(courseID) } throws ServiceException.CourseNotFoundException(courseID.toString())
-
-            given()
-                .`when`().get("/api/course/1")
-                .then()
-                .statusCode(404)
-        }
+        given()
+            .`when`().get("/api/course/1")
+            .then()
+            .statusCode(404)
+    }
 
     @Test
     fun `test createCourse returns 201`() {

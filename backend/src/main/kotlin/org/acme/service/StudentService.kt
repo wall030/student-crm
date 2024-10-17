@@ -75,48 +75,26 @@ class StudentService(
         }
     }
 
-
     @Transactional
     fun assignCourses(
         id: Long,
-        addedCourses: List<Long>,
+        courses: List<Long>,
     ): List<CourseDTO> {
-        val student = studentRepository.findById(id)
-            ?: throw ServiceException.StudentNotFoundException(id.toString())
+        val missingCoursesList = mutableListOf<Long>()
+        val student =
+            studentRepository.findById(id)
+                ?: throw ServiceException.StudentNotFoundException(id.toString())
 
-        val fetchedAddedCourses = courseRepository.findByIds(addedCourses)
-        val missingCourses = addedCourses.filter { courseId ->
-            fetchedAddedCourses.none { it.id == courseId }
+        val fetchedCourses = courseRepository.findByIds(courses)
+        val fetchedCourseIds = fetchedCourses.map { it.id }
+
+        courses.forEach { courseId ->
+            if (!fetchedCourseIds.contains(courseId)) {
+                missingCoursesList.add(courseId)
+            }
         }
-        if (missingCourses.isNotEmpty()) {
-            throw ServiceException.CourseNotFoundException(missingCourses.toString())
-        }
-
-        val coursesToAdd = fetchedAddedCourses.filter { it !in student.courses }
-        student.courses.addAll(coursesToAdd)
-        studentRepository.persist(student)
-
-        return student.courses.map { CourseDTO(it.id, it.name) }
-    }
-
-    @Transactional
-    fun removeCourses(
-        id: Long,
-        addedCourses: List<Long>,
-    ): List<CourseDTO> {
-        val student = studentRepository.findById(id)
-            ?: throw ServiceException.StudentNotFoundException(id.toString())
-
-        val fetchedCoursesToRemove = courseRepository.findByIds(addedCourses)
-        val missingCourses = addedCourses.filter { courseId ->
-            fetchedCoursesToRemove.none { it.id == courseId }
-        }
-        if (missingCourses.isNotEmpty()) {
-            throw ServiceException.CourseNotFoundException(missingCourses.toString())
-        }
-
-        val coursesToRemove = fetchedCoursesToRemove.filter { it in student.courses }
-        student.courses.removeAll(coursesToRemove)
+       if(missingCoursesList.isNotEmpty()) throw ServiceException.CourseNotFoundException(missingCoursesList.toString())
+        student.courses = fetchedCourses.toMutableList()
         studentRepository.persist(student)
 
         return student.courses.map { CourseDTO(it.id, it.name) }

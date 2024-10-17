@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
 import { Student } from '../types/Student'
@@ -7,6 +7,7 @@ import StudentActions from './StudentActions'
 import EditStudentModal from './EditStudentModal'
 import { StudentUpdated } from '../types/StudentUpdated'
 import ManageCoursesModal from './ManageCoursesModal'
+import { Course } from '../types/Course'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -21,27 +22,36 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [editableStudent, setEditableStudent] = useState<StudentUpdated>({ id: 0, firstName: '', lastName: '', email: '' })
   const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [courses, setCourses] = useState<Course[]>([])
+  const limit = 10
 
-  const observer = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    setPage(1)
+    setStudents([])
+    fetchStudents()
+  }, [searchTerm])
+
+  useEffect(() => {
+    fetchStudents()
+  }, [page])
 
   const fetchStudents = async () => {
+    if (loading) return
     setLoading(true)
     setError(null)
+
     try {
       const response = await axios.get<Student[]>(`http://localhost:8080/api/student`, {
         params: {
           page,
-          limit: 5,
+          limit: limit,
           search: searchTerm,
         },
       })
       const data = response.data
-
-      if (data.length < 5) {
-        setHasMore(false)
-      }
-
-      setStudents((prev) => (page === 1 ? data : [...prev, ...data]))
+      data.length === limit ? setHasMore(true) : setHasMore(false)
+      setStudents(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -49,26 +59,13 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
-  useEffect(() => {
-    fetchStudents()
-  }, [page, searchTerm])
-
-  useEffect(() => {
-    setPage(1)
-    setHasMore(true)
-    fetchStudents()
-  }, [searchTerm])
-
-  const lastStudentRef = (node: HTMLDivElement | null) => {
-    if (observer.current) observer.current.disconnect()
-
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loading) {
-        setPage((prevPage) => prevPage + 1)
-      }
-    })
-
-    if (node) observer.current.observe(node)
+  const fetchCourses = async () => {
+    try {
+      const coursesResponse = await axios.get<Course[]>('http://localhost:8080/api/course/all')
+      setCourses(coursesResponse.data)
+    } catch (error) {
+      console.error('Error fetching courses:', error)
+    }
   }
 
   const handleSelectStudent = (id: number) => {
@@ -80,8 +77,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:8080/api/student/delete`, { data: selectedStudents })
+      setStudents((prevStudents) => prevStudents.filter((student) => !selectedStudents.includes(student.id)))
       setSelectedStudents([])
-      fetchStudents()
     } catch (error) {
       console.error('Error deleting students:', error)
     }
@@ -89,9 +86,11 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
   const handleCreateStudent = async () => {
     try {
-      await axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
+      const response = await axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
+      const createdStudent = response.data
+      setStudents((prevStudents) => [createdStudent, ...prevStudents])
       setCreateModalOpen(false)
-      fetchStudents()
+      setNewStudent({ firstName: '', lastName: '', email: '' })
     } catch (error) {
       console.error('Error creating student:', error)
     }
@@ -101,7 +100,10 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     try {
       await axios.put(`http://localhost:8080/api/student/update`, updatedStudent)
       setEditModalOpen(false)
-      fetchStudents()
+      setStudents((prevStudents) =>
+        prevStudents.map((student) => (student.id === updatedStudent.id ? { ...student, ...updatedStudent } : student))
+      )
+      setSelectedStudents([])
     } catch (error) {
       console.error('Error updating student:', error)
     }
@@ -117,10 +119,20 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleManageCourses = (studentWithNewCourses: Student) => {
+    setStudents((prevStudents) =>
+      prevStudents.map((student) => (student.id === studentWithNewCourses.id ? { ...student, ...studentWithNewCourses } : student))
+    )
+    setManageCoursesModalOpen(false)
+    setSelectedStudents([])
+
+  }
+
   const handleOpenManageCoursesModal = () => {
     if (selectedStudents.length === 1) {
       const student = students.find((student) => student.id === selectedStudents[0])
       if (student) {
+        fetchCourses()
         setSelectedStudent(student)
         setManageCoursesModalOpen(true)
       }
@@ -132,16 +144,42 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   if (loading && students.length === 0) return <p>Loading...</p>
   if (error) return <p>Error: {error}</p>
 
+  const handlePreviousPage = () => {
+    setPage(page - 1)
+  }
+
+  const handleNextPage = () => {
+    setPage(page + 1)
+  }
+
   return (
     <div className="space-y-4">
-      <StudentActions
-        isEditDisabled={isEditDisabled}
-        selectedStudents={selectedStudents}
-        onDelete={handleDelete}
-        onOpenCreateModal={() => setCreateModalOpen(true)}
-        onOpenEditModal={handleOpenEditModal}
-        onOpenManageCoursesModal={handleOpenManageCoursesModal}
-      />
+      <div className="flex justify-between">
+        <div className="space-x-4">
+          {page != 1 &&
+            <button
+              className="px-4 py-2 rounded bg-appleBlue text-white"
+              onClick={() => handlePreviousPage()}>
+              Previous
+            </button>
+          }
+          {hasMore &&
+            <button
+              className="px-4 py-2 rounded bg-appleBlue text-white"
+              onClick={() => handleNextPage()}>
+              Next
+            </button>
+          }
+        </div>
+        <StudentActions
+          isEditDisabled={isEditDisabled}
+          selectedStudents={selectedStudents}
+          onDelete={handleDelete}
+          onOpenCreateModal={() => setCreateModalOpen(true)}
+          onOpenEditModal={handleOpenEditModal}
+          onOpenManageCoursesModal={handleOpenManageCoursesModal}
+        />
+      </div>
 
       {isCreateModalOpen && (
         <CreateStudentModal
@@ -159,16 +197,20 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         <EditStudentModal
           student={editableStudent}
           setStudent={setEditableStudent}
-          onUpdate={() => handleStudentUpdated}
+          onUpdate={() => handleStudentUpdated(editableStudent)}
           onClose={() => setEditModalOpen(false)}
         />
       )}
 
       {isManageCoursesModalOpen && selectedStudent && (
         <ManageCoursesModal
+          allCourses={courses}
           student={selectedStudent}
-          onUpdate={fetchStudents}
-          onClose={() => setManageCoursesModalOpen(false)}
+          onUpdate={() => handleManageCourses(selectedStudent)}
+          onClose={() => {
+            setManageCoursesModalOpen(false)
+            setSelectedStudents([])
+          }}
         />
       )}
 
@@ -179,16 +221,16 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
       </div>
 
       <div>
-        {students.map((student, index) => {
+        {students.map((student) => {
           const isSelected = selectedStudents.includes(student.id)
-          const ref = index === students.length - 1 ? lastStudentRef : null
           return (
-            <div key={student.id} ref={ref}>
+            <div key={student.id}>
               <StudentCard student={student} isSelected={isSelected} onSelect={() => handleSelectStudent(student.id)} />
             </div>
           )
         })}
       </div>
+      {loading && <p>Loading more students...</p>}
     </div>
   )
 }

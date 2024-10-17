@@ -100,10 +100,11 @@ class StudentServiceTest {
     @Transactional
     fun `should delete a list of students`() {
         val studentIDs = listOf(1L, 2L)
-        val students = listOf(
-            Student(1L, "Darth", "Maul", "noleg@sith.com"),
-            Student(2L, "Han", "Solo", "solo@smuggler.com")
-        )
+        val students =
+            listOf(
+                Student(1L, "Darth", "Maul", "noleg@sith.com"),
+                Student(2L, "Han", "Solo", "solo@smuggler.com"),
+            )
 
         every { studentRepository.findByIds(studentIDs) } returns students
         every { studentRepository.deleteByIds(studentIDs) } returns 2
@@ -134,25 +135,5 @@ class StudentServiceTest {
             ),
         )
         verify { studentRepository.persist(updatedStudent) }
-    }
-
-    @Test
-    @Transactional
-    fun `should remove a list of courses from a student`() {
-        val courseIDs = listOf(1L)
-        val student = Student(1L, "Rey", "Palpatine", "rey@scavenger.com")
-        val course1 = Course(1L, "Piloting 101")
-        val course2 = Course(2L, "Lightsaber Combat")
-        val courses = mutableListOf(course1, course2)
-        student.courses.addAll(courses)
-
-        every { courseRepository.findByIds(courseIDs) } returns listOf(course1)
-        every { studentRepository.findById(student.id) } returns student
-        every { studentRepository.persist(student) } returns Unit
-
-        val result = studentService.removeCourses(student.id, courseIDs)
-
-        expectThat(result).isEqualTo(listOf(course2.toCourseDTO()))
-        verify { studentRepository.persist(student) }
     }
 }

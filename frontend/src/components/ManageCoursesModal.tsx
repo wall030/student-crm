@@ -4,20 +4,20 @@ import { Course } from '../types/Course'
 import { Student } from '../types/Student'
 
 interface ManageCoursesModalProps {
+  allCourses: Course[]
   student: Student
-  onUpdate: () => void
+  onUpdate: (student: Student) => void
   onClose: () => void
 }
 
-const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ student, onUpdate, onClose }) => {
+const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ allCourses, student, onUpdate, onClose }) => {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const coursesResponse = await axios.get<Course[]>('http://localhost:8080/api/course/all')
-        setCourses(coursesResponse.data)
+        setCourses(allCourses)
         
         const enrolledCourses = student.courses.map(course => course.id)
         setSelectedCourses(enrolledCourses)
@@ -27,7 +27,7 @@ const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ student, onUpda
     }
 
     fetchCourses()
-  }, [student])
+  }, [allCourses])
 
   const handleCourseToggle = (courseId: number) => {
     setSelectedCourses((prevSelectedCourses) => {
@@ -41,11 +41,12 @@ const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ student, onUpda
 
   const handleSubmit = async () => {
     try {
-      await axios.put(`http://localhost:8080/api/student/${student.id}/assignCourses`, 
+      const response = await axios.put(`http://localhost:8080/api/student/${student.id}/assignCourses`, 
         selectedCourses
       )
+      student.courses = response.data
       onClose()
-      onUpdate()
+      onUpdate(student)
     } catch (error) {
       console.error('Error updating courses:', error)
     }
@@ -58,13 +59,15 @@ const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ student, onUpda
         
         <div className="max-h-60 overflow-auto ">
           {courses.map((course) => (
-            <div key={course.id} className="flex items-center justify-between mb-2 border-b border-gray-300">
-              <span>{course.name}</span>
+            <div key={course.id} className="flex items-center justify-normal mb-2 border-b border-gray-300">
               <input
                 type="checkbox"
                 checked={selectedCourses.includes(course.id)}
                 onChange={() => handleCourseToggle(course.id)}
               />
+              <span className="px-2">
+                {course.name}
+              </span>
             </div>
           ))}
         </div>

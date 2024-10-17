@@ -40,9 +40,7 @@ class CourseResource(
     @PUT
     @ResponseStatus(200)
     @Path("/update")
-    fun updateCourse(
-        courseDTO: CourseDTO,
-    ) = courseService.updateCourse(courseDTO.id, courseDTO.name)
+    fun updateCourse(courseDTO: CourseDTO) = courseService.updateCourse(courseDTO.id, courseDTO.name)
 
     @DELETE
     @ResponseStatus(204)

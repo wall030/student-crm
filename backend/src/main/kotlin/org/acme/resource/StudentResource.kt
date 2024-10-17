@@ -53,9 +53,7 @@ class StudentResource(
     @PUT
     @ResponseStatus(200)
     @Path("/update")
-    fun updateStudent(
-        student: StudentDTO,
-    ) = studentService.updateStudent(student.id, student.firstName, student.lastName, student.email)
+    fun updateStudent(student: StudentDTO) = studentService.updateStudent(student.id, student.firstName, student.lastName, student.email)
 
     @DELETE
     @ResponseStatus(204)
@@ -69,12 +67,4 @@ class StudentResource(
         @PathParam("id") id: Long,
         courses: List<Long>,
     ) = studentService.assignCourses(id, courses)
-
-    @PUT
-    @ResponseStatus(200)
-    @Path("/{id}/removeCourses")
-    fun removeCourses(
-        @PathParam("id") id: Long,
-        courses: List<Long>,
-    ) = studentService.removeCourses(id, courses)
 }

@@ -28,9 +28,10 @@ data class Course(
     }
 
     fun toCourseDTO(): CourseDTO {
-        val studentDTOs = this.students.map { student ->
-            StudentDTO(student.id, student.firstName, student.lastName, student.email)
-        }
+        val studentDTOs =
+            this.students.map { student ->
+                StudentDTO(student.id, student.firstName, student.lastName, student.email)
+            }
         return CourseDTO(this.id, this.name, studentDTOs)
     }
 }

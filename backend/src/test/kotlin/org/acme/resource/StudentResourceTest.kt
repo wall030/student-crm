@@ -14,7 +14,6 @@ import org.acme.model.dto.StudentDTO
 import org.acme.service.StudentService
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.jupiter.api.Test
-import java.lang.Exception
 
 @QuarkusTest
 class StudentResourceTest {
@@ -151,7 +150,7 @@ class StudentResourceTest {
 
     @Test
     fun `test deleteStudents returns 404 when student does not exist`() {
-        val studentIDs = listOf(1L,2L)
+        val studentIDs = listOf(1L, 2L)
         every { studentService.deleteStudents(studentIDs) } throws ServiceException.StudentNotFoundException(studentIDs.toString())
 
         given()
@@ -206,54 +205,6 @@ class StudentResourceTest {
             .contentType(ContentType.JSON)
             .body(courseIds)
             .`when`().put("/api/student/1/assignCourses")
-            .then()
-            .statusCode(404)
-    }
-
-    @Test
-    fun `test removeCourses returns 200`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-        val courses = listOf(CourseDTO(1L, "Starship Engineering"), CourseDTO(2L, "Piloting 101"))
-
-        every { studentService.removeCourses(studentID, courseIds) } returns courses
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/removeCourses")
-            .then()
-            .statusCode(200)
-            .body("$.size()", equalTo(2))
-            .body("[0].name", equalTo("Starship Engineering"))
-    }
-
-    @Test
-    fun `test removeCourses returns  404 when student does not exist`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-
-        every { studentService.removeCourses(studentID, courseIds) } throws ServiceException.StudentNotFoundException(studentID.toString())
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/removeCourses")
-            .then()
-            .statusCode(404)
-    }
-
-    @Test
-    fun `test removeCourses returns  404 when course does not exist`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-
-        every { studentService.removeCourses(studentID, courseIds) } throws ServiceException.CourseNotFoundException(courseIds.toString())
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/removeCourses")
             .then()
             .statusCode(404)
     }
