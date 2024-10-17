@@ -1,19 +1,17 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import StudentsList from '../components/StudentsList'
+import Searchbar from '../components/Searchbar'
 
 const StudentsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState<string>('')
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term)
+  }
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Students List</h1>
-      <input
-        type="text"
-        placeholder="Search by name or email..."
-        className="w-full p-2 mb-4 border border-gray-300 rounded-md"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <Searchbar onSearch={handleSearch}/>
       <StudentsList searchTerm={searchTerm} />
     </div>
   )
