@@ -3,7 +3,8 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 
 const Searchbar: React.FC<{
     onSearch: (term: string) => void
-}> = ({ onSearch }) => {
+    placeholder: string
+}> = ({ onSearch, placeholder }) => {
 
     const [term, setTerm] = useState('')
 
@@ -28,7 +29,7 @@ const Searchbar: React.FC<{
       value={term}
       onChange={handleChange}
       onKeyDown={handleKeyPress}
-      placeholder="Search by name or email..."
+      placeholder={placeholder}
       className="border border-gray-300 rounded-full p-2 pl-4 pr-10 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
     />
     <button

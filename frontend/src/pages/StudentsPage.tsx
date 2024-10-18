@@ -11,7 +11,7 @@ const StudentsPage = () => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Students List</h1>
-      <Searchbar onSearch={handleSearch}/>
+      <Searchbar onSearch={handleSearch} placeholder="Search by name or email..."/>
       <StudentsList searchTerm={searchTerm} />
     </div>
   )
