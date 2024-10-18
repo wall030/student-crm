@@ -33,7 +33,7 @@ const Searchbar: React.FC<{
     />
     <button
       onClick={handleSubmit}
-      className="absolute right-1 bg-blue-500 text-white p-2 mb-4 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2"
+      className="absolute right-1 bg-blue-500 text-white p-2 mb-4 rounded-full hover:bg-blue-600"
     >
       <MagnifyingGlassIcon className="h-5 w-5" />
     </button>

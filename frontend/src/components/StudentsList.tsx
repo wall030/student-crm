@@ -8,6 +8,7 @@ import EditStudentModal from './EditStudentModal'
 import { StudentUpdated } from '../types/StudentUpdated'
 import ManageCoursesModal from './ManageCoursesModal'
 import { Course } from '../types/Course'
+import NavigationButtons from './NavigationButtons'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -145,32 +146,24 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   if (error) return <p>Error: {error}</p>
 
   const handlePreviousPage = () => {
-    setPage(page - 1)
+    if(page != 1){
+      setPage(page - 1)
+    }
   }
 
   const handleNextPage = () => {
-    setPage(page + 1)
+    if(hasMore){
+      setPage(page + 1)
+    }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
-        <div className="space-x-4">
-          {page != 1 &&
-            <button
-              className="px-4 py-2 rounded bg-appleBlue text-white"
-              onClick={() => handlePreviousPage()}>
-              Previous
-            </button>
-          }
-          {hasMore &&
-            <button
-              className="px-4 py-2 rounded bg-appleBlue text-white"
-              onClick={() => handleNextPage()}>
-              Next
-            </button>
-          }
-        </div>
+        <NavigationButtons 
+        onPrev={handlePreviousPage} 
+        onNext={handleNextPage}
+        />
         <StudentActions
           isEditDisabled={isEditDisabled}
           selectedStudents={selectedStudents}
