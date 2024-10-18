@@ -1,6 +1,6 @@
 import { useState } from "react"
 import Searchbar from "../components/Searchbar"
-import CoursesList from "../components/CoursesList"
+import CoursesList from "../components/course/CoursesList"
 
 const CoursesPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>('')

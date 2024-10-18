@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import org.acme.exception.ServiceException
 import org.acme.model.Course
 import org.acme.model.dto.CourseDTO
+import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 
 @ApplicationScoped
@@ -14,6 +15,13 @@ class CourseService(
     fun findAllCourses(): List<CourseDTO> = courseRepository.listAll().map { course -> course.toCourseDTO() }
 
     fun findCourse(id: Long): CourseDTO? = courseRepository.findById(id).toCourseDTO()
+
+    fun findCourses(
+        page: Int,
+        limit: Int,
+        search: String?,
+    ) = courseRepository.findCourses(page, limit, search.toString())
+        .map { course -> course.toCourseDTO() }
 
     @Transactional
     fun createCourse(name: String): CourseDTO {

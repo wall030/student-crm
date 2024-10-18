@@ -93,7 +93,7 @@ class StudentService(
                 missingCoursesList.add(courseId)
             }
         }
-       if(missingCoursesList.isNotEmpty()) throw ServiceException.CourseNotFoundException(missingCoursesList.toString())
+        if (missingCoursesList.isNotEmpty()) throw ServiceException.CourseNotFoundException(missingCoursesList.toString())
         student.courses = fetchedCourses.toMutableList()
         studentRepository.persist(student)
 

@@ -1,4 +1,4 @@
-import { StudentUpdated } from '../types/StudentUpdated'
+import { StudentUpdated } from '../../types/StudentUpdated'
 
 const EditStudentModal: React.FC<{
   student: StudentUpdated

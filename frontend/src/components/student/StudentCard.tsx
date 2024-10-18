@@ -1,4 +1,4 @@
-import { Student } from "../types/Student"
+import { Student } from "../../types/Student"
 
 const StudentCard: React.FC<{ 
   student: Student

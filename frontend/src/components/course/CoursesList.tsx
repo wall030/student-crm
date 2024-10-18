@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import CourseCard from "./CourseCard"
-import NavigationButtons from "./NavigationButtons"
-import { Course } from "../types/Course"
-import { Student } from "../types/Student"
+import NavigationButtons from "../NavigationButtons"
+import { Course } from "../../types/Course"
+import { Student } from "../../types/Student"
+import axios from "axios"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
@@ -16,8 +17,38 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     const limit = 10
 
 
+    useEffect(() => {
+        setPage(1)
+        setStudents([])
+        fetchCourses()
+      }, [searchTerm])
+    
+      useEffect(() => {
+        fetchCourses()
+      }, [page])
 
-
+    const fetchCourses = async () => {
+        if (loading) return
+        setLoading(true)
+        setError(null)
+    
+        try {
+          const response = await axios.get<Course[]>(`http://localhost:8080/api/course`, {
+            params: {
+              page,
+              limit: limit,
+              search: searchTerm,
+            },
+          })
+          const data = response.data
+          data.length === limit ? setHasMore(true) : setHasMore(false)
+          setCourses(data)
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'Unknown error')
+        } finally {
+          setLoading(false)
+        }
+      }
 
     const handlePreviousPage = () => {
         if (page != 1) {
@@ -41,12 +72,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
             </div>
 
-
-
-
             <div className="flex bg-gray-200 p-2 rounded-md font-bold">
-                <div className="w-1/3">Name</div>
-                <div className="w-1/3">Students</div>
+                <div className="w-1/2">Name</div>
+                <div className="w-1/2">Students</div>
             </div>
 
             <div>
@@ -58,7 +86,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
                     )
                 })}
             </div>
-            {loading && <p>Loading more students...</p>}
+            {loading && <p>Loading more courses...</p>}
         </div>
     )
 }

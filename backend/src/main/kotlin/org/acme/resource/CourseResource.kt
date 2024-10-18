@@ -8,6 +8,7 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.Produces
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CreateCourseDTO
@@ -24,6 +25,15 @@ class CourseResource(
     @ResponseStatus(200)
     @Path("/all")
     fun findAllCourses() = courseService.findAllCourses()
+
+    @GET
+    @ResponseStatus(200)
+    @Path("/")
+    fun findStudents(
+        @QueryParam("page") page: Int,
+        @QueryParam("limit") limit: Int,
+        @QueryParam("search") search: String,
+    ) = courseService.findCourses(page, limit, search)
 
     @GET
     @ResponseStatus(200)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Course } from '../types/Course'
-import { Student } from '../types/Student'
+import { Course } from '../../types/Course'
+import { Student } from '../../types/Student'
 
 interface ManageCoursesModalProps {
   allCourses: Course[]

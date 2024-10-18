@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
-import { Student } from '../types/Student'
+import { Student } from '../../types/Student'
 import CreateStudentModal from './CreateStudentModal'
 import StudentActions from './StudentActions'
 import EditStudentModal from './EditStudentModal'
-import { StudentUpdated } from '../types/StudentUpdated'
+import { StudentUpdated } from '../../types/StudentUpdated'
 import ManageCoursesModal from './ManageCoursesModal'
-import { Course } from '../types/Course'
-import NavigationButtons from './NavigationButtons'
+import { Course } from '../../types/Course'
+import NavigationButtons from '../NavigationButtons'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])

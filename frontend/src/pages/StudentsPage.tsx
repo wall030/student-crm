@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import StudentsList from '../components/StudentsList'
+import StudentsList from '../components/student/StudentsList'
 import Searchbar from '../components/Searchbar'
 
 const StudentsPage = () => {

@@ -1,5 +1,4 @@
-
-import { Course } from '../types/Course'
+import { Course } from '../../types/Course'
 
 const CourseCard:React.FC<{ 
     course: Course
@@ -14,7 +13,7 @@ const CourseCard:React.FC<{
           <ul>
             {course.students?.map((student) => (
               <li key={student.id} className="text-gray-700">
-                {student.firstName}
+                {student.firstName} {student.lastName}
               </li>
             ))}
           </ul>
