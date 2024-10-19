@@ -3,7 +3,7 @@ package org.acme.service
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.exception.ServiceException
-import org.acme.model.Student
+import org.acme.model.StudentEntity
 import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
@@ -38,7 +38,7 @@ class StudentService(
         studentRepository.findByEmail(email)?.let {
             throw ServiceException.DuplicateStudentException(email)
         }
-        val createdStudent = Student(firstName, lastName, email)
+        val createdStudent = StudentEntity(firstName, lastName, email)
         studentRepository.persist(createdStudent)
         return createdStudent.toStudentDTO()
     }
@@ -97,6 +97,6 @@ class StudentService(
         student.courses = fetchedCourses.toMutableList()
         studentRepository.persist(student)
 
-        return student.courses.map { CourseDTO(it.id, it.name) }
+        return student.courses.map { CourseDTO(it.id, it.name, emptyList()) }
     }
 }

@@ -7,11 +7,11 @@ import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.PUT
 import jakarta.ws.rs.Path
+import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.CreateCourseDTO
+import org.acme.model.dto.CourseCreateUpdateDTO
 import org.acme.service.CourseService
 import org.jboss.resteasy.reactive.ResponseStatus
 
@@ -44,13 +44,13 @@ class CourseResource(
     @ResponseStatus(201)
     @Path("/create")
     fun createCourse(
-        @Valid courseDTO: CreateCourseDTO,
+        @Valid courseDTO: CourseCreateUpdateDTO,
     ) = courseService.createCourse(courseDTO.name)
 
     @PUT
     @ResponseStatus(200)
-    @Path("/update")
-    fun updateCourse(courseDTO: CourseDTO) = courseService.updateCourse(courseDTO.id, courseDTO.name)
+    @Path("/{id}/update")
+    fun updateCourse(@PathParam("id") id: Long, courseDTO: CourseCreateUpdateDTO) = courseService.updateCourse(id, courseDTO.name)
 
     @DELETE
     @ResponseStatus(204)

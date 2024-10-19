@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 
-// Used for request updating and response
+// Used for response
 
 data class StudentDTO(
     @field:NotBlank(message = "ID is required")
@@ -14,5 +14,5 @@ data class StudentDTO(
     @field:Email(message = "Invalid email format")
     val email: String,
     @JsonIgnoreProperties("students")
-    val courses: List<CourseDTO>? = emptyList(),
+    val courses: List<CourseDTO>,
 )

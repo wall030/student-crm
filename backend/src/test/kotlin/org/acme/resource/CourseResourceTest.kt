@@ -9,7 +9,7 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.acme.exception.ServiceException
 import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.CreateCourseDTO
+import org.acme.model.dto.CourseCreateUpdateDTO
 import org.acme.service.CourseService
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.jupiter.api.Test
@@ -21,7 +21,7 @@ class CourseResourceTest {
 
     @Test
     fun `test findAllCourses returns 200`() {
-        val courses = listOf(CourseDTO(1L, "Starship Engineering"), CourseDTO(2L, "Piloting 101"))
+        val courses = listOf(CourseDTO(1L, "Starship Engineering", emptyList()), CourseDTO(2L, "Piloting 101", emptyList()))
 
         every { courseService.findAllCourses() } returns courses
 
@@ -36,7 +36,7 @@ class CourseResourceTest {
 
     @Test
     fun `test findCourse returns 200 when course exists`() {
-        val course = CourseDTO(1L, "Piloting 101")
+        val course = CourseDTO(1L, "Piloting 101", emptyList())
 
         every { courseService.findCourse(1L) } returns course
 
@@ -61,8 +61,8 @@ class CourseResourceTest {
 
     @Test
     fun `test createCourse returns 201`() {
-        val createCourseDTO = CreateCourseDTO("Piloting 101")
-        val createdCourse = CourseDTO(1L, "Piloting 101")
+        val createCourseDTO = CourseCreateUpdateDTO("Piloting 101")
+        val createdCourse = CourseDTO(1L, "Piloting 101", emptyList())
 
         every { courseService.createCourse(createCourseDTO.name) } returns createdCourse
 
@@ -77,7 +77,7 @@ class CourseResourceTest {
 
     @Test
     fun `test createCourse returns 409 when name already exists`() {
-        val createCourseDTO = CreateCourseDTO("Piloting 101")
+        val createCourseDTO = CourseCreateUpdateDTO("Piloting 101")
 
         every {
             courseService.createCourse(createCourseDTO.name)
@@ -93,14 +93,14 @@ class CourseResourceTest {
 
     @Test
     fun `test updateCourse returns 200`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101")
+        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
 
         every { courseService.updateCourse(courseDTO.id, courseDTO.name) } returns courseDTO
 
         given()
             .contentType(ContentType.JSON)
             .body(courseDTO)
-            .`when`().put("/api/course/update")
+            .`when`().put("/api/course/1/update")
             .then()
             .statusCode(200)
             .body("name", equalTo("Piloting 101"))
@@ -108,7 +108,7 @@ class CourseResourceTest {
 
     @Test
     fun `test updateCourse returns 404 when course does not exist`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101")
+        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
 
         every {
             courseService.updateCourse(courseDTO.id, courseDTO.name)
@@ -117,14 +117,14 @@ class CourseResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(courseDTO)
-            .`when`().put("/api/course/update")
+            .`when`().put("/api/course/1/update")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test updateCourse returns 409 when course already exists`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101")
+        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
 
         every {
             courseService.updateCourse(courseDTO.id, courseDTO.name)
@@ -133,7 +133,7 @@ class CourseResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(courseDTO)
-            .`when`().put("/api/course/update")
+            .`when`().put("/api/course/1/update")
             .then()
             .statusCode(409)
     }

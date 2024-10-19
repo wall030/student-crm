@@ -2,6 +2,7 @@ package org.acme.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -16,12 +17,16 @@ import org.acme.model.dto.StudentDTO
 
 @Entity
 @Table(name = "student")
-data class Student(
+class StudentEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true)
     var id: Long = 0L,
+    @Column(name = "firstname")
     var firstName: String = "",
+    @Column(name = "lastname")
     var lastName: String = "",
+    @Column(name = "email", unique = true)
     var email: String = "",
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -30,7 +35,7 @@ data class Student(
         inverseJoinColumns = [JoinColumn(name = "course_id")],
     )
     @JsonIgnoreProperties("students")
-    var courses: MutableList<Course> = mutableListOf(),
+    var courses: MutableList<CourseEntity> = mutableListOf(),
 ) : PanacheEntityBase() {
     constructor(firstName: String, lastName: String, email: String) : this() {
         this.firstName = firstName
@@ -41,7 +46,7 @@ data class Student(
     fun toStudentDTO(): StudentDTO {
         val coursesDTOs =
             this.courses.map { course ->
-                CourseDTO(course.id, course.name)
+                CourseDTO(course.id, course.name, emptyList())
             }
         return StudentDTO(this.id, this.firstName, this.lastName, this.email, coursesDTOs)
     }

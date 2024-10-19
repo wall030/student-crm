@@ -11,8 +11,7 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.MediaType
-import org.acme.model.dto.CreateStudentDTO
-import org.acme.model.dto.StudentDTO
+import org.acme.model.dto.StudentCreateUpdateDTO
 import org.acme.service.StudentService
 import org.jboss.resteasy.reactive.ResponseStatus
 
@@ -47,13 +46,13 @@ class StudentResource(
     @ResponseStatus(201)
     @Path("/create")
     fun createStudent(
-        @Valid student: CreateStudentDTO,
+        @Valid student: StudentCreateUpdateDTO,
     ) = studentService.createStudent(student.firstName, student.lastName, student.email)
 
     @PUT
     @ResponseStatus(200)
-    @Path("/update")
-    fun updateStudent(student: StudentDTO) = studentService.updateStudent(student.id, student.firstName, student.lastName, student.email)
+    @Path("/{id}/update")
+    fun updateStudent(@PathParam("id") id: Long, student: StudentCreateUpdateDTO) = studentService.updateStudent(id, student.firstName, student.lastName, student.email)
 
     @DELETE
     @ResponseStatus(204)

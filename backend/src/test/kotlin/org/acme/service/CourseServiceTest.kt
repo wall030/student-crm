@@ -6,8 +6,8 @@ import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.acme.model.Course
-import org.acme.model.dto.CreateCourseDTO
+import org.acme.model.CourseEntity
+import org.acme.model.dto.CourseCreateUpdateDTO
 import org.acme.repository.CourseRepository
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
@@ -24,9 +24,9 @@ class CourseServiceTest {
     @Test
     fun `should list all courses`() {
         val courses =
-            mutableListOf<Course>(
-                Course(1L, "Piloting 101"),
-                Course(2L, "Lightsaber Combat"),
+            mutableListOf<CourseEntity>(
+                CourseEntity(1L, "Piloting 101"),
+                CourseEntity(2L, "Lightsaber Combat"),
             )
         val coursesDtoList = courses.map { course -> course.toCourseDTO() }
 
@@ -38,7 +38,7 @@ class CourseServiceTest {
 
     @Test
     fun `find course by id`() {
-        val course = Course(1L, "Piloting 101")
+        val course = CourseEntity(1L, "Piloting 101")
 
         every { courseRepository.findById(course.id) } returns course
         val result = courseService.findCourse(course.id)
@@ -49,10 +49,10 @@ class CourseServiceTest {
     @Test
     @Transactional
     fun `create Course`() {
-        val courseDTO = CreateCourseDTO("Tactical Warfare")
+        val courseDTO = CourseCreateUpdateDTO("Tactical Warfare")
 
         every { courseRepository.findByName(courseDTO.name) } returns null
-        every { courseRepository.persist(Course(0L, courseDTO.name)) } returns Unit
+        every { courseRepository.persist(any<CourseEntity>()) } returns Unit
         val result = courseService.createCourse(courseDTO.name)
 
         expectThat(result.name).isEqualTo(courseDTO.name)
@@ -61,7 +61,7 @@ class CourseServiceTest {
     @Test
     @Transactional
     fun `should update course attributes`() {
-        val course = Course(1L, "Starship Engineering")
+        val course = CourseEntity(1L, "Starship Engineering")
         val courseDTO = course.toCourseDTO()
 
         every { courseRepository.findById(courseDTO.id) } returns course
@@ -79,8 +79,8 @@ class CourseServiceTest {
         val courseIDs = listOf(1L, 2L)
         val courses =
             listOf(
-                Course(1L, "Starship Engineering"),
-                Course(2L, "Piloting 101"),
+                CourseEntity(1L, "Starship Engineering"),
+                CourseEntity(2L, "Piloting 101"),
             )
 
         every { courseRepository.findByIds(courseIDs) } returns courses

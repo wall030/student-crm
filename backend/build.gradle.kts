@@ -20,19 +20,19 @@ dependencies {
     implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation("io.quarkus:quarkus-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
     implementation("io.quarkus:quarkus-rest")
     implementation("io.quarkus:quarkus-rest-jackson")
     implementation("io.quarkus:quarkus-flyway")
     implementation("io.quarkus:quarkus-jdbc-postgresql")
     implementation("io.quarkus:quarkus-hibernate-validator")
-
-    testImplementation("io.strikt:strikt-core:0.34.0")
     testImplementation("io.quarkus:quarkus-junit5")
-    testImplementation("io.rest-assured:rest-assured")
+
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20")
+    testImplementation("io.strikt:strikt-core:0.34.0")
+    testImplementation("io.rest-assured:rest-assured:5.5.0")
     testImplementation("io.quarkiverse.mockk:quarkus-junit5-mockk:3.0.0")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:postgresql:1.20.2")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
 }

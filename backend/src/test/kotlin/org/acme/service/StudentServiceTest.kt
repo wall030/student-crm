@@ -6,10 +6,10 @@ import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.acme.model.Course
-import org.acme.model.Student
+import org.acme.model.CourseEntity
+import org.acme.model.StudentEntity
 import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.CreateStudentDTO
+import org.acme.model.dto.StudentCreateUpdateDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
 import org.junit.jupiter.api.Test
@@ -30,9 +30,9 @@ class StudentServiceTest {
     @Test
     fun `should list all students`() {
         val students =
-            mutableListOf<Student>(
-                Student("Luke", "Skywalker", "luke@jedi.com"),
-                Student("Leia", "Organa", "leia@rebel.com"),
+            mutableListOf<StudentEntity>(
+                StudentEntity("Luke", "Skywalker", "luke@jedi.com"),
+                StudentEntity("Leia", "Organa", "leia@rebel.com"),
             )
 
         every { studentRepository.listAll() } returns students
@@ -42,7 +42,7 @@ class StudentServiceTest {
 
     @Test
     fun `find student by id`() {
-        val student = Student(1L, "Han", "Solo", "solo@smuggler.com")
+        val student = StudentEntity(1L, "Han", "Solo", "solo@smuggler.com")
 
         every { studentRepository.findById(student.id) } returns student
         val result = studentService.findStudent(student.id)
@@ -52,10 +52,10 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `create Student`() {
-        val studentDTO = CreateStudentDTO("Darth", "Vader", "vader@sith.com")
+        val studentDTO = StudentCreateUpdateDTO("Darth", "Vader", "vader@sith.com")
 
         every {
-            studentRepository.persist(Student(0L, studentDTO.firstName, studentDTO.lastName, studentDTO.email))
+            studentRepository.persist(any<StudentEntity>())
         } returns Unit
 
         every {
@@ -79,7 +79,7 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `should update student attributes`() {
-        val student = Student(1L, "Darth", "Maul", "noleg@sith.com")
+        val student = StudentEntity(1L, "Darth", "Maul", "noleg@sith.com")
         val studentDTO = student.toStudentDTO()
 
         every { studentRepository.findById(studentDTO.id) } returns student
@@ -102,8 +102,8 @@ class StudentServiceTest {
         val studentIDs = listOf(1L, 2L)
         val students =
             listOf(
-                Student(1L, "Darth", "Maul", "noleg@sith.com"),
-                Student(2L, "Han", "Solo", "solo@smuggler.com"),
+                StudentEntity(1L, "Darth", "Maul", "noleg@sith.com"),
+                StudentEntity(2L, "Han", "Solo", "solo@smuggler.com"),
             )
 
         every { studentRepository.findByIds(studentIDs) } returns students
@@ -118,9 +118,9 @@ class StudentServiceTest {
     fun `should assign a list of courses to a student`() {
         val courseIDs = listOf<Long>(1L, 2L)
         val studentID = 1L
-        val updatedStudent = Student(studentID, "Rey", "Palpatine", "rey@scavenger.com")
-        val course1 = Course(1L, "Piloting 101")
-        val course2 = Course(2L, "Lightsaber Combat")
+        val updatedStudent = StudentEntity(studentID, "Rey", "Palpatine", "rey@scavenger.com")
+        val course1 = CourseEntity(1L, "Piloting 101")
+        val course2 = CourseEntity(2L, "Lightsaber Combat")
 
         every { courseRepository.findByIds(courseIDs) } returns listOf(course1, course2)
         every { studentRepository.findById(studentID) } returns updatedStudent
@@ -130,8 +130,8 @@ class StudentServiceTest {
 
         expectThat(result).isEqualTo(
             listOf(
-                CourseDTO(course1.id, course1.name),
-                CourseDTO(course2.id, course2.name),
+                CourseDTO(course1.id, course1.name, emptyList()),
+                CourseDTO(course2.id, course2.name, emptyList()),
             ),
         )
         verify { studentRepository.persist(updatedStudent) }

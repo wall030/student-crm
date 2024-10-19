@@ -9,7 +9,7 @@ import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.acme.exception.ServiceException
 import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.CreateStudentDTO
+import org.acme.model.dto.StudentCreateUpdateDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.service.StudentService
 import org.hamcrest.core.IsEqual.equalTo
@@ -22,7 +22,7 @@ class StudentResourceTest {
 
     @Test
     fun `test findAllStudents returns 200`() {
-        val students = listOf(StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", listOf(CourseDTO(1L, "Piloting 101"))))
+        val students = listOf(StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", listOf(CourseDTO(1L, "Piloting 101", emptyList()))))
         every { studentService.findAllStudents() } returns students
 
         given()
@@ -35,7 +35,7 @@ class StudentResourceTest {
 
     @Test
     fun `test findStudentByID returns 200 when student exists`() {
-        val student = StudentDTO(1L, "Leia", "Organa", "leia@rebel.com")
+        val student = StudentDTO(1L, "Leia", "Organa", "leia@rebel.com", emptyList())
         every { studentService.findStudent(1L) } returns student
 
         given()
@@ -58,8 +58,8 @@ class StudentResourceTest {
 
     @Test
     fun `test createStudent returns 201`() {
-        val createStudentDTO = CreateStudentDTO("Anakin", "Skywalker", "anakin@jedi.com")
-        val createdStudent = StudentDTO(1L, "Anakin", "Skywalker", "anakin@jedi.com")
+        val createStudentDTO = StudentCreateUpdateDTO("Anakin", "Skywalker", "anakin@jedi.com")
+        val createdStudent = StudentDTO(1L, "Anakin", "Skywalker", "anakin@jedi.com", emptyList())
         every {
             studentService.createStudent(createStudentDTO.firstName, createStudentDTO.lastName, createStudentDTO.email)
         } returns createdStudent
@@ -75,7 +75,7 @@ class StudentResourceTest {
 
     @Test
     fun `test createStudent returns 409 when email already exists`() {
-        val createStudentDTO = CreateStudentDTO("Anakin", "Skywalker", "anakin@jedi.com")
+        val createStudentDTO = StudentCreateUpdateDTO("Anakin", "Skywalker", "anakin@jedi.com")
         every {
             studentService.createStudent(createStudentDTO.firstName, createStudentDTO.lastName, createStudentDTO.email)
         } throws ServiceException.DuplicateStudentException(createStudentDTO.email)
@@ -90,7 +90,7 @@ class StudentResourceTest {
 
     @Test
     fun `test updateStudent returns 200`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com")
+        val studentDTO = StudentDTO(1L,"Luke", "Skywalker", "luke@jedi.com",emptyList())
         every {
             studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
         } returns studentDTO
@@ -98,7 +98,7 @@ class StudentResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(studentDTO)
-            .`when`().put("/api/student/update")
+            .`when`().put("/api/student/1/update")
             .then()
             .statusCode(200)
             .body("firstName", equalTo("Luke"))
@@ -106,7 +106,7 @@ class StudentResourceTest {
 
     @Test
     fun `test updateStudent returns 404 when student does not exist`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com")
+        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
         every {
             studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
         } throws ServiceException.StudentNotFoundException(studentDTO.id.toString())
@@ -114,14 +114,14 @@ class StudentResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(studentDTO)
-            .`when`().put("/api/student/update")
+            .`when`().put("/api/student/1/update")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test updateStudent returns 409 when email already exists`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com")
+        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
         every {
             studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
         } throws ServiceException.DuplicateStudentException(studentDTO.email)
@@ -129,7 +129,7 @@ class StudentResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(studentDTO)
-            .`when`().put("/api/student/update")
+            .`when`().put("/api/student/1/update")
             .then()
             .statusCode(409)
     }
@@ -165,7 +165,7 @@ class StudentResourceTest {
     fun `test assignCourses returns 200`() {
         val studentID = 1L
         val courseIds = listOf(1L, 2L)
-        val courses = listOf(CourseDTO(1L, "Starship Engineering"), CourseDTO(2L, "Piloting 101"))
+        val courses = listOf(CourseDTO(1L, "Starship Engineering", emptyList()), CourseDTO(2L, "Piloting 101", emptyList()))
 
         every { studentService.assignCourses(studentID, courseIds) } returns courses
 

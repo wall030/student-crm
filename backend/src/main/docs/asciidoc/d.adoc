@@ -1,22 +1,270 @@
+
+= Student CRM API Documentation
+
+v1.0, 19.10.2024
+
 == Introduction
+This documentation provides an overview of the Student CRM API, including the available endpoints, their use cases, and example requests/responses.
 
-This is a placeholder for the project documentation.
 
-== Project Overview
+=== Change History
+[cols="1,3"]
+|===
+| Version | Description
+| 1.0    | Start version
+|===
 
-overview of the project.
 
-=== Features
+== Service Overview
 
-* Feature 1: Explanation of the first feature.
-* Feature 2: Explanation of the second feature.
+This service can manage students and courses. You can perform basic CRUD operations on both. Additionally, you can manage the courses in which students are enrolled.
 
-=== Technologies Used
 
-* **Language**: Kotlin
-* **Framework**: Quarkus
-* **Build Tool**: Gradle
+== Domains
 
-== Setup and Installation
+=== Student
 
-To set up and run this project, follow these steps:
+
+**Attributes**:
+
+- `id`: Unique identifier of the student
+- `firstname`: First name of the student
+- `lastname`: Last name of the student
+- `email`: Unique email address of the student
+- `courses`: List of Courses enrolled
+
+=== Course
+
+**Attributes**:
+
+- `id`: Unique identifier of the course
+- `name`: Name of the course
+- `students`: List of students in the course
+
+== APIs
+
+=== Student Endpoints
+
+==== Get All Students
+**Description**: Retrieves a list of all students.
+
+**Endpoint**: `GET /api/student/all`
+
+**Example Response**:
+[source,json]
+----
+[
+    {
+      "id": 1,
+      "firstname": "Han",
+      "lastname": "Solo",
+      "email": "han.solo@example.com",
+      "courses": [
+          {
+            "id": 3,
+            "name": "Smuggling for Beginners"
+          },
+          {
+            "id": 4,
+            "name": "Piloting"
+          }
+      ]
+    },
+    {
+      "id": 2,
+      "firstname": "Boba",
+      "lastname": "Fett",
+      "email": "boba.fett@example.com",
+      "courses": []
+    }
+]
+----
+
+
+
+
+==== Get Student by ID
+**Description**: Retrieves a student by their ID.
+
+**Endpoint**: `GET /api/student/{id}`
+
+
+
+**Example Response**:
+[source,json]
+----
+{
+  "id": 1,
+  "firstname": "Han",
+  "lastname": "Solo",
+  "email": "han.solo@example.com",
+  "courses": [
+      {
+        "id": 3,
+        "name": "Smuggling for Beginners"
+      }
+  ]
+}
+----
+
+
+==== Create Student
+**Description**: Creates a new student.
+
+**Endpoint**: `POST /api/student/create`
+
+**Example Request**:
+[source,json]
+----
+{
+  "firstname": "Han",
+  "lastname": "Solo",
+  "email": "han.solo@example.com"
+}
+----
+
+**Example Response**:
+[source,json]
+----
+{
+  "id": 1,
+  "firstname": "Han",
+  "lastname": "Solo",
+  "email": "han.solo@example.com",
+  "courses": [
+      {
+        "id": 3,
+        "name": "Smuggling for Beginners"
+      }
+  ]
+}
+----
+
+
+
+==== Update Student
+**Description**: Updates an existing student's information (**excluding courses**).
+
+**Endpoint**: `PUT /api/student/{id}/update`
+
+**Example Request**:
+[source,json]
+----
+{
+  "firstname": "Han",
+  "lastname": "Duo",
+  "email": "han.duo@newemail.com",
+}
+----
+The ID needs to exist. The updated email can't be an in the database existing one (unique attribute).
+
+**Example Response**:
+[source,json]
+----
+{
+  "id": 1,
+  "firstname": "Han",
+  "lastname": "Duo",
+  "email": "han.duo@newemail.com",
+  "courses": [
+      {
+        "id": 3,
+        "name": "Smuggling for Beginners"
+      }
+  ]
+}
+----
+
+
+==== Delete Student
+**Description**: Deletes a list of students by their ID (if only one student needs to be deleted, pass a list with one ID).
+
+**Endpoint**: `DELETE /api/student/delete`
+
+**Example Request**:
+[source,json]
+----
+[
+  1, 3, 4, 7
+]
+----
+
+**Example Response**:
+[source,json]
+----
+204 No Content
+----
+
+
+
+=== Course Endpoints
+
+==== Get All Courses
+**Description**: Retrieves a list of all courses.
+
+**Endpoint**: `GET /api/course/all`
+
+**Example Request**:
+[source,json]
+----
+GET /api/course/all
+----
+
+**Example Response**:
+[source,json]
+----
+[
+    {
+      "id": 1,
+      "name": "Starship Engineering"
+    },
+    {
+      "id": 2,
+      "name": "Piloting 101"
+    }
+]
+
+----
+
+
+==== Create Course
+**Description**: Creates a new course.
+
+**Endpoint**: `POST /api/course/create`
+
+**Example Request**:
+[source,json]
+----
+{
+  "name": "Starship Engineering"
+}
+----
+
+**Example Response**:
+[source,json]
+----
+{
+  "id": 1,
+  "name": "Starship Engineering"
+}
+----
+
+
+==== Delete Course
+**Description**: Deletes a list of courses by their ID (if only one course needs to be deleted, pass a list with one ID)
+
+**Endpoint**: `DELETE /api/course/delete`
+
+**Example Request**:
+[source,json]
+----
+[
+  3, 5, 1
+]
+----
+
+**Example Response**:
+[source,json]
+----
+204 No Content
+----

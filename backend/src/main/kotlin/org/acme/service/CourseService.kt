@@ -3,9 +3,8 @@ package org.acme.service
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.exception.ServiceException
-import org.acme.model.Course
+import org.acme.model.CourseEntity
 import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 
 @ApplicationScoped
@@ -28,7 +27,7 @@ class CourseService(
         courseRepository.findByName(name)?.let {
             throw ServiceException.DuplicateCourseException(name)
         }
-        val createdCourse = Course(name)
+        val createdCourse = CourseEntity(name)
         courseRepository.persist(createdCourse)
         return createdCourse.toCourseDTO()
     }
