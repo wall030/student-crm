@@ -5,6 +5,8 @@ import { Course } from "../../types/Course"
 import axios from "axios"
 import Actions from "../Actions"
 import CreateCourseModal from "./CreateCourseModal"
+import { CourseUpdated } from "../../types/CourseUpdated"
+import EditCourseModal from "./EditCourseModal"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
@@ -16,6 +18,8 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [hasMore, setHasMore] = useState(true)
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [newCourse, setNewCourse] = useState({ name: '' })
+  const [isEditModalOpen, setEditModalOpen] = useState(false)
+  const [editableCourse, setEditableCourse] = useState<CourseUpdated>({ id: 0, name: '' })
   const limit = 10
 
   useEffect(() => {
@@ -79,8 +83,34 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleCourseUpdated = async (updatedCourse: CourseUpdated) => {
+    try {
+      await axios.put(`http://localhost:8080/api/course/${updatedCourse.id}/update`, updatedCourse
+
+      )
+      setEditModalOpen(false)
+      setCourses((prevCourses) =>
+        prevCourses.map((course) => (course.id === updatedCourse
+          .id ? {
+          ...course, ...updatedCourse
+        } : course))
+      )
+      setSelectedCourses([])
+    } catch (error) {
+      console.error('Error updating course:', error)
+    }
+  }
+
   const handleOpenEditModal = () => {
-    throw new Error("Function not implemented.")
+    if (selectedCourses.length === 1) {
+      const courseToEdit = courses.find((course) => course.id === selectedCourses[0])
+      if (courseToEdit
+
+      ) {
+        setEditableCourse(courseToEdit)
+        setEditModalOpen(true)
+      }
+    }
   }
 
   const handleOpenManageStudentsModal = () => {
@@ -134,6 +164,15 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         />
       )}
 
+      {isEditModalOpen && (
+        <EditCourseModal
+          course={editableCourse}
+          setCourse={setEditableCourse}
+          onUpdate={() => handleCourseUpdated(editableCourse)}
+          onClose={() => setEditModalOpen(false)}
+        />
+      )}
+
       <table className="table-auto w-full border-collapse">
         <thead>
           <tr className="bg-gray-200">
@@ -158,6 +197,5 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     </div>
   )
 }
-
 
 export default CoursesList
