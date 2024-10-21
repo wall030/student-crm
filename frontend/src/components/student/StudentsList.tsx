@@ -3,12 +3,12 @@ import axios from 'axios'
 import StudentCard from './StudentCard'
 import { Student } from '../../types/Student'
 import CreateStudentModal from './CreateStudentModal'
-import StudentActions from './StudentActions'
 import EditStudentModal from './EditStudentModal'
 import { StudentUpdated } from '../../types/StudentUpdated'
 import ManageCoursesModal from './ManageCoursesModal'
 import { Course } from '../../types/Course'
 import NavigationButtons from '../NavigationButtons'
+import Actions from '../Actions'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -99,7 +99,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
   const handleStudentUpdated = async (updatedStudent: StudentUpdated) => {
     try {
-      await axios.put(`http://localhost:8080/api/student/update`, updatedStudent)
+      await axios.put(`http://localhost:8080/api/student/${updatedStudent.id}/update`, updatedStudent)
       setEditModalOpen(false)
       setStudents((prevStudents) =>
         prevStudents.map((student) => (student.id === updatedStudent.id ? { ...student, ...updatedStudent } : student))
@@ -164,13 +164,14 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         onPrev={handlePreviousPage} 
         onNext={handleNextPage}
         />
-        <StudentActions
+        <Actions
+          manageButtonTitle={"Manage Courses"}
           isEditDisabled={isEditDisabled}
-          selectedStudents={selectedStudents}
+          selected={selectedStudents}
           onDelete={handleDelete}
           onOpenCreateModal={() => setCreateModalOpen(true)}
           onOpenEditModal={handleOpenEditModal}
-          onOpenManageCoursesModal={handleOpenManageCoursesModal}
+          onOpenManageModal={handleOpenManageCoursesModal}
         />
       </div>
 
