@@ -146,13 +146,13 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   if (error) return <p>Error: {error}</p>
 
   const handlePreviousPage = () => {
-    if(page != 1){
+    if (page != 1) {
       setPage(page - 1)
     }
   }
 
   const handleNextPage = () => {
-    if(hasMore){
+    if (hasMore) {
       setPage(page + 1)
     }
   }
@@ -160,9 +160,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
-        <NavigationButtons 
-        onPrev={handlePreviousPage} 
-        onNext={handleNextPage}
+        <NavigationButtons
+          onPrev={handlePreviousPage}
+          onNext={handleNextPage}
         />
         <Actions
           manageButtonTitle={"Manage Courses"}
@@ -208,22 +208,27 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
         />
       )}
 
-      <div className="flex bg-gray-200 p-2 rounded-md font-bold">
-        <div className="w-1/3">Name</div>
-        <div className="w-1/3">Email</div>
-        <div className="w-1/3">Courses</div>
-      </div>
-
-      <div>
-        {students.map((student) => {
-          const isSelected = selectedStudents.includes(student.id)
-          return (
-            <div key={student.id}>
-              <StudentCard student={student} isSelected={isSelected} onSelect={() => handleSelectStudent(student.id)} />
-            </div>
-          )
-        })}
-      </div>
+      <table className="table-auto w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="px-4 py-2 text-left">Name</th>
+            <th className="px-4 py-2 text-left">Email</th>
+            <th className="px-4 py-2 text-left">Courses</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students.map((student) => {
+            const isSelected = selectedStudents.includes(student.id)
+            return (
+              <StudentCard
+                key={student.id}
+                student={student}
+                isSelected={isSelected}
+                onSelect={() => handleSelectStudent(student.id)}
+              />)
+          })}
+        </tbody>
+      </table>
       {loading && <p>Loading more students...</p>}
     </div>
   )

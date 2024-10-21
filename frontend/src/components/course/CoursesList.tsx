@@ -52,6 +52,11 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleSelectCourse = (id: number) => {
+    setSelectedCourses((prevSelected) =>
+      prevSelected.includes(id) ? prevSelected.filter((courseId) => courseId !== id) : [...prevSelected, id]
+    )
+  }
 
   const handleDelete = () => {
     throw new Error("Function not implemented.")
@@ -101,20 +106,26 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
 
       </div>
 
-      <div className="flex bg-gray-200 p-2 rounded-md font-bold">
-        <div className="w-1/2">Name</div>
-        <div className="w-1/2">Students</div>
-      </div>
-
-      <div>
-        {courses.map((course) => {
-          return (
-            <div key={course.id}>
-              <CourseCard course={course}/>
-            </div>
-          )
-        })}
-      </div>
+      <table className="table-auto w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="px-4 py-2 text-left">Name</th>
+            <th className="px-4 py-2 text-left">Students</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.map((course) => {
+            const isSelected = selectedCourses.includes(course.id)
+            return (
+              <CourseCard
+                key={course.id}
+                course={course}
+                isSelected={isSelected}
+                onSelect={() => handleSelectCourse(course.id)}
+              />)
+          })}
+        </tbody>
+      </table>
       {loading && <p>Loading more courses...</p>}
     </div>
   )

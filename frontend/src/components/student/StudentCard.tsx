@@ -1,18 +1,20 @@
 import { Student } from "../../types/Student"
 
-const StudentCard: React.FC<{ 
+const StudentCard: React.FC<{
   student: Student
   isSelected: boolean
   onSelect: () => void
 }> = ({ student, isSelected, onSelect }) => {
   return (
-    <div 
-      className={`flex justify-between items-center p-1 border-b border-gray-300 cursor-pointer ${isSelected ? 'bg-blue-100' : ''}`}
+    <tr
+      className={`border-b border-gray-300 cursor-pointer ${isSelected ? 'bg-blue-100' : ''}`}
       onClick={onSelect}
     >
-      <div className="flex-1 font-bold">{student.firstName} {student.lastName}</div>
-      <div className="flex-1 text-gray-600">{student.email}</div>
-      <div className="flex-1 text-gray-600">
+      <td className="px-4 py-2 font-bold">
+        {student.firstName} {student.lastName}
+      </td>
+      <td className="px-4 py-2 text-gray-600">{student.email}</td>
+      <td className="px-4 py-2 text-gray-600">
         <ul>
           {student.courses?.map((course) => (
             <li key={course.id} className="text-gray-700">
@@ -20,15 +22,8 @@ const StudentCard: React.FC<{
             </li>
           ))}
         </ul>
-      </div>
-
-      <input
-        type="checkbox"
-        checked={isSelected}
-        onChange={ () => onSelect() }
-        className="ml-2"
-      />
-    </div>
+      </td>
+    </tr>
   )
 }
 
