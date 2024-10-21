@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import CourseCard from "./CourseCard"
 import NavigationButtons from "../NavigationButtons"
 import { Course } from "../../types/Course"
-import { Student } from "../../types/Student"
 import axios from "axios"
 import Actions from "../Actions"
+import CreateCourseModal from "./CreateCourseModal"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
@@ -15,12 +15,12 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [isCreateModalOpen, setCreateModalOpen] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
-  const [students, setStudents] = useState<Student[]>([])
+  const [newCourse, setNewCourse] = useState({ name: '' })
   const limit = 10
 
   useEffect(() => {
     setPage(1)
-    setStudents([])
+    setCourses([])
     fetchCourses()
   }, [searchTerm])
 
@@ -67,6 +67,18 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleCreateCourse = async () => {
+    try {
+      const response = await axios.post<Course>(`http://localhost:8080/api/course/create`, newCourse)
+      const createdCourse = response.data
+      setCourses((prevCourses) => [createdCourse, ...prevCourses])
+      setCreateModalOpen(false)
+      setNewCourse({ name: '' })
+    } catch (error) {
+      console.error('Error creating student:', error)
+    }
+  }
+
   const handleOpenEditModal = () => {
     throw new Error("Function not implemented.")
   }
@@ -108,8 +120,19 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           onOpenEditModal={handleOpenEditModal}
           onOpenManageModal={handleOpenManageStudentsModal}
         />
-
       </div>
+
+      {isCreateModalOpen && (
+        <CreateCourseModal
+          newCourse={newCourse}
+          setNewCourse={setNewCourse}
+          onCreate={handleCreateCourse}
+          onClose={() => {
+            setCreateModalOpen(false)
+            setNewCourse({ name: '' })
+          }}
+        />
+      )}
 
       <table className="table-auto w-full border-collapse">
         <thead>
