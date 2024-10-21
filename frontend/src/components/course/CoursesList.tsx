@@ -18,7 +18,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
   const limit = 10
 
-
   useEffect(() => {
     setPage(1)
     setStudents([])
@@ -58,8 +57,14 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     )
   }
 
-  const handleDelete = () => {
-    throw new Error("Function not implemented.")
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/course/delete`, { data: selectedCourses })
+      setCourses((prevCourses) => prevCourses.filter((course) => !selectedCourses.includes(course.id)))
+      setSelectedCourses([])
+    } catch (error) {
+      console.error('Error deleting courses:', error)
+    }
   }
 
   const handleOpenEditModal = () => {
