@@ -7,6 +7,8 @@ import Actions from "../Actions"
 import CreateCourseModal from "./CreateCourseModal"
 import { CourseUpdated } from "../../types/CourseUpdated"
 import EditCourseModal from "./EditCourseModal"
+import ManageStudentsModal from "./ManageStudentsModal"
+import { Student } from "../../types/Student"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
@@ -20,6 +22,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [newCourse, setNewCourse] = useState({ name: '' })
   const [isEditModalOpen, setEditModalOpen] = useState(false)
   const [editableCourse, setEditableCourse] = useState<CourseUpdated>({ id: 0, name: '' })
+  const [isManageStudentsModalOpen, setManageStudentsModalOpen] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [students, setStudents] = useState<Student[]>([])
   const limit = 10
 
   useEffect(() => {
@@ -52,6 +57,15 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchStudents = async () => {
+    try {
+      const studentsResponse = await axios.get<Student[]>('http://localhost:8080/api/student/all')
+      setStudents(studentsResponse.data)
+    } catch (error) {
+      console.error('Error fetching students:', error)
     }
   }
 
@@ -113,8 +127,24 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   }
 
+  const handleManageStudents = (courseWithNewStudents: Course) => {
+    setCourses((prevCourses) =>
+      prevCourses.map((course) => (course.id === courseWithNewStudents.id ? { ...course, ...courseWithNewStudents } : course))
+    )
+    setManageStudentsModalOpen(false)
+    setSelectedCourses([])
+
+  }
+
   const handleOpenManageStudentsModal = () => {
-    throw new Error("Function not implemented.")
+    if (selectedCourses.length === 1) {
+      const course = courses.find((course) => course.id === selectedCourses[0])
+      if (course) {
+        fetchStudents()
+        setSelectedCourse(course)
+        setManageStudentsModalOpen(true)
+      }
+    }
   }
 
   const isEditDisabled = selectedCourses.length !== 1
@@ -170,6 +200,18 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
           setCourse={setEditableCourse}
           onUpdate={() => handleCourseUpdated(editableCourse)}
           onClose={() => setEditModalOpen(false)}
+        />
+      )}
+
+      {isManageStudentsModalOpen && selectedCourse && (
+        <ManageStudentsModal
+          allStudents={students}
+          course={selectedCourse}
+          onUpdate={() => handleManageStudents(selectedCourse)}
+          onClose={() => {
+            setManageStudentsModalOpen(false)
+            setSelectedCourses([])
+          }}
         />
       )}
 

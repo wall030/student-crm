@@ -90,7 +90,7 @@ class StudentResourceTest {
 
     @Test
     fun `test updateStudent returns 200`() {
-        val studentDTO = StudentDTO(1L,"Luke", "Skywalker", "luke@jedi.com",emptyList())
+        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
         every {
             studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
         } returns studentDTO

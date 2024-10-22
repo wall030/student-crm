@@ -3,14 +3,13 @@ import axios from 'axios'
 import { Course } from '../../types/Course'
 import { Student } from '../../types/Student'
 
-interface ManageCoursesModalProps {
+
+const ManageCoursesModal: React.FC<{
   allCourses: Course[]
   student: Student
   onUpdate: (student: Student) => void
   onClose: () => void
-}
-
-const ManageCoursesModal: React.FC<ManageCoursesModalProps> = ({ allCourses, student, onUpdate, onClose }) => {
+}> = ({ allCourses, student, onUpdate, onClose }) => {
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
 

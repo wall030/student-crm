@@ -8,8 +8,8 @@ import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.acme.exception.ServiceException
-import org.acme.model.dto.CourseDTO
 import org.acme.model.dto.CourseCreateUpdateDTO
+import org.acme.model.dto.CourseDTO
 import org.acme.service.CourseService
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.jupiter.api.Test

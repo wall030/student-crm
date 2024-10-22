@@ -52,7 +52,10 @@ class StudentResource(
     @PUT
     @ResponseStatus(200)
     @Path("/{id}/update")
-    fun updateStudent(@PathParam("id") id: Long, student: StudentCreateUpdateDTO) = studentService.updateStudent(id, student.firstName, student.lastName, student.email)
+    fun updateStudent(
+        @PathParam("id") id: Long,
+        student: StudentCreateUpdateDTO,
+    ) = studentService.updateStudent(id, student.firstName, student.lastName, student.email)
 
     @DELETE
     @ResponseStatus(204)

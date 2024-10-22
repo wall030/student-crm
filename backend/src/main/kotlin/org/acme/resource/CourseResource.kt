@@ -50,10 +50,21 @@ class CourseResource(
     @PUT
     @ResponseStatus(200)
     @Path("/{id}/update")
-    fun updateCourse(@PathParam("id") id: Long, courseDTO: CourseCreateUpdateDTO) = courseService.updateCourse(id, courseDTO.name)
+    fun updateCourse(
+        @PathParam("id") id: Long,
+        courseDTO: CourseCreateUpdateDTO,
+    ) = courseService.updateCourse(id, courseDTO.name)
 
     @DELETE
     @ResponseStatus(204)
     @Path("/delete")
     fun deleteCourses(courses: List<Long>) = courseService.deleteCourses(courses)
+
+    @PUT
+    @ResponseStatus(200)
+    @Path("/{id}/assignStudents")
+    fun assignStudents(
+        @PathParam("id") id: Long,
+        students: List<Long>,
+    ) = courseService.assignStudents(id, students)
 }
