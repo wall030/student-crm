@@ -1,0 +1,37 @@
+{
+    "navbar.students": "Students",
+    "navbar.courses": "Courses",
+    "navbar.languageDropdown": "Language",
+
+    "actions.manage.courses.title": "Manage Courses for ",
+    "actions.manage.courses": "Manage Courses",
+    "actions.manage.students.title": "Manage Students for ",
+    "actions.manage.students": "Manage Students",
+    "actions.edit": "Edit",
+
+    "buttons.create": "Create",
+    "buttons.save": "Save",
+    "buttons.cancel": "Cancel",
+
+    "modals.student.create":"Create Student",
+    "modals.student.edit": "Edit Student",
+    "modals.course.create":"Create Course",
+    "modals.course.edit": "Edit Course",
+
+    "page.home.welcome": "Welcome to StudentCRM",
+    "page.home.description": "Manage your students and courses easily. Use the navigation to get started.",
+
+    "page.students.searchfield": "Search by name or e-mail...",
+    "page.students.title": "Students List",
+    "page.students.tableColumn.name": "Name",
+    "page.students.tableColumn.email": "E-Mail",
+    "page.students.tableColumn.courses": "Courses",
+   
+    "page.courses.searchfield": "Search by name...",
+    "page.courses.title": "Course List",
+    "page.courses.tableColumn.name": "Name",
+    "page.courses.tableColumn.students": "Students",
+
+    "language.en": "English",
+    "language.de": "German"
+}

@@ -9,6 +9,7 @@ import ManageCoursesModal from './ManageCoursesModal'
 import { Course } from '../../types/Course'
 import NavigationButtons from '../NavigationButtons'
 import Actions from '../Actions'
+import { FormattedMessage } from 'react-intl'
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
   const [students, setStudents] = useState<Student[]>([])
@@ -211,9 +212,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
       <table className="table-auto w-full border-collapse">
         <thead>
           <tr className="bg-gray-200">
-            <th className="px-4 py-2 text-left">Name</th>
-            <th className="px-4 py-2 text-left">Email</th>
-            <th className="px-4 py-2 text-left">Courses</th>
+            <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name" /></th>
+            <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail" /></th>
+            <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses" /></th>
           </tr>
         </thead>
         <tbody>

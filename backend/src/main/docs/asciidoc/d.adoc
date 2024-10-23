@@ -43,8 +43,10 @@ This service can manage students and courses. You can perform basic CRUD operati
 
 == APIs
 
+---
 === Student Endpoints
 
+---
 ==== Get All Students
 **Description**: Retrieves a list of all students.
 
@@ -80,9 +82,47 @@ This service can manage students and courses. You can perform basic CRUD operati
 ]
 ----
 
+---
+==== Find Students by Name or Email
+**Description**: Retrieves a list of students by a search term (name or email).
+
+**Endpoint**: `GET /api/student?page={pageNumber}&limit={limit}&search={searchTerm}`
 
 
 
+**Example Response**:
+[source,json]
+----
+[
+    {
+      "id": 1,
+      "firstname": "Han",
+      "lastname": "Solo",
+      "email": "han.solo@example.com",
+      "courses": [
+          {
+            "id": 3,
+            "name": "Smuggling for Beginners"
+          },
+          {
+            "id": 4,
+            "name": "Piloting"
+          }
+      ]
+    },
+    {
+      "id": 2,
+      "firstname": "Boba",
+      "lastname": "Fett",
+      "email": "boba.fett@example.com",
+      "courses": []
+    }
+]
+----
+
+
+
+---
 ==== Get Student by ID
 **Description**: Retrieves a student by their ID.
 
@@ -107,7 +147,7 @@ This service can manage students and courses. You can perform basic CRUD operati
 }
 ----
 
-
+---
 ==== Create Student
 **Description**: Creates a new student.
 
@@ -141,7 +181,7 @@ This service can manage students and courses. You can perform basic CRUD operati
 ----
 
 
-
+---
 ==== Update Student
 **Description**: Updates an existing student's information (**excluding courses**).
 
@@ -153,7 +193,7 @@ This service can manage students and courses. You can perform basic CRUD operati
 {
   "firstname": "Han",
   "lastname": "Duo",
-  "email": "han.duo@newemail.com",
+  "email": "han.duo@newemail.com"
 }
 ----
 The ID needs to exist. The updated email can't be an in the database existing one (unique attribute).
@@ -175,7 +215,7 @@ The ID needs to exist. The updated email can't be an in the database existing on
 }
 ----
 
-
+---
 ==== Delete Student
 **Description**: Deletes a list of students by their ID (if only one student needs to be deleted, pass a list with one ID).
 
@@ -195,10 +235,49 @@ The ID needs to exist. The updated email can't be an in the database existing on
 204 No Content
 ----
 
+---
+==== Assign a Student's Courses
+**Description**: Assigns a list of courses to a student. The list removes courses that were not in the list before and adds new ones. So the list you provide is always exactly the list of courses a student is enrolled in.
 
+**Endpoint**: `PUT /api/student/{id}/assignCourses`
 
+**Example Request**:
+[source,json]
+----
+[
+  3, 5, 1
+]
+----
+The IDs need to exist.
+
+**Example Response**:
+[source,json]
+----
+[
+    {
+        "id": 5,
+        "name": "History",
+        "students": []
+    },
+    {
+        "id": 18,
+        "name": "Business Management",
+        "students": []
+    },
+    {
+        "id": 1,
+        "name": "Maths",
+        "students": []
+    }
+]
+----
+It returns the list of assigned courses (excluding students).
+
+---
+---
+---
 === Course Endpoints
-
+---
 ==== Get All Courses
 **Description**: Retrieves a list of all courses.
 
@@ -214,19 +293,71 @@ GET /api/course/all
 [source,json]
 ----
 [
-    {
-      "id": 1,
-      "name": "Starship Engineering"
-    },
-    {
-      "id": 2,
-      "name": "Piloting 101"
-    }
+  {
+    "id": 1,
+    "name": "Starcraft Engineering",
+    "students": [
+        {
+            "id": 1,
+            "firstname": "Han",
+            "lastname": "Solo",
+            "email": "han.solo@example.com"
+        },
+        {
+            "id": 2,
+            "firstname": "Boba",
+            "lastname": "Fett",
+            "email": "boba.fett@example.com"
+        }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Piloting 101",
+    "students":[]
+  }
 ]
-
 ----
 
+---
+==== Find Courses by Search Term
+**Description**: Retrieves a list of courses by a search term (name).
 
+**Endpoint**: `GET /api/course?page={pageNumber}&limit={limit}&search={searchTerm}`
+
+
+
+**Example Response**:
+[source,json]
+----
+[
+  {
+    "id": 1,
+    "name": "Starcraft Engineering",
+    "students": [
+        {
+            "id": 1,
+            "firstname": "Han",
+            "lastname": "Solo",
+            "email": "han.solo@example.com"
+        },
+        {
+            "id": 2,
+            "firstname": "Boba",
+            "lastname": "Fett",
+            "email": "boba.fett@example.com"
+        }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Piloting 101",
+    "students":[]
+  }
+]
+----
+
+---
 ==== Create Course
 **Description**: Creates a new course.
 
@@ -245,11 +376,50 @@ GET /api/course/all
 ----
 {
   "id": 1,
-  "name": "Starship Engineering"
+  "name": "Starship Engineering",
+  "students": []
 }
 ----
 
+---
+==== Update Course
+**Description**: Updates an existing course's name.
 
+**Endpoint**: `PUT /api/course/{id}/update`
+
+**Example Request**:
+[source,json]
+----
+{
+  "name": "Spacecraft Engineering"
+}
+----
+The ID needs to exist. The updated name can't be an in the database existing one (unique attribute).
+
+**Example Response**:
+[source,json]
+----
+{
+    "id": 1,
+    "name": "Starcraft Engineering",
+    "students": [
+        {
+            "id": 1,
+            "firstname": "Han",
+            "lastname": "Solo",
+            "email": "han.solo@example.com"
+        },
+        {
+            "id": 2,
+            "firstname": "Boba",
+            "lastname": "Fett",
+            "email": "boba.fett@example.com"
+        }
+    ]
+}
+----
+
+---
 ==== Delete Course
 **Description**: Deletes a list of courses by their ID (if only one course needs to be deleted, pass a list with one ID)
 
@@ -268,3 +438,41 @@ GET /api/course/all
 ----
 204 No Content
 ----
+
+
+---
+==== Assign a Course's Students
+**Description**: Assigns a list of students to a course. The list removes students that were not in the list before and adds new ones. So the list you provide is always exactly the list of students enrolled in the course.
+
+**Endpoint**: `PUT /api/course/{id}/assignStudents`
+
+**Example Request**:
+[source,json]
+----
+[
+  3, 5, 1
+]
+----
+The IDs need to exist.
+
+**Example Response**:
+[source,json]
+----
+[
+    {
+      "id": 1,
+      "firstname": "Han",
+      "lastname": "Solo",
+      "email": "han.solo@example.com",
+      "courses": []
+    },
+    {
+      "id": 2,
+      "firstname": "Boba",
+      "lastname": "Fett",
+      "email": "boba.fett@example.com",
+      "courses": []
+    }
+]
+----
+It returns the list of assigned students (excluding courses).

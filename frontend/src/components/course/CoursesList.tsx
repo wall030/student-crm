@@ -9,6 +9,7 @@ import { CourseUpdated } from "../../types/CourseUpdated"
 import EditCourseModal from "./EditCourseModal"
 import ManageStudentsModal from "./ManageStudentsModal"
 import { Student } from "../../types/Student"
+import { FormattedMessage } from "react-intl"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
@@ -218,8 +219,8 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
       <table className="table-auto w-full border-collapse">
         <thead>
           <tr className="bg-gray-200">
-            <th className="px-4 py-2 text-left">Name</th>
-            <th className="px-4 py-2 text-left">Students</th>
+            <th className="px-4 py-2 text-left"><FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name" /></th>
+            <th className="px-4 py-2 text-left"><FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students" /></th>
           </tr>
         </thead>
         <tbody>
