@@ -1,88 +1,120 @@
 package org.acme.resource
 
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import org.acme.exception.ServiceException
+import io.restassured.response.Response
+import jakarta.transaction.Transactional
 import org.acme.model.dto.CourseCreateUpdateDTO
-import org.acme.model.dto.CourseDTO
-import org.acme.service.CourseService
-import org.hamcrest.core.IsEqual.equalTo
+import org.acme.model.dto.StudentCreateUpdateDTO
+import org.hamcrest.CoreMatchers.`is`
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class CourseResourceTest {
-    @InjectMock
-    lateinit var courseService: CourseService
+
+    // need to be lists for delete parameter when deleting in cleanup()
+    private var courseIds = mutableListOf<Long>()
+    private var studentIds = mutableListOf<Long>()
+
+    @BeforeEach
+    @Transactional
+    fun setup() {
+        val course = CourseCreateUpdateDTO("Piloting 101")
+        val student = StudentCreateUpdateDTO("Han", "Solo", "han.solo@smuggler.com")
+
+        val courseResponse: Response = given()
+            .contentType(ContentType.JSON)
+            .body(course)
+            .post("/api/course/create")
+            .then()
+            .statusCode(201)
+            .extract().response()
+
+        courseIds.add(courseResponse.jsonPath().getLong("id"))
+
+        val studentResponse: Response = given()
+            .contentType(ContentType.JSON)
+            .body(student)
+            .post("/api/student/create")
+            .then()
+            .statusCode(201)
+            .extract().response()
+
+        studentIds.add(studentResponse.jsonPath().getLong("id"))
+    }
+
+    @AfterEach
+    @Transactional
+    fun cleanup() {
+
+
+            given()
+                .contentType(ContentType.JSON)
+                .body(courseIds)
+                .delete("/api/course/delete")
+                .then()
+                .statusCode(204)
+
+
+
+            given()
+                .contentType(ContentType.JSON)
+                .body(studentIds)
+                .delete("/api/student/delete")
+                .then()
+                .statusCode(204)
+
+
+        studentIds.clear()
+        courseIds.clear()
+    }
 
     @Test
-    fun `test findAllCourses returns 200`() {
-        val courses = listOf(CourseDTO(1L, "Starship Engineering", emptyList()), CourseDTO(2L, "Piloting 101", emptyList()))
-
-        every { courseService.findAllCourses() } returns courses
-
+    fun `test findAllCourse returns 200`() {
         given()
             .`when`().get("/api/course/all")
             .then()
             .statusCode(200)
-            .body("$.size()", equalTo(2))
-            .body("[0].name", equalTo("Starship Engineering"))
-            .body("[1].name", equalTo("Piloting 101"))
     }
 
     @Test
     fun `test findCourse returns 200 when course exists`() {
-        val course = CourseDTO(1L, "Piloting 101", emptyList())
-
-        every { courseService.findCourse(1L) } returns course
-
         given()
-            .`when`().get("/api/course/1")
+            .`when`().get("/api/course/${courseIds.first()}")
             .then()
             .statusCode(200)
-            .body("name", equalTo("Piloting 101"))
+            .body("name", `is`("Piloting 101"))
     }
 
     @Test
     fun `test findCourse returns 404 when course does not exist`() {
-        val courseID = 1L
-
-        every { courseService.findCourse(courseID) } throws ServiceException.CourseNotFoundException(courseID.toString())
-
+        val nonExistentCourseID = 999L
         given()
-            .`when`().get("/api/course/1")
+            .`when`().get("/api/course/$nonExistentCourseID")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test createCourse returns 201`() {
-        val createCourseDTO = CourseCreateUpdateDTO("Piloting 101")
-        val createdCourse = CourseDTO(1L, "Piloting 101", emptyList())
-
-        every { courseService.createCourse(createCourseDTO.name) } returns createdCourse
-
-        given()
+        val newCourse = CourseCreateUpdateDTO("New Course")
+        val response: Response = given()
             .contentType(ContentType.JSON)
-            .body(createCourseDTO)
+            .body(newCourse)
             .`when`().post("/api/course/create")
             .then()
             .statusCode(201)
-            .body("name", equalTo("Piloting 101"))
+            .extract().response()
+
+        courseIds.add(response.jsonPath().getLong("id"))
     }
 
     @Test
     fun `test createCourse returns 409 when name already exists`() {
         val createCourseDTO = CourseCreateUpdateDTO("Piloting 101")
-
-        every {
-            courseService.createCourse(createCourseDTO.name)
-        } throws ServiceException.DuplicateCourseException(createCourseDTO.name)
-
         given()
             .contentType(ContentType.JSON)
             .body(createCourseDTO)
@@ -93,76 +125,91 @@ class CourseResourceTest {
 
     @Test
     fun `test updateCourse returns 200`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
-
-        every { courseService.updateCourse(courseDTO.id, courseDTO.name) } returns courseDTO
+        val updateData = CourseCreateUpdateDTO("Piloting Advanced")
 
         given()
             .contentType(ContentType.JSON)
-            .body(courseDTO)
-            .`when`().put("/api/course/1/update")
+            .body(updateData)
+            .`when`().put("/api/course/${courseIds.first()}/update")
             .then()
             .statusCode(200)
-            .body("name", equalTo("Piloting 101"))
+            .body("name", `is`("Piloting Advanced"))
     }
 
     @Test
     fun `test updateCourse returns 404 when course does not exist`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
-
-        every {
-            courseService.updateCourse(courseDTO.id, courseDTO.name)
-        } throws ServiceException.CourseNotFoundException(courseDTO.id.toString())
+        val nonExistentCourseID = 999L
+        val courseDTO = CourseCreateUpdateDTO("New Course Name")
 
         given()
             .contentType(ContentType.JSON)
             .body(courseDTO)
-            .`when`().put("/api/course/1/update")
+            .`when`().put("/api/course/$nonExistentCourseID/update")
             .then()
             .statusCode(404)
     }
 
     @Test
-    fun `test updateCourse returns 409 when course already exists`() {
-        val courseDTO = CourseDTO(1L, "Piloting 101", emptyList())
+    fun `test updateCourse returns 404 when course name already exists`() {
+        val newCourse = CourseCreateUpdateDTO("New Course")
 
-        every {
-            courseService.updateCourse(courseDTO.id, courseDTO.name)
-        } throws ServiceException.DuplicateCourseException(courseDTO.name)
+        val response: Response = given()
+            .contentType(ContentType.JSON)
+            .body(newCourse)
+            .`when`().post("/api/course/create")
+            .then()
+            .statusCode(201)
+            .extract().response()
+
+        courseIds.add(response.jsonPath().getLong("id"))
+
+        val updateCourseDTO = CourseCreateUpdateDTO("New Course")
 
         given()
             .contentType(ContentType.JSON)
-            .body(courseDTO)
-            .`when`().put("/api/course/1/update")
+            .body(updateCourseDTO)
+            .`when`().put("/api/course/${courseIds.first()}/update")
             .then()
             .statusCode(409)
     }
 
     @Test
-    fun `test deleteCourse returns 204`() {
-        val courseIDs = listOf(1L, 2L)
-
-        every { courseService.deleteCourses(courseIDs) } just Runs
+    fun `test deleteCourses returns 204`() {
+        val courseIdsToDelete = courseIds
 
         given()
             .contentType(ContentType.JSON)
-            .body(courseIDs)
+            .body(courseIdsToDelete)
             .`when`().delete("/api/course/delete")
             .then()
             .statusCode(204)
+
+        courseIds.clear()
     }
 
     @Test
-    fun `test deleteStudents returns 404 when course does not exist`() {
-        val courseIDs = listOf(1L, 2L)
-
-        every { courseService.deleteCourses(courseIDs) } throws ServiceException.StudentNotFoundException(courseIDs.toString())
+    fun `test deleteCourses returns 404 when course does not exist`() {
+        val nonExistentCourseIDs = listOf(999L, 1000L)
 
         given()
             .contentType(ContentType.JSON)
-            .body(courseIDs)
+            .body(nonExistentCourseIDs)
             .`when`().delete("/api/course/delete")
             .then()
             .statusCode(404)
+    }
+
+    @Test
+    fun `test assignStudents returns 200`() {
+        val studentIdsToAssign = studentIds
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(studentIdsToAssign)
+            .`when`().put("/api/course/${courseIds.first()}/assignStudents")
+            .then()
+            .statusCode(200)
+            .body("size()", `is`(1))
+            .body("[0].email", `is`("han.solo@smuggler.com"))
     }
 }

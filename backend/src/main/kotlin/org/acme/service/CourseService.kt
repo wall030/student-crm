@@ -16,7 +16,10 @@ class CourseService(
 ) {
     fun findAllCourses(): List<CourseDTO> = courseRepository.listAll().map { course -> course.toCourseDTO() }
 
-    fun findCourse(id: Long): CourseDTO? = courseRepository.findById(id).toCourseDTO()
+    fun findCourse(id: Long): CourseDTO {
+        val course = courseRepository.findById(id) ?: throw ServiceException.CourseNotFoundException(id.toString())
+        return course.toCourseDTO()
+    }
 
     fun findCourses(
         page: Int,
@@ -43,7 +46,7 @@ class CourseService(
         val course = courseRepository.findById(id) ?: throw ServiceException.CourseNotFoundException(id.toString())
 
         courseRepository.findByName(name)?.let {
-            if (it.name != name) throw ServiceException.DuplicateCourseException(name)
+            if (it.id != id) throw ServiceException.DuplicateCourseException(name)
         }
         course.name = name
         courseRepository.persist(course)

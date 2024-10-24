@@ -1,85 +1,121 @@
 package org.acme.resource
 
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.just
-import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
-import org.acme.exception.ServiceException
-import org.acme.model.dto.CourseDTO
+import io.restassured.response.Response
+import jakarta.transaction.Transactional
+import org.acme.model.dto.CourseCreateUpdateDTO
 import org.acme.model.dto.StudentCreateUpdateDTO
-import org.acme.model.dto.StudentDTO
-import org.acme.service.StudentService
-import org.hamcrest.core.IsEqual.equalTo
+import org.hamcrest.CoreMatchers.`is`
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class StudentResourceTest {
-    @InjectMock
-    lateinit var studentService: StudentService
+
+    // need to be lists for delete parameter when deleting in cleanup()
+    private var courseIds = mutableListOf<Long>()
+    private var studentIds = mutableListOf<Long>()
+
+    @BeforeEach
+    @Transactional
+    fun setup() {
+        val course = CourseCreateUpdateDTO("Piloting 101")
+        val student = StudentCreateUpdateDTO("Han", "Solo", "han.solo@smuggler.com")
+
+        val courseResponse: Response = given()
+            .contentType(ContentType.JSON)
+            .body(course)
+            .post("/api/course/create")
+            .then()
+            .statusCode(201)
+            .extract().response()
+
+        courseIds.add(courseResponse.jsonPath().getLong("id"))
+
+        val studentResponse: Response = given()
+            .contentType(ContentType.JSON)
+            .body(student)
+            .post("/api/student/create")
+            .then()
+            .statusCode(201)
+            .extract().response()
+
+        studentIds.add(studentResponse.jsonPath().getLong("id"))
+    }
+
+    @AfterEach
+    @Transactional
+    fun cleanup() {
+
+        if (courseIds.isNotEmpty()) {
+            given()
+                .contentType(ContentType.JSON)
+                .body(courseIds)
+                .delete("/api/course/delete")
+                .then()
+                .statusCode(204)
+        }
+
+        if (studentIds.isNotEmpty()) {
+            given()
+                .contentType(ContentType.JSON)
+                .body(studentIds)
+                .delete("/api/student/delete")
+                .then()
+                .statusCode(204)
+        }
+
+        studentIds.clear()
+        courseIds.clear()
+    }
 
     @Test
     fun `test findAllStudents returns 200`() {
-        val students = listOf(StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", listOf(CourseDTO(1L, "Piloting 101", emptyList()))))
-        every { studentService.findAllStudents() } returns students
-
         given()
             .`when`().get("/api/student/all")
             .then()
             .statusCode(200)
-            .body("$.size()", equalTo(1))
-            .body("[0].firstName", equalTo("Luke"))
     }
 
     @Test
     fun `test findStudentByID returns 200 when student exists`() {
-        val student = StudentDTO(1L, "Leia", "Organa", "leia@rebel.com", emptyList())
-        every { studentService.findStudent(1L) } returns student
-
         given()
-            .`when`().get("/api/student/1")
+            .`when`().get("/api/student/${studentIds.first()}")
             .then()
             .statusCode(200)
-            .body("firstName", equalTo("Leia"))
+            .body("email", `is`("han.solo@smuggler.com"))
     }
 
     @Test
     fun `test findStudentByID returns 404 when student does not exist`() {
-        val studentID = 1L
-        every { studentService.findStudent(studentID) } throws ServiceException.StudentNotFoundException(studentID.toString())
-
+        val nonExistentStudent = 999L
         given()
-            .`when`().get("/api/student/1")
+            .`when`().get("/api/student/$nonExistentStudent")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test createStudent returns 201`() {
-        val createStudentDTO = StudentCreateUpdateDTO("Anakin", "Skywalker", "anakin@jedi.com")
-        val createdStudent = StudentDTO(1L, "Anakin", "Skywalker", "anakin@jedi.com", emptyList())
-        every {
-            studentService.createStudent(createStudentDTO.firstName, createStudentDTO.lastName, createStudentDTO.email)
-        } returns createdStudent
-
+        val newStudent = StudentCreateUpdateDTO("Boba", "Fett", "boba.fett@bounty.com")
         given()
             .contentType(ContentType.JSON)
-            .body(createStudentDTO)
+            .body(newStudent)
             .`when`().post("/api/student/create")
             .then()
             .statusCode(201)
-            .body("firstName", equalTo("Anakin"))
+            .body("firstName", `is`("Boba"))
+            .body("lastName", `is`("Fett"))
+            .body("email", `is`("boba.fett@bounty.com"))
+
     }
 
     @Test
     fun `test createStudent returns 409 when email already exists`() {
-        val createStudentDTO = StudentCreateUpdateDTO("Anakin", "Skywalker", "anakin@jedi.com")
-        every {
-            studentService.createStudent(createStudentDTO.firstName, createStudentDTO.lastName, createStudentDTO.email)
-        } throws ServiceException.DuplicateStudentException(createStudentDTO.email)
-
+        val createStudentDTO = StudentCreateUpdateDTO("Han", "Solo", "han.solo@smuggler.com")
         given()
             .contentType(ContentType.JSON)
             .body(createStudentDTO)
@@ -90,72 +126,72 @@ class StudentResourceTest {
 
     @Test
     fun `test updateStudent returns 200`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
-        every {
-            studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
-        } returns studentDTO
+        val updateStudentDTO = StudentCreateUpdateDTO("Han", "Duo", "han.duo@smuggler.com")
 
         given()
             .contentType(ContentType.JSON)
-            .body(studentDTO)
-            .`when`().put("/api/student/1/update")
+            .body(updateStudentDTO)
+            .`when`().put("/api/student/${studentIds.first()}/update")
             .then()
             .statusCode(200)
-            .body("firstName", equalTo("Luke"))
+            .body("firstName", `is`("Han"))
+            .body("lastName", `is`("Duo"))
+            .body("email", `is`("han.duo@smuggler.com"))
     }
 
     @Test
     fun `test updateStudent returns 404 when student does not exist`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
-        every {
-            studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
-        } throws ServiceException.StudentNotFoundException(studentDTO.id.toString())
+        val nonExistentStudentID = 999L
+        val updateStudentDTO = StudentCreateUpdateDTO("Han", "Duo", "han.duo@smuggler.com")
 
         given()
             .contentType(ContentType.JSON)
-            .body(studentDTO)
-            .`when`().put("/api/student/1/update")
+            .body(updateStudentDTO)
+            .`when`().put("/api/student/$nonExistentStudentID/update")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test updateStudent returns 409 when email already exists`() {
-        val studentDTO = StudentDTO(1L, "Luke", "Skywalker", "luke@jedi.com", emptyList())
-        every {
-            studentService.updateStudent(studentDTO.id, studentDTO.firstName, studentDTO.lastName, studentDTO.email)
-        } throws ServiceException.DuplicateStudentException(studentDTO.email)
-
+        val newStudent = StudentCreateUpdateDTO("Han", "Duo", "han.duo@smuggler.com")
         given()
             .contentType(ContentType.JSON)
-            .body(studentDTO)
-            .`when`().put("/api/student/1/update")
+            .body(newStudent)
+            .`when`().post("/api/student/create")
+            .then()
+            .statusCode(201)
+
+        val updateStudentDTO = StudentCreateUpdateDTO("Han", "Solo", "han.duo@smuggler.com")
+        given()
+            .contentType(ContentType.JSON)
+            .body(updateStudentDTO)
+            .`when`().put("/api/student/${studentIds.first()}/update")   // reference Han Solo, update email to han.duo@smuggler.com
             .then()
             .statusCode(409)
     }
 
     @Test
     fun `test deleteStudents returns 204`() {
-        val studentIDs = listOf(1L, 2L)
-
-        every { studentService.deleteStudents(studentIDs) } just Runs
+        val studentIdsToDelete = studentIds
 
         given()
             .contentType(ContentType.JSON)
-            .body(studentIDs)
+            .body(studentIdsToDelete)
             .`when`().delete("/api/student/delete")
             .then()
             .statusCode(204)
+
+        studentIds.clear()
     }
 
     @Test
     fun `test deleteStudents returns 404 when student does not exist`() {
-        val studentIDs = listOf(1L, 2L)
-        every { studentService.deleteStudents(studentIDs) } throws ServiceException.StudentNotFoundException(studentIDs.toString())
+        val nonExistentStudentIDs = listOf(999L, 1000L)
 
         given()
             .contentType(ContentType.JSON)
-            .body(listOf(1L, 2L))
+            .body(nonExistentStudentIDs)
             .`when`().delete("/api/student/delete")
             .then()
             .statusCode(404)
@@ -163,48 +199,37 @@ class StudentResourceTest {
 
     @Test
     fun `test assignCourses returns 200`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-        val courses = listOf(CourseDTO(1L, "Starship Engineering", emptyList()), CourseDTO(2L, "Piloting 101", emptyList()))
-
-        every { studentService.assignCourses(studentID, courseIds) } returns courses
-
+        val courseIdsToAssign = courseIds
         given()
             .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/assignCourses")
+            .body(courseIdsToAssign)
+            .`when`().put("/api/student/${studentIds.first()}/assignCourses")
             .then()
             .statusCode(200)
-            .body("$.size()", equalTo(2))
-            .body("[0].name", equalTo("Starship Engineering"))
+            .body("size()", `is`(1))
+            .body("[0].name", `is`("Piloting 101"))
     }
 
     @Test
     fun `test assignCourses returns 404 when student does not exist`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-
-        every { studentService.assignCourses(studentID, courseIds) } throws ServiceException.StudentNotFoundException(studentID.toString())
+        val nonExistentStudentID = 999L
+        val courseIdsToAssign = courseIds
 
         given()
             .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/assignCourses")
+            .body(courseIdsToAssign)
+            .`when`().put("/api/student/$nonExistentStudentID/assignCourses")
             .then()
             .statusCode(404)
     }
 
     @Test
     fun `test assignCourses returns 404 when course does not exist`() {
-        val studentID = 1L
-        val courseIds = listOf(1L, 2L)
-
-        every { studentService.assignCourses(studentID, courseIds) } throws ServiceException.CourseNotFoundException(courseIds.toString())
-
+        val courseIdsToAssign = listOf(99L)
         given()
             .contentType(ContentType.JSON)
-            .body(courseIds)
-            .`when`().put("/api/student/1/assignCourses")
+            .body(courseIdsToAssign)
+            .`when`().put("/api/student/${studentIds.first()}/assignCourses")
             .then()
             .statusCode(404)
     }
