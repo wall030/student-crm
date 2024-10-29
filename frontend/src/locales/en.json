@@ -26,11 +26,14 @@
     "page.students.tableColumn.name": "Name",
     "page.students.tableColumn.email": "E-Mail",
     "page.students.tableColumn.courses": "Courses",
-   
+
     "page.courses.searchfield": "Search by name...",
     "page.courses.title": "Course List",
     "page.courses.tableColumn.name": "Name",
     "page.courses.tableColumn.students": "Students",
+
+    "toast.success": "Action successful",
+    "toast.error": "Error: {message}",
 
     "language.en": "English",
     "language.de": "German"
