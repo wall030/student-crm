@@ -1,60 +1,127 @@
-import { TrashIcon } from "@heroicons/react/24/solid"
-import { PlusIcon } from "@heroicons/react/24/solid"
-import { PencilSquareIcon } from "@heroicons/react/24/solid"
-import { AcademicCapIcon } from "@heroicons/react/24/solid"
-import { FormattedMessage, useIntl } from "react-intl"
+import {TrashIcon, PlusIcon, PencilSquareIcon, AcademicCapIcon} from "@heroicons/react/24/solid"
+import {Box, Button, IconButton, Tooltip} from "@mui/material"
+import {FormattedMessage, useIntl} from "react-intl"
+import React from "react";
 
 const Actions: React.FC<{
-  manageButtonTitle: string
-  isEditDisabled: boolean
-  selected: number[]
-  onDelete: () => void
-  onOpenCreateModal: () => void
-  onOpenEditModal: () => void
-  onOpenManageModal: () => void
-}> = ({ manageButtonTitle, isEditDisabled, selected, onDelete, onOpenCreateModal, onOpenEditModal, onOpenManageModal: onOpenManageCoursesModal }) => {
-  const { formatMessage } = useIntl()
+    manageButtonTitle: string
+    isEditDisabled: boolean
+    selected: number[]
+    onDelete: () => void
+    onOpenCreateModal: () => void
+    onOpenEditModal: () => void
+    onOpenManageModal: () => void
+}> = ({
+          manageButtonTitle,
+          isEditDisabled,
+          selected,
+          onDelete,
+          onOpenCreateModal,
+          onOpenEditModal,
+          onOpenManageModal
+      }) => {
+    const {formatMessage} = useIntl()
 
-return (
-  <div className="flex justify-end space-x-4">
-    <button
-      className={
-        `inline-flex items-center text-white px-4 py-2 rounded-md 
-        ${manageButtonTitle == "Manage Students" ? "bg-yellow-500" : "bg-purple-500"} ${isEditDisabled ? "opacity-50 cursor-not-allowed": ""}`}
-      disabled={isEditDisabled}
-      onClick={onOpenManageCoursesModal}
-    >
-      <AcademicCapIcon className="h-5 w-5"/>
-      <span className="pl-1">{
-      formatMessage({ id: `${manageButtonTitle == "Manage Students" ? "actions.manage.students" : "actions.manage.courses"}`,
-                      defaultMessage: `${manageButtonTitle == "Manage Students" ? "Manage Students" : "Manage Courses"}`})
-      }</span>
-    </button>
-    <button
-      className={`inline-flex items-center bg-blue-500 text-white px-2 py-2 rounded-md ${isEditDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-      disabled={isEditDisabled}
-      onClick={onOpenEditModal}
-    >
-      <PencilSquareIcon className="h-5 w-5" />
-      <span className="pl-1">
-      <FormattedMessage id="actions.edit" defaultMessage="Edit" />
-      </span>
-    </button>
-    <button
-      className={`inline-flex items-center bg-red-500 text-white px-4 py-2 rounded-md ${selected.length === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-      disabled={selected.length === 0}
-      onClick={onDelete}
-    >
-      <TrashIcon className="h-5 w-5" />
-    </button>
-    <button
-      className="bg-green-500 text-white px-4 py-2 rounded-md"
-      onClick={onOpenCreateModal}
-    >
-      <PlusIcon className="h-5 w-5" />
-    </button>
-  </div>
-  )
+    return (
+        <Box sx={{display: "flex", justifyContent: "flex-end", gap: 1.5}}>
+             <span>
+                <Button
+                    variant="contained"
+                    sx={{
+                        bgcolor: `${manageButtonTitle == "Manage Students" ? "violet.main" : "teal.main"}`,
+                        color: "white",
+                        height: 40,
+                        borderRadius: 2,
+                        "&:hover": {
+                            bgcolor: `${manageButtonTitle == "Manage Students" ? "violet.dark" : "teal.dark"}`,
+                        },
+                        "&.Mui-disabled": {
+                            bgcolor: `${manageButtonTitle == "Manage Students" ? "violet.light" : "teal.light"}`,
+                            color: "white"
+                        }
+                    }}
+                    startIcon={<AcademicCapIcon className="h-5 w-5"/>}
+                    onClick={onOpenManageModal}
+                    disabled={isEditDisabled}
+                >
+                    {formatMessage({
+                        id: `${manageButtonTitle === "Manage Students" ? "actions.manage.students" : "actions.manage.courses"}`,
+                        defaultMessage: manageButtonTitle
+                    })}
+                </Button>
+                 </span>
+
+            <Tooltip title={<FormattedMessage id="actions.edit" defaultMessage="Edit"/>}>
+                 <span>
+                <IconButton
+                    sx={{
+                        bgcolor: "primary.main",
+                        color: "white",
+                        width: 60,
+                        height: 40,
+                        borderRadius: 2,
+                        "&:hover": {
+                            bgcolor: "primary.dark"
+                        },
+                        "&.Mui-disabled": {
+                            bgcolor: "primary.light",
+                            color: "white"
+                        }
+                    }}
+                    onClick={onOpenEditModal}
+                    disabled={isEditDisabled}
+                >
+                    <PencilSquareIcon className="h-5 w-5"/>
+                </IconButton>
+            </span>
+            </Tooltip>
+
+            <Tooltip title={<FormattedMessage id="actions.delete" defaultMessage="Delete"/>}>
+                 <span>
+                <IconButton
+                    sx={{
+                        bgcolor: "red.main",
+                        color: "white",
+                        width: 60,
+                        height: 40,
+                        borderRadius: 2,
+                        "&:hover": {
+                            bgcolor: "red.dark"
+                        },
+                        "&.Mui-disabled": {
+                            bgcolor: "red.light",
+                            color: "white"
+                        }
+                    }}
+                    onClick={onDelete}
+                    disabled={selected.length === 0}
+                >
+                    <TrashIcon className="h-5 w-5"/>
+                </IconButton>
+            </span>
+            </Tooltip>
+
+            <Tooltip title={<FormattedMessage id="actions.add" defaultMessage="Add"/>}>
+               <span>
+                <IconButton
+                    sx={{
+                        bgcolor: "green.main",
+                        color: "white",
+                        width: 60,
+                        height: 40,
+                        borderRadius: 2,
+                        "&:hover": {
+                            bgcolor: "green.dark"
+                        }
+                    }}
+                    onClick={onOpenCreateModal}
+                >
+                    <PlusIcon className="h-5 w-5"/>
+                </IconButton>
+                   </span>
+            </Tooltip>
+        </Box>
+    )
 }
 
 export default Actions

@@ -10,13 +10,14 @@ import EditCourseModal from "./EditCourseModal"
 import ManageStudentsModal from "./ManageStudentsModal"
 import {Student} from "../../types/Student"
 import {FormattedMessage} from "react-intl"
-import toast from "react-hot-toast";
+import toast from "react-hot-toast"
+import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material"
 
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [courses, setCourses] = useState<Course[]>([])
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string>(null)
     const [page, setPage] = useState(1)
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [hasMore, setHasMore] = useState(true)
@@ -25,9 +26,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [editableCourse, setEditableCourse] = useState<CourseUpdated>({id: 0, name: ''})
     const [isManageStudentsModalOpen, setManageStudentsModalOpen] = useState(false)
-    const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+    const [selectedCourse, setSelectedCourse] = useState<Course>(null)
     const [students, setStudents] = useState<Student[]>([])
-    const limit = 10
+    const limit = 18
 
     useEffect(() => {
         setPage(1)
@@ -162,11 +163,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
-    const isEditDisabled = selectedCourses.length !== 1
-
-    if (loading && courses.length === 0) return <p>Loading...</p>
-    if (error) return <p>Error: {error}</p>
-
     const handlePreviousPage = () => {
         if (page != 1) {
             setPage(page - 1)
@@ -179,13 +175,12 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
+    const isEditDisabled = selectedCourses.length !== 1
+
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between">
-                <NavigationButtons
-                    onPrev={handlePreviousPage}
-                    onNext={handleNextPage}
-                />
+        <Box sx={{ mt: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage} />
                 <Actions
                     manageButtonTitle={"Manage Students"}
                     isEditDisabled={isEditDisabled}
@@ -195,7 +190,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     onOpenEditModal={handleOpenEditModal}
                     onOpenManageModal={handleOpenManageStudentsModal}
                 />
-            </div>
+            </Box>
 
             {isCreateModalOpen && (
                 <CreateCourseModal
@@ -204,7 +199,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     onCreate={handleCreateCourse}
                     onClose={() => {
                         setCreateModalOpen(false)
-                        setNewCourse({name: ''})
+                        setNewCourse({ name: "" })
                     }}
                 />
             )}
@@ -230,29 +225,41 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 />
             )}
 
-            <table className="table-auto w-full border-collapse">
-                <thead>
-                <tr className="bg-gray-200">
-                    <th className="px-4 py-2 text-left"><FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name"/></th>
-                    <th className="px-4 py-2 text-left"><FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students"/>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {courses.map((course) => {
-                    const isSelected = selectedCourses.includes(course.id)
-                    return (
-                        <CourseCard
-                            key={course.id}
-                            course={course}
-                            isSelected={isSelected}
-                            onSelect={() => handleSelectCourse(course.id)}
-                        />)
-                })}
-                </tbody>
-            </table>
-            {loading && <p>Loading more courses...</p>}
-        </div>
+            <TableContainer component={Paper}>
+                <Table sx={{ tableLayout: "fixed", width: "100%" }}
+                       size="small"
+                >
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "grey.200" }}>
+                            <TableCell align="left">
+                                <FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name" />
+                            </TableCell>
+                            <TableCell align="left">
+                                <FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students" />
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {courses.map((course) => {
+                            const isSelected = selectedCourses.includes(course.id)
+                            return (
+                                <CourseCard
+                                    key={course.id}
+                                    course={course}
+                                    isSelected={isSelected}
+                                    onSelect={() => handleSelectCourse(course.id)}
+                                />
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {error && (
+                <Typography variant="body1" color="error" align="center" sx={{ mt: 2 }}>
+                    {error}
+                </Typography>
+            )}
+        </Box>
     )
 }
 

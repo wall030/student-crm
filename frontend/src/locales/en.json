@@ -8,6 +8,8 @@
     "actions.manage.students.title": "Manage Students for ",
     "actions.manage.students": "Manage Students",
     "actions.edit": "Edit",
+    "actions.add": "Add",
+    "actions.delete": "Delete",
 
     "buttons.create": "Create",
     "buttons.save": "Save",
@@ -34,6 +36,13 @@
 
     "toast.success": "Action successful",
     "toast.error": "Error: {message}",
+
+    "placeholders.firstName": "First Name",
+    "placeholders.lastName": "Last Name",
+    "placeholders.courseName": "Name",
+
+    "validation.invalidEmail": "Enter a valid email address",
+    "validation.invalidName": "No numbers, special characters or punctuations",
 
     "language.en": "English",
     "language.de": "German"

@@ -4,6 +4,7 @@ import {Course} from '../../types/Course'
 import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from "react-hot-toast";
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, ListItemText} from "@mui/material";
 
 
 const ManageStudentsModal: React.FC<{
@@ -59,44 +60,33 @@ const ManageStudentsModal: React.FC<{
     }
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-md w-96">
-                <h2 className="text-lg font-bold mb-4">
-                    <FormattedMessage id="actions.manage.students.title" defaultMessage="Manage Students for "/>
-                    {course.name}
-                </h2>
-
-                <div className="max-h-60 overflow-auto ">
+        <Dialog open={true} onClose={onClose}>
+            <DialogTitle>
+                <FormattedMessage id="actions.manage.students.title" defaultMessage="Manage Students for "/>
+                {course.name}
+            </DialogTitle>
+            <DialogContent>
+                <Box sx={{maxHeight: 300, overflow: 'auto'}}>
                     {students.map((student) => (
-                        <div key={student.id} className="flex items-center justify-normal mb-2 border-b border-gray-300">
-                            <input
-                                type="checkbox"
+                        <Box key={student.id} sx={{display: 'flex', alignItems: 'center', mb: 1, borderBottom: '1px solid #ccc'}}>
+                            <Checkbox
                                 checked={selectedStudents.includes(student.id)}
                                 onChange={() => handleStudentToggle(student.id)}
                             />
-                            <span className="px-2">
-                {student.firstName} {student.lastName}
-              </span>
-                        </div>
+                            <ListItemText primary={`${student.firstName} ${student.lastName}`}/>
+                        </Box>
                     ))}
-                </div>
-
-                <div className="mt-4 flex justify-end space-x-4">
-                    <button
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                        onClick={handleSubmit}
-                    >
-                        <FormattedMessage id="buttons.save" defaultMessage="Save"/>
-                    </button>
-                    <button
-                        className="bg-gray-300 px-4 py-2 rounded-md"
-                        onClick={onClose}
-                    >
-                        <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
-                    </button>
-                </div>
-            </div>
-        </div>
+                </Box>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    <FormattedMessage id="buttons.save" defaultMessage="Save"/>
+                </Button>
+                <Button variant="outlined" color="inherit" onClick={onClose} sx={{ml: 2}}>
+                    <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }
 

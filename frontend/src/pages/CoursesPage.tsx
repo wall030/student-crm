@@ -1,24 +1,23 @@
-import { useState } from "react"
+import {useState} from "react"
 import Searchbar from "../components/Searchbar"
 import CoursesList from "../components/course/CoursesList"
-import { FormattedMessage, useIntl } from "react-intl"
+import {FormattedMessage, useIntl} from "react-intl"
+import {Box} from "@mui/material"
 
 const CoursesPage = () => {
-  const [searchTerm, setSearchTerm] = useState<string>('')
-  const { formatMessage } = useIntl()
+    const [searchTerm, setSearchTerm] = useState<string>('')
+    const {formatMessage} = useIntl()
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term)
-  }
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">
-      <FormattedMessage id="page.courses.title" defaultMessage="Courses List" />
-      </h1>
-      <Searchbar onSearch={handleSearch} placeholder={formatMessage({id: "page.courses.searchfield", defaultMessage: "Search by name..."})}/>
-      <CoursesList searchTerm={searchTerm} />
-    </div>
-  )
+    const handleSearch = (term: string) => {
+        setSearchTerm(term)
+    }
+    return (
+        <Box sx={{mt: 4}}>
+            <Searchbar onSearch={handleSearch}
+                       placeholder={formatMessage({id: "page.courses.searchfield", defaultMessage: "Search by name..."})}/>
+            <CoursesList searchTerm={searchTerm}/>
+        </Box>
+    )
 }
 
 export default CoursesPage

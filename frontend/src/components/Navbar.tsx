@@ -1,90 +1,91 @@
 import {Link, useLocation} from 'react-router-dom'
 import {FormattedMessage} from 'react-intl'
 import {GlobeAltIcon} from '@heroicons/react/24/outline'
-import {useState} from 'react'
+import React, {useState} from 'react'
+import {AppBar, Toolbar, Button, IconButton, Menu, MenuItem, Box} from '@mui/material'
 
 const Navbar: React.FC<{
     setLocale: (locale: string) => void
-    locale: string
-}> = ({setLocale, locale}) => {
+}> = ({setLocale}) => {
     const location = useLocation()
-    const isMainPage = location.pathname === '/'
     const isStudentsPage = location.pathname === '/students'
     const isCoursesPage = location.pathname === '/courses'
+    const buttonVariantCourses: "text" | "outlined" | "contained" = isCoursesPage ? "contained" : "outlined"
+    const buttonVariantStudents: "text" | "outlined" | "contained" = isStudentsPage ? "contained" : "outlined"
 
-    const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
+    const [anchorEl, setAnchorEl] = useState<HTMLElement>()
+
+    const handleLanguageClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const handleClose = () => {
+        setAnchorEl(null)
+    }
 
     const handleChangeLanguage = (locale: string) => {
         setLocale(locale)
-        setShowLanguageDropdown(false)
+        handleClose()
     }
 
     return (
-        <nav className="flex justify-between items-center p-5 bg-white shadow-lg relative">
-            <Link to="/">
-                <h1 className="text-xl font-bold">
-                    <span className="text-primary">Student</span>
-                    <span className="text-blue-500">CRM</span>
-                </h1>
-            </Link>
-            <div className="flex items-center space-x-4">
-                <Link to="/students">
-                    <button
-                        className={`px-4 py-2 rounded ${
-                            isMainPage
-                                ? 'bg-transparent text-blue-500 hover:bg-slate-100'
-                                : isStudentsPage
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-transparent text-blue-500 hover:bg-slate-100'
-                        }`}
-                    >
-                        <FormattedMessage id="navbar.students" defaultMessage="Students"/>
-                    </button>
-                </Link>
+        <AppBar position="static" color="default" elevation={4}>
+            <Toolbar>
+                <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                    <Link to="/" sx={{textDecoration: "none", color: "inherit"}}>
+                        <Box component="span" sx={{typography: "h6"}}>
+                            <Box component="span" sx={{fontWeight: "bold"}}>
+                                Student
+                            </Box>
+                            <Box component="span" sx={{ color: "primary.main", fontWeight: "bold" }}>
+                                CRM
+                            </Box>
+                        </Box>
+                    </Link>
 
-                <Link to="/courses">
-                    <button
-                        className={`px-4 py-2 rounded ${
-                            isMainPage
-                                ? 'bg-transparent text-blue-500 hover:bg-slate-100'
-                                : isCoursesPage
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-transparent text-blue-500 hover:bg-slate-100'
-                        }`}
-                    >
-                        <FormattedMessage id="navbar.courses" defaultMessage="Courses"/>
-                    </button>
-                </Link>
+                    <Box display="flex" alignItems="center">
+                        <Link to="/students" sx={{textDecoration: "none"}}>
+                            <Button
+                                variant={buttonVariantStudents}
+                                color="primary"
+                                sx={{ mr: 2 }}
+                            >
+                                <FormattedMessage id="navbar.students" defaultMessage="Students"/>
+                            </Button>
+                        </Link>
 
-                <div className="relative">
-                    <button
-                        className="text-2xl"
-                        onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                    >
-                        <GlobeAltIcon className="text-blue-500 h-5 w-5 hover:text-blue-400 mt-2"/>
-                    </button>
+                        <Link to="/courses" sx={{textDecoration: "none"}}>
+                            <Button
+                                variant={buttonVariantCourses}
+                                color="primary"
+                                sx={{ mr: 2 }}
+                            >
+                                <FormattedMessage id="navbar.courses" defaultMessage="Courses"/>
+                            </Button>
+                        </Link>
 
-                    {showLanguageDropdown && (
-                        <div className="absolute right-0 mt-7 w-36 bg-white shadow-lg rounded-lg z-10">
-                            <ul>
-                                <li
-                                    className={"px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-t-lg"}
-                                    onClick={() => handleChangeLanguage('en')}
-                                >
-                                    <FormattedMessage id="language.en" defaultMessage="English"/>
-                                </li>
-                                <li
-                                    className={"px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-b-lg"}
-                                    onClick={() => handleChangeLanguage('de')}
-                                >
-                                    <FormattedMessage id="language.de" defaultMessage="German"/>
-                                </li>
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </nav>
+                        <IconButton color="primary" onClick={handleLanguageClick}>
+                            <GlobeAltIcon className="w-6 h-6"/>
+                        </IconButton>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                            anchorOrigin={{vertical: "bottom", horizontal: "right"}}
+                            transformOrigin={{vertical: "top", horizontal: "right"}}
+                            sx={{ mt: 2 }}
+                        >
+                            <MenuItem onClick={() => handleChangeLanguage("en")}>
+                                <FormattedMessage id="language.en" defaultMessage="English"/>
+                            </MenuItem>
+                            <MenuItem onClick={() => handleChangeLanguage("de")}>
+                                <FormattedMessage id="language.de" defaultMessage="German"/>
+                            </MenuItem>
+                        </Menu>
+                    </Box>
+                </Box>
+            </Toolbar>
+        </AppBar>
     )
 }
 

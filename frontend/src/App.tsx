@@ -9,6 +9,7 @@ import './index.css'
 import messagesEN from './locales/en.json'
 import messagesDE from './locales/de.json'
 import {Toaster} from "react-hot-toast";
+import {Container} from "@mui/material";
 
 const messages: { [key: string]: Record<string, string> } = {
     en: messagesEN,
@@ -29,14 +30,14 @@ const App = () => {
         <IntlProvider locale={locale} messages={messages[locale]}>
             <Router>
                 <Toaster/>
-                <Navbar setLocale={setLocale} locale={locale}/>
-                <main className="container mx-auto p-6">
+                <Navbar setLocale={setLocale}/>
+                <Container maxWidth="lg">
                     <Routes>
                         <Route path="/" element={<Home/>}/>
                         <Route path="/students" element={<StudentsPage/>}/>
                         <Route path="/courses" element={<CoursesPage/>}/>
                     </Routes>
-                </main>
+                </Container>
             </Router>
         </IntlProvider>
     )

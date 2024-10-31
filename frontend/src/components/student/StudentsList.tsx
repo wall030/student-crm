@@ -11,11 +11,11 @@ import NavigationButtons from '../NavigationButtons'
 import Actions from '../Actions'
 import {FormattedMessage} from 'react-intl'
 import toast, {Toaster} from 'react-hot-toast'
+import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material"
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [students, setStudents] = useState<Student[]>([])
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string>(null)
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
     const [selectedStudents, setSelectedStudents] = useState<number[]>([])
@@ -24,14 +24,15 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [editableStudent, setEditableStudent] = useState<StudentUpdated>({id: 0, firstName: '', lastName: '', email: ''})
     const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+    const [selectedStudent, setSelectedStudent] = useState<Student>(null)
     const [courses, setCourses] = useState<Course[]>([])
-    const limit = 10
+    const limit = 18
 
 
     useEffect(() => {
         setPage(1)
         setStudents([])
+        setSelectedStudents([])
         fetchStudents()
     }, [searchTerm])
 
@@ -40,8 +41,6 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }, [page])
 
     const fetchStudents = async () => {
-        if (loading) return
-        setLoading(true)
         setError(null)
 
         try {
@@ -57,8 +56,6 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             setStudents(data)
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Unknown error')
-        } finally {
-            setLoading(false)
         }
     }
 
@@ -156,11 +153,6 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
-    const isEditDisabled = selectedStudents.length !== 1
-
-    if (loading && students.length === 0) return <p>Loading...</p>
-    if (error) return <p>Error: {error}</p>
-
     const handlePreviousPage = () => {
         if (page != 1) {
             setPage(page - 1)
@@ -173,15 +165,14 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
+    const isEditDisabled = selectedStudents.length !== 1
+
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between">
-                <NavigationButtons
-                    onPrev={handlePreviousPage}
-                    onNext={handleNextPage}
-                />
+        <Box sx={{ mt: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage} />
                 <Actions
-                    manageButtonTitle={"Manage Courses"}
+                    manageButtonTitle="Manage Courses"
                     isEditDisabled={isEditDisabled}
                     selected={selectedStudents}
                     onDelete={handleDelete}
@@ -189,7 +180,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     onOpenEditModal={handleOpenEditModal}
                     onOpenManageModal={handleOpenManageCoursesModal}
                 />
-            </div>
+            </Box>
 
             {isCreateModalOpen && (
                 <CreateStudentModal
@@ -198,8 +189,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     onCreate={handleCreateStudent}
                     onClose={() => {
                         setCreateModalOpen(false)
-                        setNewStudent({firstName: '', lastName: '', email: ''})
+                        setNewStudent({ firstName: "", lastName: "", email: "" })
                     }}
+                    open={isCreateModalOpen}
                 />
             )}
 
@@ -224,31 +216,53 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 />
             )}
 
-            <table className="table-auto w-full border-collapse">
-                <thead>
-                <tr className="bg-gray-200">
-                    <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name"/></th>
-                    <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail"/>
-                    </th>
-                    <th className="px-4 py-2 text-left"><FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses"/>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {students.map((student) => {
-                    const isSelected = selectedStudents.includes(student.id)
-                    return (
-                        <StudentCard
-                            key={student.id}
-                            student={student}
-                            isSelected={isSelected}
-                            onSelect={() => handleSelectStudent(student.id)}
-                        />)
-                })}
-                </tbody>
-            </table>
-            {loading && <p>Loading more students...</p>}
-        </div>
+            <TableContainer component={Paper}>
+                <Table
+                    sx={{ tableLayout: "fixed", width: "100%" }}
+                    size="small"
+                >
+                    <TableHead>
+                        <TableRow sx={{ backgroundColor: "grey.200" }}>
+                            <TableCell align={"left"}>
+                                <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name" />
+                            </TableCell>
+                            <TableCell align={"left"}>
+                                <FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail" />
+                            </TableCell>
+                            <TableCell align={"left"}>
+                                <FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses" />
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {students.map((student) => {
+                            const isSelected = selectedStudents.includes(student.id)
+                            return (
+                                <StudentCard
+                                    key={student.id}
+                                    student={student}
+                                    isSelected={isSelected}
+                                    onSelect={() => handleSelectStudent(student.id)}
+                                />
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {error && (
+                <Box display="flex"
+                     justifyContent="center"
+                     alignItems="center"
+                     height="100%"
+                     sx={{ mt: 4 }}
+                >
+                    <Typography variant="body1" color="error" align="center">
+                        Error: {error}
+                    </Typography>
+                </Box>
+            )
+            }
+        </Box>
     )
 }
 

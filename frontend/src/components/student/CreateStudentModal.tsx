@@ -1,53 +1,115 @@
-import { FormattedMessage } from "react-intl";
+import {FormattedMessage} from "react-intl"
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material"
+import React, {useState} from "react"
 
 const CreateStudentModal: React.FC<{
-  newStudent: { firstName: string; lastName: string; email: string }
-  setNewStudent: React.Dispatch<React.SetStateAction<{ firstName: string; lastName: string; email: string }>>
-  onCreate: () => void
-  onClose: () => void
-}> = ({ newStudent, setNewStudent, onCreate, onClose }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-4 rounded-md shadow-md">
-      <h2 className="text-lg font-bold mb-4">
-        <FormattedMessage id="modals.student.create" defaultMessage="Create Student" />
-      </h2>
-      <input
-        type="text"
-        placeholder="First Name"
-        value={newStudent.firstName}
-        onChange={(e) => setNewStudent({ ...newStudent, firstName: e.target.value })}
-        className="mb-2 border border-gray-300 rounded p-2 w-full"
-      />
-      <input
-        type="text"
-        placeholder="Last Name"
-        value={newStudent.lastName}
-        onChange={(e) => setNewStudent({ ...newStudent, lastName: e.target.value })}
-        className="mb-2 border border-gray-300 rounded p-2 w-full"
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={newStudent.email}
-        onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-        className="mb-2 border border-gray-300 rounded p-2 w-full"
-      />
-      <div className="flex justify-end space-x-2 mt-4">
-      <button 
-          onClick={onCreate}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
-            <FormattedMessage id="buttons.create" defaultMessage="Create" />
-        </button>
-        <button
-          onClick={onClose} 
-          className="bg-gray-300 px-4 py-2 rounded-md"
-        >
-          <FormattedMessage id="buttons.cancel" defaultMessage="Cancel" />
-        </button>
-      </div>
-    </div>
-  </div>
-)
+    newStudent: { firstName: string; lastName: string; email: string }
+    setNewStudent: React.Dispatch<React.SetStateAction<{ firstName: string; lastName: string; email: string }>>
+    onCreate: () => void
+    onClose: () => void
+}> = ({newStudent, setNewStudent, onCreate, onClose}) => {
+    const [emailError, setEmailError] = useState(false)
+    const [firstNameError, setFirstNameError] = useState(false)
+    const [lastNameError, setLastNameError] = useState(false)
+    const nameRegex = /^[a-zA-Zà-ÿÀ-ß\s'-]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    const handleEmailChange = (e) => {
+        const email = e.target.value
+        setNewStudent({...newStudent, email})
+        setEmailError(!emailRegex.test(email))
+    }
+    const handleFirstNameChange = (e) => {
+        const firstName = e.target.value
+        setNewStudent({...newStudent, firstName})
+        setFirstNameError(!nameRegex.test(firstName))
+    }
+
+    const handleLastNameChange = (e) => {
+        const lastName = e.target.value
+        setNewStudent({...newStudent, lastName})
+        setLastNameError(!nameRegex.test(lastName))
+    }
+
+    const isFormValid = newStudent.firstName && !firstNameError &&
+        newStudent.lastName && !lastNameError &&
+        newStudent.email && !emailError
+
+    return (
+        <Box>
+            <Dialog open={true} onClose={onClose}>
+                <DialogTitle>
+                    <FormattedMessage id="modals.student.create" defaultMessage="Create Student"/>
+                </DialogTitle>
+                <DialogContent>
+                    <Box sx={{display: "flex", flexDirection: "column", height: 300, width: 270}}>
+                        <TextField
+                            label={<FormattedMessage id="placeholders.firstName" defaultMessage="First Name"/>}
+                            variant="outlined"
+                            value={newStudent.firstName}
+                            onChange={handleFirstNameChange}
+                            error={firstNameError}
+                            helperText={firstNameError ?
+                                <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid first name"/> : ""}
+                            required
+                            sx={{
+                                width: 280,
+                                position: "absolute",
+                                top: "25%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)"
+                            }}
+                        />
+                        <TextField
+                            label={<FormattedMessage id="placeholders.lastName" defaultMessage="Last Name"/>}
+                            variant="outlined"
+                            value={newStudent.lastName}
+                            onChange={handleLastNameChange}
+                            error={lastNameError}
+                            helperText={lastNameError ?
+                                <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid last name"/> : ""}
+                            required
+                            sx={{
+                                width: 280,
+                                position: "absolute",
+                                top: "45%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)"
+                            }}
+                        />
+                        <TextField
+                            label={"E-Mail"}
+                            variant="outlined"
+                            type="email"
+                            value={newStudent.email}
+                            onChange={handleEmailChange}
+                            error={emailError}
+                            helperText={emailError ?
+                                <FormattedMessage id="validation.invalidEmail" defaultMessage="Enter a valid email address"/> : ""}
+                            required
+                            sx={{
+                                width: 280,
+                                position: "absolute",
+                                top: "65%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)"
+                            }}
+                        />
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="primary" onClick={onCreate} disabled={!isFormValid}>
+                        <FormattedMessage id="buttons.create" defaultMessage="Create"/>
+                    </Button>
+                    <Button variant="outlined" color="inherit" onClick={onClose}>
+                        <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    )
+
+
+}
 
 export default CreateStudentModal

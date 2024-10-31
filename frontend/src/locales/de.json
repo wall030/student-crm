@@ -8,6 +8,8 @@
     "actions.manage.students.title": "Studenten verwalten für ",
     "actions.manage.students": "Studenten verwalten",
     "actions.edit": "Bearbeiten",
+    "actions.add": "Hinzufügen",
+    "actions.delete": "Löschen",
 
     "buttons.create": "Erstellen",
     "buttons.save": "Speichern",
@@ -34,6 +36,13 @@
 
     "toast.success": "Aktion Erfolgreich!",
     "toast.error": "Fehler: {message}",
+
+    "placeholders.firstName": "Vorname",
+    "placeholders.lastName": "Nachname",
+    "placeholders.courseName": "Name",
+
+    "validation.invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein",
+    "validation.invalidName": "Keine Zahlen, Sonderzeichen oder Satzzeichen",
 
     "language.en": "Englisch",
     "language.de": "Deutsch"

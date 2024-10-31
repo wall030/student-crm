@@ -1,40 +1,39 @@
-import { FormattedMessage } from "react-intl"
+import {FormattedMessage} from "react-intl"
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
+import React from "react";
 
 const CreateCourseModal: React.FC<{
-  newCourse: { name: string }
-  setNewCourse: React.Dispatch<React.SetStateAction<{ name: string }>>
-  onCreate: () => void
-  onClose: () => void
-}> = ({ newCourse, setNewCourse, onCreate, onClose }) => (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-4 rounded-md shadow-md">
-      <h2 className="text-lg font-bold mb-4">
-        <FormattedMessage id="modals.course.create" defaultMessage="Create Course" />
-      </h2>
-      <input
-        type="text"
-        placeholder="Name"
-        value={newCourse.name}
-        onChange={(e) => setNewCourse
-      ({ ...newCourse, name: e.target.value })}
-        className="mb-2 border border-gray-300 rounded p-2 w-full"
-      />
-      <div className="flex justify-end space-x-2 mt-4">
-        <button 
-          onClick={onCreate}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-        >
-            <FormattedMessage id="buttons.create" defaultMessage="Create" />
-        </button>
-        <button
-          onClick={onClose} 
-          className="bg-gray-300 px-4 py-2 rounded-md"
-        >
-          <FormattedMessage id="buttons.cancel" defaultMessage="Cancel" />
-        </button>
-      </div>
-    </div>
-  </div>
+    newCourse: { name: string }
+    setNewCourse: React.Dispatch<React.SetStateAction<{ name: string }>>
+    onCreate: () => void
+    onClose: () => void
+}> = ({newCourse, setNewCourse, onCreate, onClose}) => (
+    <Dialog open={true} onClose={onClose}>
+        <DialogTitle>
+            <FormattedMessage id="modals.course.create" defaultMessage="Create Course"/>
+        </DialogTitle>
+        <DialogContent>
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                <TextField
+                    label={<FormattedMessage id="placeholders.courseName" defaultMessage="Name"/>}
+                    variant="outlined"
+                    value={newCourse.name}
+                    onChange={(e) => setNewCourse({...newCourse, name: e.target.value})}
+                    margin="dense"
+                    fullWidth
+                    required
+                />
+            </Box>
+        </DialogContent>
+        <DialogActions>
+            <Button variant="contained" color="primary" onClick={onCreate}>
+                <FormattedMessage id="buttons.create" defaultMessage="Create"/>
+            </Button>
+            <Button variant="outlined" color="inherit" onClick={onClose}>
+                <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+            </Button>
+        </DialogActions>
+    </Dialog>
 )
 
 export default CreateCourseModal

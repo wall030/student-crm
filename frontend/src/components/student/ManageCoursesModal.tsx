@@ -3,7 +3,8 @@ import axios from 'axios'
 import {Course} from '../../types/Course'
 import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
-import toast from "react-hot-toast";
+import toast from "react-hot-toast"
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material"
 
 
 const ManageCoursesModal: React.FC<{
@@ -53,49 +54,41 @@ const ManageCoursesModal: React.FC<{
             console.error('Error updating courses:', error)
             onClose()
             const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{ message }}/>)
+            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
         }
     }
 
     return (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-md w-96">
-                <h2 className="text-lg font-bold mb-4">
-                    <FormattedMessage id="actions.manage.courses.title" defaultMessage="Manage Courses for "/>
-                    {student.firstName} {student.lastName}
-                </h2>
-
-                <div className="max-h-60 overflow-auto ">
+        <Dialog open={true} onClose={onClose}>
+            <DialogTitle>
+                <FormattedMessage id="actions.manage.courses.title" defaultMessage="Manage Courses for "/>
+                {student.firstName} {student.lastName}
+            </DialogTitle>
+            <DialogContent>
+                <Box sx={{maxHeight: 300, overflowY: 'auto'}}>
                     {courses.map((course) => (
-                        <div key={course.id} className="flex items-center justify-normal mb-2 border-b border-gray-300">
-                            <input
-                                type="checkbox"
+                        <Box key={course.id} sx={{display: 'flex', alignItems: 'center', mb: 1, borderBottom: '1px solid #ccc'}}>
+                            <Checkbox
                                 checked={selectedCourses.includes(course.id)}
                                 onChange={() => handleCourseToggle(course.id)}
+                                color="primary"
                             />
-                            <span className="px-2">
-                {course.name}
-              </span>
-                        </div>
+                            <Typography variant="body1" sx={{px: 1}}>
+                                {course.name}
+                            </Typography>
+                        </Box>
                     ))}
-                </div>
-
-                <div className="mt-4 flex justify-end space-x-4">
-                    <button
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                        onClick={handleSubmit}
-                    >
-                        <FormattedMessage id="buttons.save" defaultMessage="Save"/>
-                    </button>
-                    <button
-                        className="bg-gray-300 px-4 py-2 rounded-md"
-                        onClick={onClose}
-                    >
-                        <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
-                    </button>
-                </div>
-            </div>
-        </div>
+                </Box>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                    <FormattedMessage id="buttons.save" defaultMessage="Save"/>
+                </Button>
+                <Button variant="outlined" color="inherit" onClick={onClose}>
+                    <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+                </Button>
+            </DialogActions>
+        </Dialog>
     )
 }
 
