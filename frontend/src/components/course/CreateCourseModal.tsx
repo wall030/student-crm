@@ -1,39 +1,65 @@
 import {FormattedMessage} from "react-intl"
-import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material";
-import React from "react";
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material"
+import React, {useState} from "react"
+import axios from "axios"
+import {Course} from "../../types/Course.ts"
+import toast from "react-hot-toast"
 
 const CreateCourseModal: React.FC<{
-    newCourse: { name: string }
-    setNewCourse: React.Dispatch<React.SetStateAction<{ name: string }>>
-    onCreate: () => void
+    open: boolean
     onClose: () => void
-}> = ({newCourse, setNewCourse, onCreate, onClose}) => (
-    <Dialog open={true} onClose={onClose}>
-        <DialogTitle>
-            <FormattedMessage id="modals.course.create" defaultMessage="Create Course"/>
-        </DialogTitle>
-        <DialogContent>
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                <TextField
-                    label={<FormattedMessage id="placeholders.courseName" defaultMessage="Name"/>}
-                    variant="outlined"
-                    value={newCourse.name}
-                    onChange={(e) => setNewCourse({...newCourse, name: e.target.value})}
-                    margin="dense"
-                    fullWidth
-                    required
-                />
-            </Box>
-        </DialogContent>
-        <DialogActions>
-            <Button variant="contained" color="primary" onClick={onCreate}>
-                <FormattedMessage id="buttons.create" defaultMessage="Create"/>
-            </Button>
-            <Button variant="outlined" color="inherit" onClick={onClose}>
-                <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
-            </Button>
-        </DialogActions>
-    </Dialog>
-)
+    setCourses: React.Dispatch<React.SetStateAction<Course[]>>
+}> = ({open, onClose, setCourses}) => {
+    const [newCourse, setNewCourse] = useState({name: ''})
+
+    const handleCreateCourse = async () => {
+        try {
+            const response = await axios.post<Course>(`http://localhost:8080/api/course/create`, newCourse)
+            setCourses((prev) => [response.data, ...prev])
+            onClose()
+            setNewCourse({name: ''})
+            toast.success(<FormattedMessage id="toast.success"/>)
+        } catch (error) {
+            console.error('Error creating student:', error)
+            onClose()
+            setNewCourse({name: ''})
+            const message = error.response.data.error
+            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+        }
+    }
+
+    return (
+        <Dialog open={open} onClose={onClose}>
+            <DialogTitle>
+                <FormattedMessage id="modals.course.create" defaultMessage="Create Course"/>
+            </DialogTitle>
+            <DialogContent>
+                <Box sx={{display: 'flex', flexDirection: 'column'}}>
+                    <TextField
+                        label={<FormattedMessage id="placeholders.courseName" defaultMessage="Name"/>}
+                        variant="outlined"
+                        value={newCourse.name}
+                        onChange={(e) => setNewCourse({...newCourse, name: e.target.value})}
+                        margin="dense"
+                        fullWidth
+                        required
+                    />
+                </Box>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="primary" onClick={handleCreateCourse}>
+                    <FormattedMessage id="buttons.create" defaultMessage="Create"/>
+                </Button>
+                <Button variant="outlined" color="inherit" onClick={() => {
+                    onClose()
+                    setNewCourse({name: ''})
+                }}
+                >
+                    <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+                </Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
 
 export default CreateCourseModal

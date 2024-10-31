@@ -4,63 +4,61 @@ import {Course} from '../../types/Course'
 import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from "react-hot-toast";
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, ListItemText} from "@mui/material";
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, ListItemText} from "@mui/material"
 
 
 const ManageStudentsModal: React.FC<{
-    allStudents: Student[]
+    open: Boolean
     course: Course
     onUpdate: (course: Course) => void
     onClose: () => void
 }
-> = ({allStudents, course, onUpdate, onClose}) => {
+> = ({open, course, onUpdate, onClose}) => {
     const [students, setStudents] = useState<Student[]>([])
     const [selectedStudents, setSelectedStudents] = useState<number[]>([])
 
+
     useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                setStudents(allStudents)
+        if(open) {fetchStudents()}
+    }, [course])
 
-                const enrolledStudents = course.students.map(student => student.id)
-                setSelectedStudents(enrolledStudents)
-            } catch (error) {
-                console.error('Error fetching students:', error)
-            }
+    const fetchStudents = async () => {
+        try {
+            const studentsResponse = await axios.get<Student[]>('http://localhost:8080/api/student/all')
+            setStudents(studentsResponse.data)
+            const enrolledStudents = course.students.map(student => student.id)
+            setSelectedStudents(enrolledStudents)
+        } catch (error) {
+            console.error('Error fetching students:', error)
         }
-
-        fetchStudents()
-    }, [allStudents])
+    }
 
     const handleStudentToggle = (studentId: number) => {
-        setSelectedStudents((prevSelectedStudents) => {
-            if (prevSelectedStudents.includes(studentId)) {
-                return prevSelectedStudents.filter(id => id !== studentId)
-            } else {
-                return [...prevSelectedStudents, studentId]
-            }
-        })
+        setSelectedStudents((prevSelectedStudents) =>
+            prevSelectedStudents.includes(studentId)
+                ? prevSelectedStudents.filter((id) => id !== studentId)
+                : [...prevSelectedStudents, studentId]
+        )
     }
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`http://localhost:8080/api/course/${course.id}/assignStudents`,
-                selectedStudents
-            )
-            course.students = response.data
-            onClose()
-            onUpdate(course)
+            const response = await axios.put(`http://localhost:8080/api/course/${course.id}/assignStudents`, selectedStudents)
+            const updatedCourse = {...course, students: response.data}
+            onUpdate(updatedCourse)
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
             console.error('Error updating courses:', error)
             const message = error.response.data.error
             onClose()
             toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+        } finally {
+            onClose()
         }
     }
 
     return (
-        <Dialog open={true} onClose={onClose}>
+        <Dialog open={open} onClose={onClose}>
             <DialogTitle>
                 <FormattedMessage id="actions.manage.students.title" defaultMessage="Manage Students for "/>
                 {course.name}
@@ -82,7 +80,7 @@ const ManageStudentsModal: React.FC<{
                 <Button variant="contained" color="primary" onClick={handleSubmit}>
                     <FormattedMessage id="buttons.save" defaultMessage="Save"/>
                 </Button>
-                <Button variant="outlined" color="inherit" onClick={onClose} sx={{ml: 2}}>
+                <Button variant="outlined" color="inherit" onClick={onClose}>
                     <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
                 </Button>
             </DialogActions>

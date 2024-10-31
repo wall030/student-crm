@@ -3,63 +3,58 @@ import axios from 'axios'
 import {Course} from '../../types/Course'
 import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
-import toast from "react-hot-toast"
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material"
-
+import toast from 'react-hot-toast'
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from '@mui/material'
 
 const ManageCoursesModal: React.FC<{
-    allCourses: Course[]
+    open: boolean
     student: Student
     onUpdate: (student: Student) => void
     onClose: () => void
-}> = ({allCourses, student, onUpdate, onClose}) => {
+}> = ({open, student, onUpdate, onClose}) => {
     const [courses, setCourses] = useState<Course[]>([])
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
 
     useEffect(() => {
-        const fetchCourses = async () => {
-            try {
-                setCourses(allCourses)
+        if(open) fetchCourses()
+    }, [student])
 
-                const enrolledCourses = student.courses.map(course => course.id)
-                setSelectedCourses(enrolledCourses)
-            } catch (error) {
-                console.error('Error fetching courses:', error)
-            }
+    const fetchCourses = async () => {
+        try {
+            const coursesResponse = await axios.get<Course[]>('http://localhost:8080/api/course/all')
+            setCourses(coursesResponse.data)
+            const enrolledCourses = student.courses.map((course) => course.id)
+            setSelectedCourses(enrolledCourses)
+        } catch (error) {
+            console.error('Error fetching courses:', error)
         }
-
-        fetchCourses()
-    }, [allCourses])
+    }
 
     const handleCourseToggle = (courseId: number) => {
-        setSelectedCourses((prevSelectedCourses) => {
-            if (prevSelectedCourses.includes(courseId)) {
-                return prevSelectedCourses.filter(id => id !== courseId)
-            } else {
-                return [...prevSelectedCourses, courseId]
-            }
-        })
+        setSelectedCourses((prevSelectedCourses) =>
+            prevSelectedCourses.includes(courseId)
+                ? prevSelectedCourses.filter((id) => id !== courseId)
+                : [...prevSelectedCourses, courseId]
+        )
     }
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.put(`http://localhost:8080/api/student/${student.id}/assignCourses`,
-                selectedCourses
-            )
-            student.courses = response.data
-            onClose()
-            onUpdate(student)
+            const response = await axios.put(`http://localhost:8080/api/student/${student.id}/assignCourses`, selectedCourses)
+            const updatedStudent = {...student, courses: response.data}
+            onUpdate(updatedStudent)
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
             console.error('Error updating courses:', error)
-            onClose()
-            const message = error.response.data.error
+            const message = error.response?.data?.error || 'An error occurred'
             toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+        } finally {
+            onClose()
         }
     }
 
     return (
-        <Dialog open={true} onClose={onClose}>
+        <Dialog open={open} onClose={onClose}>
             <DialogTitle>
                 <FormattedMessage id="actions.manage.courses.title" defaultMessage="Manage Courses for "/>
                 {student.firstName} {student.lastName}

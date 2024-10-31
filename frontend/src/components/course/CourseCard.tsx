@@ -1,7 +1,7 @@
 import { Course } from '../../types/Course'
 import {Box, TableCell, TableRow} from "@mui/material"
 import {blue} from "@mui/material/colors"
-import React from "react";
+import React from "react"
 
 const CourseCard: React.FC<{
   course: Course
@@ -19,13 +19,13 @@ const CourseCard: React.FC<{
             }}
             onClick={onSelect}
         >
-            <TableCell align="left" sx={{ fontWeight: "bold" }}>
+            <TableCell align="left" sx={{ fontWeight: "bold", verticalAlign: "top" }}>
                 {course.name}
             </TableCell>
-            <TableCell align="left" sx={{ color: "grey.800" }}>
+            <TableCell align="left" sx={{ verticalAlign: "top" }}>
                 <Box component="ul" sx={{ padding: 0, margin: 0 }}>
                     {course.students?.map((student) => (
-                        <Box component="li" key={student.id} sx={{ color: "grey.700" }}>
+                        <Box component="li" key={student.id} sx={{ color: "grey.800" }}>
                             {student.firstName} {student.lastName}
                         </Box>
                     ))}

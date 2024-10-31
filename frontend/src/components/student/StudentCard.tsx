@@ -1,6 +1,7 @@
 import { Student } from "../../types/Student"
 import {Box, TableCell, TableRow} from "@mui/material"
 import {blue} from "@mui/material/colors"
+import React from "react"
 
 const StudentCard: React.FC<{
   student: Student

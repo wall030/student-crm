@@ -22,7 +22,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
-    const [newCourse, setNewCourse] = useState({name: ''})
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [editableCourse, setEditableCourse] = useState<CourseUpdated>({id: 0, name: ''})
     const [isManageStudentsModalOpen, setManageStudentsModalOpen] = useState(false)
@@ -63,15 +62,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
-    const fetchStudents = async () => {
-        try {
-            const studentsResponse = await axios.get<Student[]>('http://localhost:8080/api/student/all')
-            setStudents(studentsResponse.data)
-        } catch (error) {
-            console.error('Error fetching students:', error)
-        }
-    }
-
     const handleSelectCourse = (id: number) => {
         setSelectedCourses((prevSelected) =>
             prevSelected.includes(id) ? prevSelected.filter((courseId) => courseId !== id) : [...prevSelected, id]
@@ -92,52 +82,11 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
-    const handleCreateCourse = async () => {
-        try {
-            const response = await axios.post<Course>(`http://localhost:8080/api/course/create`, newCourse)
-            const createdCourse = response.data
-            setCourses((prevCourses) => [createdCourse, ...prevCourses])
-            setCreateModalOpen(false)
-            setNewCourse({name: ''})
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
-            console.error('Error creating student:', error)
-            setCreateModalOpen(false)
-            setNewCourse({name: ''})
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
-        }
-    }
-
-    const handleCourseUpdated = async (updatedCourse: CourseUpdated) => {
-        try {
-            await axios.put(`http://localhost:8080/api/course/${updatedCourse.id}/update`, updatedCourse
-            )
-            setEditModalOpen(false)
-            setCourses((prevCourses) =>
-                prevCourses.map((course) => (course.id === updatedCourse
-                    .id ? {
-                    ...course, ...updatedCourse
-                } : course))
-            )
-            setSelectedCourses([])
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
-            console.error('Error updating course:', error)
-            setEditModalOpen(false)
-            setSelectedCourses([])
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
-        }
-    }
-
     const handleOpenEditModal = () => {
         if (selectedCourses.length === 1) {
             const courseToEdit = courses.find((course) => course.id === selectedCourses[0])
-            if (courseToEdit
-
-            ) {
-                setEditableCourse(courseToEdit)
+            if (courseToEdit) {
+                setSelectedCourse(courseToEdit)
                 setEditModalOpen(true)
             }
         }
@@ -156,7 +105,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         if (selectedCourses.length === 1) {
             const course = courses.find((course) => course.id === selectedCourses[0])
             if (course) {
-                fetchStudents()
                 setSelectedCourse(course)
                 setManageStudentsModalOpen(true)
             }
@@ -178,9 +126,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const isEditDisabled = selectedCourses.length !== 1
 
     return (
-        <Box sx={{ mt: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage} />
+        <Box sx={{mt: 2}}>
+            <Box sx={{display: "flex", justifyContent: "space-between", mb: 2}}>
+                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage}/>
                 <Actions
                     manageButtonTitle={"Manage Students"}
                     isEditDisabled={isEditDisabled}
@@ -192,50 +140,49 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 />
             </Box>
 
-            {isCreateModalOpen && (
-                <CreateCourseModal
-                    newCourse={newCourse}
-                    setNewCourse={setNewCourse}
-                    onCreate={handleCreateCourse}
+            <CreateCourseModal
+                open={isCreateModalOpen}
+                setCourses={setCourses}
+                onClose={() => setCreateModalOpen(false)}
+            />
+
+            {selectedCourse && (
+                <EditCourseModal
+                    open={isEditModalOpen}
+                    course={selectedCourse}
+                    setCourses={setCourses}
                     onClose={() => {
-                        setCreateModalOpen(false)
-                        setNewCourse({ name: "" })
+                        setEditModalOpen(false)
+                        setSelectedCourses([])
                     }}
                 />
             )}
 
-            {isEditModalOpen && (
-                <EditCourseModal
-                    course={editableCourse}
-                    setCourse={setEditableCourse}
-                    onUpdate={() => handleCourseUpdated(editableCourse)}
-                    onClose={() => setEditModalOpen(false)}
-                />
-            )}
-
-            {isManageStudentsModalOpen && selectedCourse && (
+            {selectedCourse && (
                 <ManageStudentsModal
+                    open={isManageStudentsModalOpen}
                     allStudents={students}
                     course={selectedCourse}
-                    onUpdate={() => handleManageStudents(selectedCourse)}
+                    onUpdate={handleManageStudents}
                     onClose={() => {
                         setManageStudentsModalOpen(false)
+                        setSelectedCourse(null)
                         setSelectedCourses([])
                     }}
                 />
             )}
 
             <TableContainer component={Paper}>
-                <Table sx={{ tableLayout: "fixed", width: "100%" }}
+                <Table sx={{tableLayout: "fixed", width: "100%"}}
                        size="small"
                 >
                     <TableHead>
-                        <TableRow sx={{ backgroundColor: "grey.200" }}>
+                        <TableRow sx={{backgroundColor: "grey.200"}}>
                             <TableCell align="left">
-                                <FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name" />
+                                <FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name"/>
                             </TableCell>
                             <TableCell align="left">
-                                <FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students" />
+                                <FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students"/>
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -255,7 +202,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 </Table>
             </TableContainer>
             {error && (
-                <Typography variant="body1" color="error" align="center" sx={{ mt: 2 }}>
+                <Typography variant="body1" color="error" align="center" sx={{mt: 2}}>
                     {error}
                 </Typography>
             )}
