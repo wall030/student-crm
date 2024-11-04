@@ -11,8 +11,7 @@ import ManageStudentsModal from "./ManageStudentsModal"
 import {Student} from "../../types/Student"
 import {FormattedMessage} from "react-intl"
 import toast from "react-hot-toast"
-import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material"
-
+import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography} from "@mui/material"
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [courses, setCourses] = useState<Course[]>([])
@@ -23,10 +22,11 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [hasMore, setHasMore] = useState(true)
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
     const [isEditModalOpen, setEditModalOpen] = useState(false)
-    const [editableCourse, setEditableCourse] = useState<CourseUpdated>({id: 0, name: ''})
     const [isManageStudentsModalOpen, setManageStudentsModalOpen] = useState(false)
     const [selectedCourse, setSelectedCourse] = useState<Course>(null)
     const [students, setStudents] = useState<Student[]>([])
+    const [sortField, setSortField] = useState("name")
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
     const limit = 18
 
     useEffect(() => {
@@ -37,7 +37,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
 
     useEffect(() => {
         fetchCourses()
-    }, [page])
+    }, [page, sortField, sortOrder])
 
     const fetchCourses = async () => {
         if (loading) return
@@ -48,17 +48,28 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             const response = await axios.get<Course[]>(`http://localhost:8080/api/course`, {
                 params: {
                     page,
-                    limit: limit,
+                    limit,
                     search: searchTerm,
+                    sortField,
+                    sortOrder,
                 },
             })
             const data = response.data
             data.length === limit ? setHasMore(true) : setHasMore(false)
             setCourses(data)
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error')
+            setError(err instanceof Error ? err.message : "Unknown error")
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleSortChange = (field: string) => {
+        if (field === sortField) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+        } else {
+            setSortField(field)
+            setSortOrder("asc")
         }
     }
 
@@ -75,7 +86,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             setSelectedCourses([])
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error deleting courses:', error)
+            console.error("Error deleting courses:", error)
             setSelectedCourses([])
             const message = error.response.data.error
             toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
@@ -98,7 +109,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         )
         setManageStudentsModalOpen(false)
         setSelectedCourses([])
-
     }
 
     const handleOpenManageStudentsModal = () => {
@@ -172,16 +182,39 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 />
             )}
 
-            <TableContainer component={Paper}>
-                <Table sx={{tableLayout: "fixed", width: "100%"}}
-                       size="small"
+            <TableContainer
+                component={Paper}
+                sx={{
+                    maxHeight: "70vh",
+                    overflow: "auto"
+                }}
+            >
+                <Table
+                    stickyHeader
+                    sx={{
+                        tableLayout: "fixed",
+                        width: "100%"
+                    }}
+                    size="small"
                 >
                     <TableHead>
-                        <TableRow sx={{backgroundColor: "grey.200"}}>
-                            <TableCell align="left">
-                                <FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name"/>
+                        <TableRow>
+                            <TableCell
+                                align="left"
+                                sx={{backgroundColor: "grey.300"}}
+                            >
+                                <TableSortLabel
+                                    active={sortField === "name"}
+                                    direction={sortOrder}
+                                    onClick={() => handleSortChange("name")}
+                                >
+                                    <FormattedMessage id="page.courses.tableColumn.name" defaultMessage="Name"/>
+                                </TableSortLabel>
                             </TableCell>
-                            <TableCell align="left">
+                            <TableCell
+                                align="left"
+                                sx={{backgroundColor: "grey.300"}}
+                            >
                                 <FormattedMessage id="page.courses.tableColumn.students" defaultMessage="Students"/>
                             </TableCell>
                         </TableRow>
@@ -202,9 +235,11 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 </Table>
             </TableContainer>
             {error && (
-                <Typography variant="body1" color="error" align="center" sx={{mt: 2}}>
-                    {error}
-                </Typography>
+                <Box display="flex" justifyContent="center" alignItems="center" height="100%" sx={{mt: 4}}>
+                    <Typography variant="body1" color="error" align="center" sx={{mt: 2}}>
+                        {error}
+                    </Typography>
+                </Box>
             )}
         </Box>
     )

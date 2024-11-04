@@ -21,9 +21,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
     const [selectedStudent, setSelectedStudent] = useState<Student>(null)
-    const limit = 18
     const [sortField, setSortField] = useState("lastname")
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
+    const limit = 18
 
 
     useEffect(() => {
@@ -180,7 +180,14 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     overflow: 'auto',
                 }}
             >
-                <Table stickyHeader sx={{ tableLayout: "fixed", width: "100%" }} size="small">
+                <Table
+                    stickyHeader
+                    sx={{
+                        tableLayout: "fixed",
+                        width: "100%"
+                    }}
+                    size="small"
+                >
                     <TableHead>
                         <TableRow>
                             <TableCell
