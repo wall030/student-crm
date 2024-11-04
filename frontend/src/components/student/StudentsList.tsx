@@ -9,7 +9,7 @@ import NavigationButtons from '../NavigationButtons'
 import Actions from '../Actions'
 import {FormattedMessage} from 'react-intl'
 import toast, {Toaster} from 'react-hot-toast'
-import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material"
+import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography} from "@mui/material"
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [students, setStudents] = useState<Student[]>([])
@@ -22,6 +22,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
     const [selectedStudent, setSelectedStudent] = useState<Student>(null)
     const limit = 18
+    const [sortField, setSortField] = useState("lastname")
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
 
     useEffect(() => {
@@ -33,7 +35,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
 
     useEffect(() => {
         fetchStudents()
-    }, [page])
+    }, [page, sortField, sortOrder])
 
     const fetchStudents = async () => {
         setError(null)
@@ -42,8 +44,10 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             const response = await axios.get<Student[]>(`http://localhost:8080/api/student`, {
                 params: {
                     page,
-                    limit: limit,
+                    limit,
                     search: searchTerm,
+                    sortField,
+                    sortOrder,
                 },
             })
             const data = response.data
@@ -54,6 +58,14 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
+    const handleSortChange = (field: string) => {
+        if (field === sortField) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+        } else {
+            setSortField(field)
+            setSortOrder('asc')
+        }
+    }
     const handleSelectStudent = (id: number) => {
         setSelectedStudents((prevSelected) =>
             prevSelected.includes(id) ? prevSelected.filter((studentId) => studentId !== id) : [...prevSelected, id]
@@ -117,9 +129,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const isEditDisabled = selectedStudents.length !== 1
 
     return (
-        <Box sx={{mt: 2}}>
-            <Box sx={{display: "flex", justifyContent: "space-between", mb: 2}}>
-                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage}/>
+        <Box sx={{ mt: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage} />
                 <Actions
                     manageButtonTitle="Manage Courses"
                     isEditDisabled={isEditDisabled}
@@ -161,21 +173,45 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 />
             )}
 
-            <TableContainer component={Paper}>
-                <Table
-                    sx={{tableLayout: "fixed", width: "100%"}}
-                    size="small"
-                >
+            <TableContainer
+                component={Paper}
+                sx={{
+                    maxHeight: "70vh",
+                    overflow: 'auto',
+                }}
+            >
+                <Table stickyHeader sx={{ tableLayout: "fixed", width: "100%" }} size="small">
                     <TableHead>
-                        <TableRow sx={{backgroundColor: "grey.200"}}>
-                            <TableCell align={"left"}>
-                                <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name"/>
+                        <TableRow>
+                            <TableCell
+                                align="left"
+                                sx={{ backgroundColor: "grey.300" }}
+                            >
+                                <TableSortLabel
+                                    active={sortField === "lastname"}
+                                    direction={sortOrder}
+                                    onClick={() => handleSortChange("lastname")}
+                                >
+                                    <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name" />
+                                </TableSortLabel>
                             </TableCell>
-                            <TableCell align={"left"}>
-                                <FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail"/>
+                            <TableCell
+                                align="left"
+                                sx={{ backgroundColor: "grey.300" }}
+                            >
+                                <TableSortLabel
+                                    active={sortField === "email"}
+                                    direction={sortOrder}
+                                    onClick={() => handleSortChange("email")}
+                                >
+                                    <FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail" />
+                                </TableSortLabel>
                             </TableCell>
-                            <TableCell align={"left"}>
-                                <FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses"/>
+                            <TableCell
+                                align="left"
+                                sx={{ backgroundColor: "grey.300" }}
+                            >
+                                <FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses" />
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -195,18 +231,12 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 </Table>
             </TableContainer>
             {error && (
-                <Box display="flex"
-                     justifyContent="center"
-                     alignItems="center"
-                     height="100%"
-                     sx={{mt: 4}}
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height="100%" sx={{ mt: 4 }}>
                     <Typography variant="body1" color="error" align="center">
                         Error: {error}
                     </Typography>
                 </Box>
-            )
-            }
+            )}
         </Box>
     )
 }
