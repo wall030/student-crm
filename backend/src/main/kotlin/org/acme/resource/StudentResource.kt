@@ -33,7 +33,9 @@ class StudentResource(
         @QueryParam("page") page: Int,
         @QueryParam("limit") limit: Int,
         @QueryParam("search") search: String,
-    ) = studentService.findStudents(page, limit, search)
+        @QueryParam("sortField") sortField: String,
+        @QueryParam("sortOrder") sortOrder: String,
+    ) = studentService.findStudents(page, limit, search, sortField, sortOrder)
 
     @GET
     @ResponseStatus(200)

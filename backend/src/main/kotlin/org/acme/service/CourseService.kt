@@ -25,7 +25,9 @@ class CourseService(
         page: Int,
         limit: Int,
         search: String?,
-    ) = courseRepository.findCourses(page, limit, search.toString())
+        sortField: String,
+        sortOrder: String
+    ) = courseRepository.findCourses(page, limit, search.toString(), sortField, sortOrder)
         .map { course -> course.toCourseDTO() }
 
     @Transactional

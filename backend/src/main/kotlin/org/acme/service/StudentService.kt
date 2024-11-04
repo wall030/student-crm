@@ -21,7 +21,9 @@ class StudentService(
         page: Int,
         limit: Int,
         search: String?,
-    ) = studentRepository.findStudents(page, limit, search.toString())
+        sortField: String,
+        sortOrder: String
+    ) = studentRepository.findStudents(page, limit, search.toString(), sortField, sortOrder)
         .map { student -> student.toStudentDTO() }
 
     fun findStudent(id: Long): StudentDTO {

@@ -29,11 +29,13 @@ class CourseResource(
     @GET
     @ResponseStatus(200)
     @Path("/")
-    fun findStudents(
+    fun findCourses(
         @QueryParam("page") page: Int,
         @QueryParam("limit") limit: Int,
         @QueryParam("search") search: String,
-    ) = courseService.findCourses(page, limit, search)
+        @QueryParam("sortField") sortField: String,
+        @QueryParam("sortOrder") sortOrder: String,
+    ) = courseService.findCourses(page, limit, search, sortField, sortOrder)
 
     @GET
     @ResponseStatus(200)

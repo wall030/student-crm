@@ -2,6 +2,7 @@ package org.acme.repository
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase
+import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.CourseEntity
@@ -19,15 +20,26 @@ class CourseRepository : PanacheRepositoryBase<CourseEntity, Long> {
         page: Int,
         limit: Int,
         search: String?,
-    ): List<CourseEntity> =
-        if (!search.isNullOrBlank()) {
-            val query: PanacheQuery<CourseEntity> =
-                find(
-                    "LOWER(name) LIKE ?1",
-                    "%${search.lowercase()}%",
-                ).page(page - 1, limit)
-            query.list()
+        sortField: String,
+        sortOrder: String
+    ): List<CourseEntity> {
+        val order = if (sortOrder == "desc") Sort.Direction.Descending else Sort.Direction.Ascending
+        val comparator: Comparator<CourseEntity> = when (sortField.lowercase()) {
+            "name" -> compareBy<CourseEntity> { it.name.lowercase() }
+            else -> throw IllegalArgumentException("Invalid sort field: $sortField")
+        }.let { if (order == Sort.Direction.Descending) it.reversed() else it }
+        return if (!search.isNullOrBlank()) {
+            find(
+                "LOWER(name) LIKE ?1",
+                "%${search.lowercase()}%"
+            )
+                .page<CourseEntity>(page - 1, limit)
+                .list<CourseEntity>().sortedWith(comparator)
         } else {
-            findAll().page<CourseEntity>(page - 1, limit).list<CourseEntity>()
+            findAll()
+                .page<CourseEntity>(page - 1, limit)
+                .list<CourseEntity>()
+                .sortedWith(comparator)
         }
+    }
 }
