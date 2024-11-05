@@ -5,37 +5,62 @@ import {Student} from '../../types/Student'
 import CreateStudentModal from './CreateStudentModal'
 import EditStudentModal from './EditStudentModal'
 import ManageCoursesModal from './ManageCoursesModal'
-import NavigationButtons from '../NavigationButtons'
 import Actions from '../Actions'
 import {FormattedMessage} from 'react-intl'
 import toast, {Toaster} from 'react-hot-toast'
-import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography} from "@mui/material"
+import {
+    Box,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TableSortLabel,
+    Typography
+} from "@mui/material"
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [students, setStudents] = useState<Student[]>([])
     const [error, setError] = useState<string>(null)
-    const [page, setPage] = useState(1)
-    const [hasMore, setHasMore] = useState(true)
+    const [page, setPage] = useState(0)
     const [selectedStudents, setSelectedStudents] = useState<number[]>([])
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
     const [selectedStudent, setSelectedStudent] = useState<Student>(null)
-    const [sortField, setSortField] = useState("lastname")
+    const [sortField, setSortField] = useState("lastName")
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
-    const limit = 18
+    const [count, setCount] = useState(0)
+    const [rowsPerPage, setRowsPerPage] = useState<10 | 25 | 100>(10)
 
 
     useEffect(() => {
-        setPage(1)
+        setPage(0)
         setStudents([])
         setSelectedStudents([])
         fetchStudents()
+        fetchCount()
     }, [searchTerm])
 
     useEffect(() => {
         fetchStudents()
-    }, [page, sortField, sortOrder])
+    }, [page, sortField, sortOrder, rowsPerPage])
+
+    const fetchCount = async () => {
+        try {
+            const responseCount = await axios.get(`http://localhost:8080/api/student/count`, {
+                params: {
+                    search: searchTerm,
+                },
+            })
+            setCount(responseCount.data)
+        } catch (error) {
+            setError(error instanceof Error ? error.message : 'Unknown error')
+        }
+    }
 
     const fetchStudents = async () => {
         setError(null)
@@ -44,14 +69,13 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             const response = await axios.get<Student[]>(`http://localhost:8080/api/student`, {
                 params: {
                     page,
-                    limit,
+                    rowsPerPage,
                     search: searchTerm,
                     sortField,
                     sortOrder,
                 },
             })
             const data = response.data
-            data.length === limit ? setHasMore(true) : setHasMore(false)
             setStudents(data)
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Unknown error')
@@ -114,24 +138,20 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
-    const handlePreviousPage = () => {
-        if (page != 1) {
-            setPage(page - 1)
-        }
+    const handleChangePage = (event: unknown, newPage: number) => {
+        setPage(newPage)
     }
 
-    const handleNextPage = () => {
-        if (hasMore) {
-            setPage(page + 1)
-        }
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10))
+        setPage(0)
     }
 
     const isEditDisabled = selectedStudents.length !== 1
 
     return (
         <Box sx={{ mt: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <NavigationButtons onPrev={handlePreviousPage} onNext={handleNextPage} />
+            <Box sx={{ mb: 2 }}>
                 <Actions
                     manageButtonTitle="Manage Courses"
                     isEditDisabled={isEditDisabled}
@@ -195,9 +215,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                                 sx={{ backgroundColor: "grey.300" }}
                             >
                                 <TableSortLabel
-                                    active={sortField === "lastname"}
+                                    active={sortField === "lastName"}
                                     direction={sortOrder}
-                                    onClick={() => handleSortChange("lastname")}
+                                    onClick={() => handleSortChange("lastName")}
                                 >
                                     <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name" />
                                 </TableSortLabel>
@@ -237,6 +257,15 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[10, 25, 100]}
+                component="div"
+                count={count}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
             {error && (
                 <Box display="flex" justifyContent="center" alignItems="center" height="100%" sx={{ mt: 4 }}>
                     <Typography variant="body1" color="error" align="center">

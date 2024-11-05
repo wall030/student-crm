@@ -1,11 +1,11 @@
 package org.acme.repository
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase
 import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import org.acme.model.CourseEntity
+import org.acme.model.StudentEntity
 
 @ApplicationScoped
 class CourseRepository : PanacheRepositoryBase<CourseEntity, Long> {
@@ -16,30 +16,31 @@ class CourseRepository : PanacheRepositoryBase<CourseEntity, Long> {
 
     fun findByName(name: String): CourseEntity? = find("name", name).firstResult<CourseEntity>()
 
+    fun count(search: String): Long = count(
+        "LOWER(name) LIKE ?1",
+        "%${search.lowercase()}%"
+    )
+
     fun findCourses(
         page: Int,
         limit: Int,
         search: String?,
         sortField: String,
-        sortOrder: String
+        sortOrder: String,
     ): List<CourseEntity> {
         val order = if (sortOrder == "desc") Sort.Direction.Descending else Sort.Direction.Ascending
-        val comparator: Comparator<CourseEntity> = when (sortField.lowercase()) {
-            "name" -> compareBy<CourseEntity> { it.name.lowercase() }
-            else -> throw IllegalArgumentException("Invalid sort field: $sortField")
-        }.let { if (order == Sort.Direction.Descending) it.reversed() else it }
+        val sort = Sort.by(sortField).direction(order)
         return if (!search.isNullOrBlank()) {
             find(
                 "LOWER(name) LIKE ?1",
-                "%${search.lowercase()}%"
+                "%${search.lowercase()}%", sort
             )
-                .page<CourseEntity>(page - 1, limit)
-                .list<CourseEntity>().sortedWith(comparator)
-        } else {
-            findAll()
-                .page<CourseEntity>(page - 1, limit)
+                .page<CourseEntity>(page, limit)
                 .list<CourseEntity>()
-                .sortedWith(comparator)
+        } else {
+            findAll(sort)
+                .page<CourseEntity>(page, limit)
+                .list<CourseEntity>()
         }
     }
 }

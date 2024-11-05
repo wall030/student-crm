@@ -31,11 +31,18 @@ class CourseResource(
     @Path("/")
     fun findCourses(
         @QueryParam("page") page: Int,
-        @QueryParam("limit") limit: Int,
+        @QueryParam("rowsPerPage") limit: Int,
         @QueryParam("search") search: String,
         @QueryParam("sortField") sortField: String,
         @QueryParam("sortOrder") sortOrder: String,
     ) = courseService.findCourses(page, limit, search, sortField, sortOrder)
+
+    @GET
+    @ResponseStatus(200)
+    @Path("/count")
+    fun count(
+        @QueryParam("search") search: String,
+    ) = courseService.countCourses(search)
 
     @GET
     @ResponseStatus(200)

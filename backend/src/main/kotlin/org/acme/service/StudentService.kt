@@ -22,9 +22,11 @@ class StudentService(
         limit: Int,
         search: String?,
         sortField: String,
-        sortOrder: String
+        sortOrder: String,
     ) = studentRepository.findStudents(page, limit, search.toString(), sortField, sortOrder)
         .map { student -> student.toStudentDTO() }
+
+    fun countStudents(search: String) = studentRepository.count(search)
 
     fun findStudent(id: Long): StudentDTO {
         val student = studentRepository.findById(id) ?: throw ServiceException.StudentNotFoundException(id.toString())

@@ -30,6 +30,8 @@ class CourseService(
     ) = courseRepository.findCourses(page, limit, search.toString(), sortField, sortOrder)
         .map { course -> course.toCourseDTO() }
 
+    fun countCourses(search: String) = courseRepository.count(search)
+
     @Transactional
     fun createCourse(name: String): CourseDTO {
         courseRepository.findByName(name)?.let {

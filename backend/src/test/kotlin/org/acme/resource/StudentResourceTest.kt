@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
 
 @QuarkusTest
 class StudentResourceTest {
-
     // need to be lists for delete parameter when deleting in cleanup()
     private var courseIds = mutableListOf<Long>()
     private var studentIds = mutableListOf<Long>()
@@ -25,23 +24,25 @@ class StudentResourceTest {
         val course = CourseCreateUpdateDTO("Piloting 101")
         val student = StudentCreateUpdateDTO("Han", "Solo", "han.solo@smuggler.com")
 
-        val courseResponse: Response = given()
-            .contentType(ContentType.JSON)
-            .body(course)
-            .post("/api/course/create")
-            .then()
-            .statusCode(201)
-            .extract().response()
+        val courseResponse: Response =
+            given()
+                .contentType(ContentType.JSON)
+                .body(course)
+                .post("/api/course/create")
+                .then()
+                .statusCode(201)
+                .extract().response()
 
         courseIds.add(courseResponse.jsonPath().getLong("id"))
 
-        val studentResponse: Response = given()
-            .contentType(ContentType.JSON)
-            .body(student)
-            .post("/api/student/create")
-            .then()
-            .statusCode(201)
-            .extract().response()
+        val studentResponse: Response =
+            given()
+                .contentType(ContentType.JSON)
+                .body(student)
+                .post("/api/student/create")
+                .then()
+                .statusCode(201)
+                .extract().response()
 
         studentIds.add(studentResponse.jsonPath().getLong("id"))
     }
@@ -49,7 +50,6 @@ class StudentResourceTest {
     @AfterEach
     @Transactional
     fun cleanup() {
-
         if (courseIds.isNotEmpty()) {
             given()
                 .contentType(ContentType.JSON)
@@ -110,7 +110,6 @@ class StudentResourceTest {
             .body("firstName", `is`("Boba"))
             .body("lastName", `is`("Fett"))
             .body("email", `is`("boba.fett@bounty.com"))
-
     }
 
     @Test
@@ -166,7 +165,7 @@ class StudentResourceTest {
         given()
             .contentType(ContentType.JSON)
             .body(updateStudentDTO)
-            .`when`().put("/api/student/${studentIds.first()}/update")   // reference Han Solo, update email to han.duo@smuggler.com
+            .`when`().put("/api/student/${studentIds.first()}/update") // reference Han Solo, update email to han.duo@smuggler.com
             .then()
             .statusCode(409)
     }

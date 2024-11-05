@@ -31,11 +31,18 @@ class StudentResource(
     @Path("/")
     fun findStudents(
         @QueryParam("page") page: Int,
-        @QueryParam("limit") limit: Int,
+        @QueryParam("rowsPerPage") limit: Int,
         @QueryParam("search") search: String,
         @QueryParam("sortField") sortField: String,
         @QueryParam("sortOrder") sortOrder: String,
     ) = studentService.findStudents(page, limit, search, sortField, sortOrder)
+
+    @GET
+    @ResponseStatus(200)
+    @Path("/count")
+    fun count(
+        @QueryParam("search") search: String,
+    ) = studentService.countStudents(search)
 
     @GET
     @ResponseStatus(200)
