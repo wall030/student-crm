@@ -45,6 +45,13 @@
     "validation.invalidName": "Keine Zahlen, Sonderzeichen oder Satzzeichen",
 
     "language.en": "Englisch",
-    "language.de": "Deutsch"
+    "language.de": "Deutsch",
+
+
+    "1001": "Fehler: Student nicht gefunden",
+    "1002": "Fehler: Kurs nicht gefunden",
+    "1003": "Fehler: Ein Student mit dieser E-Mail existiert bereits",
+    "1004": "Fehler: Ein Kurs mit diesem Titel existiert bereits",
+    "5000": "Fehler: Ein unerwarteter Fehler ist aufgetreten"
 
 }

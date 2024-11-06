@@ -4,6 +4,7 @@ import React, {useState} from "react"
 import axios from "axios"
 import {Course} from "../../types/Course.ts"
 import toast from "react-hot-toast"
+import {handleError} from "../../error/handleError.tsx";
 
 const CreateCourseModal: React.FC<{
     open: boolean
@@ -20,11 +21,10 @@ const CreateCourseModal: React.FC<{
             setNewCourse({name: ''})
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error creating student:', error)
             onClose()
             setNewCourse({name: ''})
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 

@@ -30,10 +30,7 @@ class StudentRepository : PanacheRepositoryBase<StudentEntity, Long> {
         val order = if (sortOrder == "desc") Sort.Direction.Descending else Sort.Direction.Ascending
         val sort = Sort.by(sortField).direction(order)
         return if (!search.isNullOrBlank()) {
-            find(
-                "LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1",
-                "%${search.lowercase()}%", sort
-            )
+            find("LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1", sort,"%${search.lowercase()}%")
                 .page<StudentEntity>(page, limit)
                 .list<StudentEntity>()
 

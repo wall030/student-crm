@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import CourseCard from "./CourseCard"
 import {Course} from "../../types/Course"
 import axios from "axios"
@@ -22,10 +22,10 @@ import {
     TableSortLabel,
     Typography
 } from "@mui/material"
+import {handleError} from "../../error/handleError.tsx"
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [courses, setCourses] = useState<Course[]>([])
-    const [error, setError] = useState<string>(null)
     const [page, setPage] = useState(0)
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
@@ -41,13 +41,13 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     useEffect(() => {
         setPage(0)
         setCourses([])
-        fetchCourses()
         fetchCount()
+        fetchCourses()
     }, [searchTerm])
 
     useEffect(() => {
         fetchCourses()
-    }, [page, sortField, sortOrder, rowsPerPage])
+    }, [searchTerm, page, sortField, sortOrder, rowsPerPage])
 
     const fetchCount = async () => {
         try {
@@ -58,13 +58,12 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             })
             setCount(responseCount.data)
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Unknown error')
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
     const fetchCourses = async () => {
-        setError(null)
-
         try {
             const response = await axios.get<Course[]>(`http://localhost:8080/api/course`, {
                 params: {
@@ -77,8 +76,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             })
             const data = response.data
             setCourses(data)
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Unknown error")
+        } catch (error) {
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -104,10 +104,9 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             setSelectedCourses([])
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error("Error deleting courses:", error)
             setSelectedCourses([])
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -257,13 +256,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
-            {error && (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100%" sx={{mt: 4}}>
-                    <Typography variant="body1" color="error" align="center" sx={{mt: 2}}>
-                        {error}
-                    </Typography>
-                </Box>
-            )}
         </Box>
     )
 }

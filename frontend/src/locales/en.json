@@ -45,5 +45,11 @@
     "validation.invalidName": "No numbers, special characters or punctuations",
 
     "language.en": "English",
-    "language.de": "German"
+    "language.de": "German",
+
+    "1001": "Error: Student not found",
+    "1002": "Error: Course not found",
+    "1003": "Error: A student with this email already exists",
+    "1004": "Error: A course with this title already exists",
+    "5000": "Error: An unexpected error occurred"
 }

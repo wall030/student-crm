@@ -5,9 +5,7 @@ import theme from "./theme.tsx";
 import {ThemeProvider} from "@mui/material";
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
         <ThemeProvider theme={theme}>
             <App/>
         </ThemeProvider>
-    </StrictMode>
 )

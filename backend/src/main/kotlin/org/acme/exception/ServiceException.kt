@@ -1,11 +1,11 @@
 package org.acme.exception
 
 sealed class ServiceException(message: String) : RuntimeException(message) {
-    class StudentNotFoundException(studentIds: String) :
-        ServiceException("Student not found with ID: $studentIds")
+    class StudentNotFoundException(studentId: String) :
+        ServiceException("Student not found with ID: $studentId")
 
-    class CourseNotFoundException(courseIds: String) :
-        ServiceException("Course not found with ID: $courseIds")
+    class CourseNotFoundException(courseId: String) :
+        ServiceException("Course not found with ID: $courseId")
 
     class DuplicateStudentException(email: String) :
         ServiceException("Student with email $email already exists")

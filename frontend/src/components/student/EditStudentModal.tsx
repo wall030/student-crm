@@ -1,10 +1,11 @@
 import {FormattedMessage} from "react-intl"
 import {StudentUpdated} from "../../types/StudentUpdated"
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material"
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 import {Student} from "../../types/Student"
+import {handleError} from "../../error/handleError.tsx";
 
 const EditStudentModal: React.FC<{
     open: boolean
@@ -18,6 +19,10 @@ const EditStudentModal: React.FC<{
     const [lastNameError, setLastNameError] = useState(false)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const nameRegex = /^[a-zA-Zà-ÿÀ-ß\s'-]+$/
+
+    useEffect(() => {
+        setUpdatedStudent({...student})
+    }, [student])
 
     const handleEmailChange = (e) => {
         const email = e.target.value
@@ -48,8 +53,8 @@ const EditStudentModal: React.FC<{
             toast.success(<FormattedMessage id="toast.success"/>)
             onClose()
         } catch (error) {
-            const message = error.response?.data?.error || "Error updating student"
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 

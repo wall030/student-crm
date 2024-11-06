@@ -5,6 +5,7 @@ import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from "react-hot-toast";
 import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, ListItemText} from "@mui/material"
+import {handleError} from "../../error/handleError.tsx";
 
 
 const ManageStudentsModal: React.FC<{
@@ -29,7 +30,8 @@ const ManageStudentsModal: React.FC<{
             const enrolledStudents = course.students.map(student => student.id)
             setSelectedStudents(enrolledStudents)
         } catch (error) {
-            console.error('Error fetching students:', error)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -48,10 +50,9 @@ const ManageStudentsModal: React.FC<{
             onUpdate(updatedCourse)
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error updating courses:', error)
-            const message = error.response.data.error
             onClose()
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         } finally {
             onClose()
         }

@@ -8,28 +8,30 @@ import org.acme.exception.ServiceException.StudentNotFoundException
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
 
 class ExceptionHandler {
+
     @ServerExceptionMapper
-    fun handleServiceExceptions(ex: ServiceException): Response =
-        when (ex) {
-            is StudentNotFoundException,
-            is CourseNotFoundException,
-            -> createErrorResponse(Response.Status.NOT_FOUND, ex.message)
-            is DuplicateStudentException,
-            is DuplicateCourseException,
-            -> createErrorResponse(Response.Status.CONFLICT, ex.message)
-        }
+    fun handleServiceExceptions(ex: ServiceException): Response {
+        val errorCode = ErrorCode.fromException(ex)
+        return createErrorResponse(Response.Status.fromStatusCode(getHttpStatus(errorCode)), errorCode.code)
+    }
 
     @ServerExceptionMapper
     fun handleGeneralExceptions(ex: Exception): Response {
-        return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, "An unexpected error occurred.")
+        return createErrorResponse(Response.Status.INTERNAL_SERVER_ERROR, ErrorCode.INTERNAL_ERROR.code)
     }
 
     private fun createErrorResponse(
         status: Response.Status,
-        message: String?,
+        errorCode: Int
     ): Response {
         return Response.status(status)
-            .entity(mapOf("error" to message))
+            .entity(mapOf("errorCode" to errorCode))
             .build()
+    }
+
+    private fun getHttpStatus(errorCode: ErrorCode): Int = when (errorCode) {
+        ErrorCode.STUDENT_NOT_FOUND, ErrorCode.COURSE_NOT_FOUND -> Response.Status.NOT_FOUND.statusCode
+        ErrorCode.DUPLICATE_STUDENT, ErrorCode.DUPLICATE_COURSE -> Response.Status.CONFLICT.statusCode
+        ErrorCode.INTERNAL_ERROR -> Response.Status.INTERNAL_SERVER_ERROR.statusCode
     }
 }

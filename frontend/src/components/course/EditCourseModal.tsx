@@ -1,10 +1,11 @@
 import {FormattedMessage} from 'react-intl'
 import {CourseUpdated} from '../../types/CourseUpdated'
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material"
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import {Course} from "../../types/Course.ts"
 import axios from "axios"
 import toast from "react-hot-toast"
+import {handleError} from "../../error/handleError.tsx";
 
 const EditCourseModal: React.FC<{
     open: boolean
@@ -14,7 +15,9 @@ const EditCourseModal: React.FC<{
 }> = ({open, course, setCourses, onClose}) => {
     const [updatedCourse, setUpdatedCourse] = useState<CourseUpdated>({...course})
 
-
+    useEffect(() => {
+        setUpdatedCourse({...course})
+    }, [course])
 
     const handleCourseUpdated = async () => {
         try {
@@ -29,10 +32,9 @@ const EditCourseModal: React.FC<{
             )
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error updating course:', error)
             onClose()
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 

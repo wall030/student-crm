@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
 import {Student} from '../../types/Student'
@@ -18,13 +18,12 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TableSortLabel,
-    Typography
+    TableSortLabel
 } from "@mui/material"
+import {handleError} from "../../error/handleError.tsx"
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [students, setStudents] = useState<Student[]>([])
-    const [error, setError] = useState<string>(null)
     const [page, setPage] = useState(0)
     const [selectedStudents, setSelectedStudents] = useState<number[]>([])
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
@@ -36,13 +35,12 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [count, setCount] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState<10 | 25 | 100>(10)
 
-
     useEffect(() => {
         setPage(0)
         setStudents([])
         setSelectedStudents([])
-        fetchStudents()
         fetchCount()
+        fetchStudents()
     }, [searchTerm])
 
     useEffect(() => {
@@ -58,13 +56,12 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             })
             setCount(responseCount.data)
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Unknown error')
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
     const fetchStudents = async () => {
-        setError(null)
-
         try {
             const response = await axios.get<Student[]>(`http://localhost:8080/api/student`, {
                 params: {
@@ -78,7 +75,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             const data = response.data
             setStudents(data)
         } catch (error) {
-            setError(error instanceof Error ? error.message : 'Unknown error')
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -103,10 +101,9 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             setSelectedStudents([])
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error deleting students:', error)
             setSelectedStudents([])
-            const message = error.response.data.error
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -150,8 +147,8 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const isEditDisabled = selectedStudents.length !== 1
 
     return (
-        <Box sx={{ mt: 2 }}>
-            <Box sx={{ mb: 2 }}>
+        <Box sx={{mt: 2}}>
+            <Box sx={{mb: 2}}>
                 <Actions
                     manageButtonTitle="Manage Courses"
                     isEditDisabled={isEditDisabled}
@@ -212,33 +209,33 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                         <TableRow>
                             <TableCell
                                 align="left"
-                                sx={{ backgroundColor: "grey.300" }}
+                                sx={{backgroundColor: "grey.300"}}
                             >
                                 <TableSortLabel
                                     active={sortField === "lastName"}
                                     direction={sortOrder}
                                     onClick={() => handleSortChange("lastName")}
                                 >
-                                    <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name" />
+                                    <FormattedMessage id="page.students.tableColumn.name" defaultMessage="Name"/>
                                 </TableSortLabel>
                             </TableCell>
                             <TableCell
                                 align="left"
-                                sx={{ backgroundColor: "grey.300" }}
+                                sx={{backgroundColor: "grey.300"}}
                             >
                                 <TableSortLabel
                                     active={sortField === "email"}
                                     direction={sortOrder}
                                     onClick={() => handleSortChange("email")}
                                 >
-                                    <FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail" />
+                                    <FormattedMessage id="page.students.tableColumn.email" defaultMessage="E-Mail"/>
                                 </TableSortLabel>
                             </TableCell>
                             <TableCell
                                 align="left"
-                                sx={{ backgroundColor: "grey.300" }}
+                                sx={{backgroundColor: "grey.300"}}
                             >
-                                <FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses" />
+                                <FormattedMessage id="page.students.tableColumn.courses" defaultMessage="Courses"/>
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -266,13 +263,6 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
-            {error && (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100%" sx={{ mt: 4 }}>
-                    <Typography variant="body1" color="error" align="center">
-                        Error: {error}
-                    </Typography>
-                </Box>
-            )}
         </Box>
     )
 }

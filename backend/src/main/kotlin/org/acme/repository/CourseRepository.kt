@@ -31,10 +31,7 @@ class CourseRepository : PanacheRepositoryBase<CourseEntity, Long> {
         val order = if (sortOrder == "desc") Sort.Direction.Descending else Sort.Direction.Ascending
         val sort = Sort.by(sortField).direction(order)
         return if (!search.isNullOrBlank()) {
-            find(
-                "LOWER(name) LIKE ?1",
-                "%${search.lowercase()}%", sort
-            )
+            find("LOWER(name) LIKE ?1", sort,"%${search.lowercase()}%")
                 .page<CourseEntity>(page, limit)
                 .list<CourseEntity>()
         } else {

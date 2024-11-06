@@ -5,6 +5,7 @@ import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from 'react-hot-toast'
 import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from '@mui/material'
+import {handleError} from "../../error/handleError.tsx";
 
 const ManageCoursesModal: React.FC<{
     open: boolean
@@ -26,7 +27,8 @@ const ManageCoursesModal: React.FC<{
             const enrolledCourses = student.courses.map((course) => course.id)
             setSelectedCourses(enrolledCourses)
         } catch (error) {
-            console.error('Error fetching courses:', error)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         }
     }
 
@@ -45,9 +47,8 @@ const ManageCoursesModal: React.FC<{
             onUpdate(updatedStudent)
             toast.success(<FormattedMessage id="toast.success"/>)
         } catch (error) {
-            console.error('Error updating courses:', error)
-            const message = error.response?.data?.error || 'An error occurred'
-            toast.error(<FormattedMessage id="toast.error" values={{message}}/>)
+            const errorCode = error.response.data.errorCode
+            handleError(errorCode)
         } finally {
             onClose()
         }
