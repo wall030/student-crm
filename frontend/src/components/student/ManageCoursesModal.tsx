@@ -4,8 +4,8 @@ import {Course} from '../../types/Course'
 import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from 'react-hot-toast'
-import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from '@mui/material'
-import {handleError} from "../../error/handleError.tsx";
+import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Typography} from '@mui/material'
+import {handleError} from "../../error/handleError"
 
 const ManageCoursesModal: React.FC<{
     open: boolean
@@ -17,7 +17,7 @@ const ManageCoursesModal: React.FC<{
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
 
     useEffect(() => {
-        if(open) fetchCourses()
+        if (open) fetchCourses()
     }, [student])
 
     const fetchCourses = async () => {
@@ -58,20 +58,19 @@ const ManageCoursesModal: React.FC<{
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>
                 <FormattedMessage id="actions.manage.courses.title" defaultMessage="Manage Courses for "/>
-                {student.firstName} {student.lastName}
+                <Typography>{student.firstName} {student.lastName}</Typography>
             </DialogTitle>
             <DialogContent>
                 <Box sx={{maxHeight: 300, overflowY: 'auto'}}>
                     {courses.map((course) => (
                         <Box key={course.id} sx={{display: 'flex', alignItems: 'center', mb: 1, borderBottom: '1px solid #ccc'}}>
-                            <Checkbox
-                                checked={selectedCourses.includes(course.id)}
-                                onChange={() => handleCourseToggle(course.id)}
-                                color="primary"
+                            <FormControlLabel
+                                control={<Checkbox
+                                    checked={selectedCourses.includes(course.id)}
+                                    onChange={() => handleCourseToggle(course.id)}
+                                    color="primary"/>}
+                                label={<Typography variant="body1" sx={{px: 1}}>{course.name}</Typography>}
                             />
-                            <Typography variant="body1" sx={{px: 1}}>
-                                {course.name}
-                            </Typography>
                         </Box>
                     ))}
                 </Box>

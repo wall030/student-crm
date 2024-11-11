@@ -70,6 +70,7 @@ const Actions: React.FC<{
                     }}
                     onClick={onOpenEditModal}
                     disabled={isEditDisabled}
+                    role="edit-button"
                 >
                     <PencilSquareIcon className="h-5 w-5"/>
                 </IconButton>
@@ -95,6 +96,7 @@ const Actions: React.FC<{
                     }}
                     onClick={onDelete}
                     disabled={selected.length === 0}
+                    role="delete-button"
                 >
                     <TrashIcon className="h-5 w-5"/>
                 </IconButton>
@@ -115,6 +117,7 @@ const Actions: React.FC<{
                         }
                     }}
                     onClick={onOpenCreateModal}
+                    role="add-button"
                 >
                     <PlusIcon className="h-5 w-5"/>
                 </IconButton>

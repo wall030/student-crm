@@ -22,7 +22,7 @@ import {
     TableSortLabel,
     Typography
 } from "@mui/material"
-import {handleError} from "../../error/handleError.tsx"
+import {handleError} from "../../error/handleError"
 
 const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [courses, setCourses] = useState<Course[]>([])
@@ -50,36 +50,38 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }, [searchTerm, page, sortField, sortOrder, rowsPerPage])
 
     const fetchCount = async () => {
-        try {
-            const responseCount = await axios.get(`http://localhost:8080/api/course/count`, {
-                params: {
-                    search: searchTerm,
-                },
-            })
-            setCount(responseCount.data)
-        } catch (error) {
-            const errorCode = error.response.data.errorCode
+        axios.get<number>(`http://localhost:8080/api/course/count`, {
+            params: {
+                search: searchTerm,
+            },
+        }).then(function (response) {
+            const data = response.data
+            setCount(data)
+        }).catch(function (error) {
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const fetchCourses = async () => {
-        try {
-            const response = await axios.get<Course[]>(`http://localhost:8080/api/course`, {
-                params: {
-                    page,
-                    rowsPerPage,
-                    search: searchTerm,
-                    sortField,
-                    sortOrder,
-                },
-            })
+        axios.get<Course[]>(`http://localhost:8080/api/course`, {
+            params: {
+                page,
+                rowsPerPage,
+                search: searchTerm,
+                sortField,
+                sortOrder,
+            },
+        }).then(function
+        (response) {
             const data = response.data
             setCourses(data)
-        } catch (error) {
-            const errorCode = error.response.data.errorCode
+        }).catch(function (error) {
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleSortChange = (field: string) => {
@@ -98,16 +100,21 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleDelete = async () => {
-        try {
-            await axios.delete(`http://localhost:8080/api/course/delete`, {data: selectedCourses})
+        axios.delete(`http://localhost:8080/api/course/delete`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: selectedCourses,
+        }).then(() => {
             setCourses((prevCourses) => prevCourses.filter((course) => !selectedCourses.includes(course.id)))
             setSelectedCourses([])
             toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        }).catch(function (error) {
             setSelectedCourses([])
-            const errorCode = error.response.data.errorCode
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleOpenEditModal = () => {
@@ -143,7 +150,10 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10))
+        const newRowsPerPage = parseInt(event.target.value, 10)
+        if ([10, 25, 100].includes(newRowsPerPage)) {
+            setRowsPerPage(newRowsPerPage as 10 | 25 | 100)
+        }
         setPage(0)
     }
 
@@ -151,7 +161,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
 
     return (
         <Box sx={{mt: 2}}>
-            <Box sx={{ mb: 2}}>
+            <Box sx={{mb: 2}}>
                 <Actions
                     manageButtonTitle={"Manage Students"}
                     isEditDisabled={isEditDisabled}
@@ -184,7 +194,6 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
             {selectedCourse && (
                 <ManageStudentsModal
                     open={isManageStudentsModalOpen}
-                    allStudents={students}
                     course={selectedCourse}
                     onUpdate={handleManageStudents}
                     onClose={() => {

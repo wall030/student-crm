@@ -3,7 +3,7 @@ import {Box, Typography} from "@mui/material"
 
 const Home = () => {
     return (
-        <Box textAlign="center" sx={{mt: 10}}>
+        <Box textAlign="center" sx={{mt: 10}} role="home-page">
             <Typography
                 variant="h3"
                 component="h1"

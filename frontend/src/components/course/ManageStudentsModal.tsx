@@ -5,11 +5,11 @@ import {Student} from '../../types/Student'
 import {FormattedMessage} from 'react-intl'
 import toast from "react-hot-toast";
 import {Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, ListItemText} from "@mui/material"
-import {handleError} from "../../error/handleError.tsx";
+import {handleError} from "../../error/handleError";
 
 
 const ManageStudentsModal: React.FC<{
-    open: Boolean
+    open: boolean
     course: Course
     onUpdate: (course: Course) => void
     onClose: () => void

@@ -5,7 +5,7 @@ import React, {useEffect, useState} from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 import {Student} from "../../types/Student"
-import {handleError} from "../../error/handleError.tsx";
+import {handleError} from "../../error/handleError";
 
 const EditStudentModal: React.FC<{
     open: boolean

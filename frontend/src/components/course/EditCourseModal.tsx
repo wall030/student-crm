@@ -2,10 +2,10 @@ import {FormattedMessage} from 'react-intl'
 import {CourseUpdated} from '../../types/CourseUpdated'
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@mui/material"
 import React, {useEffect, useState} from "react"
-import {Course} from "../../types/Course.ts"
+import {Course} from "../../types/Course"
 import axios from "axios"
 import toast from "react-hot-toast"
-import {handleError} from "../../error/handleError.tsx";
+import {handleError} from "../../error/handleError";
 
 const EditCourseModal: React.FC<{
     open: boolean

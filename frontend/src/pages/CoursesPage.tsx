@@ -12,7 +12,7 @@ const CoursesPage = () => {
         setSearchTerm(term)
     }
     return (
-        <Box sx={{mt: 4}}>
+        <Box sx={{mt: 4}}  role="courses-page">
             <Searchbar onSearch={handleSearch}
                        placeholder={formatMessage({id: "page.courses.searchfield", defaultMessage: "Search by name..."})}/>
             <CoursesList searchTerm={searchTerm}/>

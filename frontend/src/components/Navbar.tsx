@@ -1,8 +1,8 @@
-import {Link, useLocation} from 'react-router-dom'
+import {Link as RouterLink, useLocation} from 'react-router-dom'
 import {FormattedMessage} from 'react-intl'
 import {GlobeAltIcon} from '@heroicons/react/24/outline'
 import React, {useState} from 'react'
-import {AppBar, Toolbar, Button, IconButton, Menu, MenuItem, Box} from '@mui/material'
+import {Link, AppBar, Toolbar, Button, IconButton, Menu, MenuItem, Box} from '@mui/material'
 
 const Navbar: React.FC<{
     setLocale: (locale: string) => void
@@ -29,11 +29,11 @@ const Navbar: React.FC<{
     }
 
     return (
-        <AppBar position="static" color="default" elevation={4}>
+        <AppBar position="static" color="default" elevation={4} role="main-nav">
             <Toolbar>
                 <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                    <Link to="/" sx={{textDecoration: "none", color: "inherit"}}>
-                        <Box component="span" sx={{typography: "h6"}}>
+                    <Link component={RouterLink} to="/" sx={{textDecoration: "none", color: "inherit"}}>
+                        <Box component="span" sx={{typography: "h6"}} role="nav-home">
                             <Box component="span" sx={{fontWeight: "bold"}}>
                                 Student
                             </Box>
@@ -44,8 +44,9 @@ const Navbar: React.FC<{
                     </Link>
 
                     <Box display="flex" alignItems="center">
-                        <Link to="/students" sx={{textDecoration: "none"}}>
+                        <Link component={RouterLink} to="/students" sx={{textDecoration: "none"}}>
                             <Button
+                                role="nav-students"
                                 variant={buttonVariantStudents}
                                 color="primary"
                                 sx={{ mr: 2 }}
@@ -54,8 +55,9 @@ const Navbar: React.FC<{
                             </Button>
                         </Link>
 
-                        <Link to="/courses" sx={{textDecoration: "none"}}>
+                        <Link component={RouterLink} to="/courses" sx={{textDecoration: "none"}}>
                             <Button
+                                role="nav-courses"
                                 variant={buttonVariantCourses}
                                 color="primary"
                                 sx={{ mr: 2 }}

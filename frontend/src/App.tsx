@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import {Routes, BrowserRouter, Route} from 'react-router-dom'
 import {IntlProvider} from "react-intl";
 import {useEffect, useState} from 'react'
 import Navbar from './components/Navbar'
@@ -28,7 +28,11 @@ const App = () => {
 
     return (
         <IntlProvider locale={locale} messages={messages[locale]}>
-            <Router>
+            <BrowserRouter future={{
+                v7_relativeSplatPath: true,
+                v7_startTransition: true,
+            }}
+            >
                 <Toaster/>
                 <Navbar setLocale={setLocale}/>
                 <Container maxWidth="lg">
@@ -38,7 +42,7 @@ const App = () => {
                         <Route path="/courses" element={<CoursesPage/>}/>
                     </Routes>
                 </Container>
-            </Router>
+            </BrowserRouter>
         </IntlProvider>
     )
 }

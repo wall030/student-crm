@@ -4,8 +4,7 @@ import React, {useState} from "react"
 import axios from "axios"
 import toast from 'react-hot-toast'
 import {Student} from '../../types/Student'
-import '../../error/handleError.tsx'
-import {handleError} from "../../error/handleError.tsx";
+import {handleError} from "../../error/handleError"
 
 const CreateStudentModal: React.FC<{
     open: boolean
@@ -103,15 +102,24 @@ const CreateStudentModal: React.FC<{
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="primary" onClick={handleCreateStudent} disabled={!isFormValid}><FormattedMessage
-                    id="buttons.create"
-                    defaultMessage="Create"/></Button>
-                <Button variant="outlined" color="inherit" onClick={() => {
-                    onClose()
-                    setNewStudent({firstName: '', lastName: '', email: ''})
-                }}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleCreateStudent}
+                    disabled={!isFormValid}
                 >
-                    <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/></Button>
+                    <FormattedMessage id="buttons.create" defaultMessage="Create"/>
+                </Button>
+                <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={() => {
+                        onClose()
+                        setNewStudent({firstName: '', lastName: '', email: ''})
+                    }}
+                >
+                    <FormattedMessage id="buttons.cancel" defaultMessage="Cancel"/>
+                </Button>
             </DialogActions>
         </Dialog>
     )

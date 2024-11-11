@@ -3,7 +3,7 @@ import {FormattedMessage} from "react-intl";
 import React from "react";
 
 
-export function handleError( code: String ) {
-    console.error("Error: ", code)
+export function handleError( code: string = "5000") {
+
     return toast.error(<FormattedMessage id={code} />)
 }

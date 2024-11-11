@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import StudentCard from './StudentCard'
 import {Student} from '../../types/Student'
@@ -7,7 +7,7 @@ import EditStudentModal from './EditStudentModal'
 import ManageCoursesModal from './ManageCoursesModal'
 import Actions from '../Actions'
 import {FormattedMessage} from 'react-intl'
-import toast, {Toaster} from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import {
     Box,
     Paper,
@@ -20,7 +20,7 @@ import {
     TableRow,
     TableSortLabel
 } from "@mui/material"
-import {handleError} from "../../error/handleError.tsx"
+import {handleError} from "../../error/handleError"
 
 const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [students, setStudents] = useState<Student[]>([])
@@ -48,36 +48,38 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }, [page, sortField, sortOrder, rowsPerPage])
 
     const fetchCount = async () => {
-        try {
-            const responseCount = await axios.get(`http://localhost:8080/api/student/count`, {
-                params: {
-                    search: searchTerm,
-                },
-            })
-            setCount(responseCount.data)
-        } catch (error) {
-            const errorCode = error.response.data.errorCode
+        axios.get<number>(`http://localhost:8080/api/student/count`, {
+            params: {
+                search: searchTerm,
+            },
+        }).then(function (response) {
+            const data = response.data
+            setCount(data)
+        }).catch(function (error) {
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const fetchStudents = async () => {
-        try {
-            const response = await axios.get<Student[]>(`http://localhost:8080/api/student`, {
-                params: {
-                    page,
-                    rowsPerPage,
-                    search: searchTerm,
-                    sortField,
-                    sortOrder,
-                },
-            })
+        axios.get<Student[]>(`http://localhost:8080/api/student`, {
+            params: {
+                page,
+                rowsPerPage,
+                search: searchTerm,
+                sortField,
+                sortOrder,
+            },
+        }).then(function
+        (response) {
             const data = response.data
             setStudents(data)
-        } catch (error) {
-            const errorCode = error.response.data.errorCode
+        }).catch(function (error) {
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleSortChange = (field: string) => {
@@ -95,16 +97,20 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleDelete = async () => {
-        try {
-            await axios.delete(`http://localhost:8080/api/student/delete`, {data: selectedStudents})
+        axios.delete(`http://localhost:8080/api/student/delete`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: selectedStudents,
+        }).then(() => {
             setStudents((prevStudents) => prevStudents.filter((student) => !selectedStudents.includes(student.id)))
             setSelectedStudents([])
             toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        }).catch(function (error) {
             setSelectedStudents([])
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleOpenEditModal = () => {
@@ -140,7 +146,10 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10))
+        const newRowsPerPage = parseInt(event.target.value, 10)
+        if ([10, 25, 100].includes(newRowsPerPage)) {
+            setRowsPerPage(newRowsPerPage as 10 | 25 | 100)
+        }
         setPage(0)
     }
 
