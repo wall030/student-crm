@@ -15,10 +15,11 @@ class StudentRepository : PanacheRepositoryBase<StudentEntity, Long> {
 
     fun findByEmail(email: String): StudentEntity? = find("email", email).firstResult<StudentEntity>()
 
-    fun count(search: String): Long = count(
-        "LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1",
-        "%${search.lowercase()}%"
-    )
+    fun count(search: String): Long =
+        count(
+            "LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1",
+            "%${search.lowercase()}%",
+        )
 
     fun findStudents(
         page: Int,
@@ -30,10 +31,9 @@ class StudentRepository : PanacheRepositoryBase<StudentEntity, Long> {
         val order = if (sortOrder == "desc") Sort.Direction.Descending else Sort.Direction.Ascending
         val sort = Sort.by(sortField).direction(order)
         return if (!search.isNullOrBlank()) {
-            find("LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1", sort,"%${search.lowercase()}%")
+            find("LOWER(firstName) LIKE ?1 OR LOWER(lastName) LIKE ?1 OR LOWER(email) LIKE ?1", sort, "%${search.lowercase()}%")
                 .page<StudentEntity>(page, limit)
                 .list<StudentEntity>()
-
         } else {
             findAll(sort)
                 .page<StudentEntity>(page, limit)

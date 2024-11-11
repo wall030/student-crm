@@ -26,7 +26,7 @@ class CourseService(
         limit: Int,
         search: String?,
         sortField: String,
-        sortOrder: String
+        sortOrder: String,
     ) = courseRepository.findCourses(page, limit, search.toString(), sortField, sortOrder)
         .map { course -> course.toCourseDTO() }
 
@@ -88,7 +88,6 @@ class CourseService(
             }
         }
         if (missingStudentsList.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudentsList.toString())
-        // remove course for students which are not posted ( not in students: List<Long> parameter )
         course.students.forEach { student ->
             if (!students.contains(student.id)) {
                 student.courses.remove(course)
@@ -96,7 +95,6 @@ class CourseService(
         }
         course.students.clear()
         course.students.addAll(fetchedStudents)
-        // course is added to the student side
         fetchedStudents.forEach { student ->
             if (!student.courses.contains(course)) {
                 student.courses.add(course)

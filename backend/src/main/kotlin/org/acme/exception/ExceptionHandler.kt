@@ -1,14 +1,9 @@
 package org.acme.exception
 
 import jakarta.ws.rs.core.Response
-import org.acme.exception.ServiceException.CourseNotFoundException
-import org.acme.exception.ServiceException.DuplicateCourseException
-import org.acme.exception.ServiceException.DuplicateStudentException
-import org.acme.exception.ServiceException.StudentNotFoundException
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
 
 class ExceptionHandler {
-
     @ServerExceptionMapper
     fun handleServiceExceptions(ex: ServiceException): Response {
         val errorCode = ErrorCode.fromException(ex)
@@ -22,16 +17,17 @@ class ExceptionHandler {
 
     private fun createErrorResponse(
         status: Response.Status,
-        errorCode: Int
+        errorCode: Int,
     ): Response {
         return Response.status(status)
             .entity(mapOf("errorCode" to errorCode))
             .build()
     }
 
-    private fun getHttpStatus(errorCode: ErrorCode): Int = when (errorCode) {
-        ErrorCode.STUDENT_NOT_FOUND, ErrorCode.COURSE_NOT_FOUND -> Response.Status.NOT_FOUND.statusCode
-        ErrorCode.DUPLICATE_STUDENT, ErrorCode.DUPLICATE_COURSE -> Response.Status.CONFLICT.statusCode
-        ErrorCode.INTERNAL_ERROR -> Response.Status.INTERNAL_SERVER_ERROR.statusCode
-    }
+    private fun getHttpStatus(errorCode: ErrorCode): Int =
+        when (errorCode) {
+            ErrorCode.STUDENT_NOT_FOUND, ErrorCode.COURSE_NOT_FOUND -> Response.Status.NOT_FOUND.statusCode
+            ErrorCode.DUPLICATE_STUDENT, ErrorCode.DUPLICATE_COURSE -> Response.Status.CONFLICT.statusCode
+            ErrorCode.INTERNAL_ERROR -> Response.Status.INTERNAL_SERVER_ERROR.statusCode
+        }
 }
