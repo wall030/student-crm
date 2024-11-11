@@ -36,16 +36,15 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [rowsPerPage, setRowsPerPage] = useState<10 | 25 | 100>(10)
 
     useEffect(() => {
-        setPage(0)
-        setStudents([])
-        setSelectedStudents([])
-        fetchCount()
-        fetchStudents()
+            setPage(0)
+            setStudents([])
+            setSelectedStudents([])
+            fetchCount()
     }, [searchTerm])
 
     useEffect(() => {
         fetchStudents()
-    }, [page, sortField, sortOrder, rowsPerPage])
+    }, [page, rowsPerPage, sortField, sortOrder, searchTerm])
 
     const fetchCount = async () => {
         axios.get<number>(`http://localhost:8080/api/student/count`, {

@@ -41,13 +41,13 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     useEffect(() => {
         setPage(0)
         setCourses([])
+        setSelectedCourses([])
         fetchCount()
-        fetchCourses()
     }, [searchTerm])
 
     useEffect(() => {
         fetchCourses()
-    }, [searchTerm, page, sortField, sortOrder, rowsPerPage])
+    }, [page, rowsPerPage, sortField, sortOrder, searchTerm])
 
     const fetchCount = async () => {
         axios.get<number>(`http://localhost:8080/api/course/count`, {

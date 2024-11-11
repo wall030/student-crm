@@ -48,6 +48,19 @@ describe('StudentsList', () => {
         })
     })
 
+    it('renders student list and performs initial data fetch', async () => {
+        await act(async () => {
+            render(<StudentsList searchTerm="" />, { wrapper })
+        })
+
+        await waitFor(() => {
+            expect(mockedAxios.get).toHaveBeenCalledTimes(2)
+        })
+
+        expect(screen.getByText('Han Solo')).toBeInTheDocument()
+        expect(screen.getByText('Boba Fett')).toBeInTheDocument()
+    })
+
     it('handles sorting when clicking column headers', async () => {
         await act(async () => {
             render(<StudentsList searchTerm="" />, { wrapper })
