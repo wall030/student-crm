@@ -1,10 +1,11 @@
-import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { IntlProvider } from 'react-intl'
-import axios from 'axios'
+import {render, screen, fireEvent, waitFor} from '@testing-library/react'
+import {IntlProvider} from 'react-intl'
 import toast from 'react-hot-toast'
 import CreateStudentModal from '../components/student/CreateStudentModal'
-import { handleError } from '../error/handleError'
+import {handleError} from '../error/handleError'
+import ResolvedValue = jest.ResolvedValue;
+
+const axios = require('axios').default;
 
 jest.mock('axios')
 jest.mock('react-hot-toast')
@@ -35,64 +36,64 @@ describe('CreateStudentModal', () => {
         it('renders all form fields and buttons', () => {
             renderModal()
 
-            expect(screen.getByRole('textbox', { name: /First Name/i })).toBeInTheDocument()
-            expect(screen.getByRole('textbox', { name: /Last Name/i })).toBeInTheDocument()
-            expect(screen.getByRole('textbox', { name: /E-Mail/i })).toBeInTheDocument()
-            expect(screen.getByRole('button', { name: /Create/i })).toBeInTheDocument()
-            expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument()
+            expect(screen.getByRole('textbox', {name: /First Name/i})).toBeInTheDocument()
+            expect(screen.getByRole('textbox', {name: /Last Name/i})).toBeInTheDocument()
+            expect(screen.getByRole('textbox', {name: /E-Mail/i})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Create/i})).toBeInTheDocument()
+            expect(screen.getByRole('button', {name: /Cancel/i})).toBeInTheDocument()
         })
 
         it('create button is initially disabled', () => {
             renderModal()
-            expect(screen.getByRole('button', { name: /Create/i })).toBeDisabled()
+            expect(screen.getByRole('button', {name: /Create/i})).toBeDisabled()
         })
     })
 
     describe('Form Validation', () => {
         it('validates first name field', () => {
             renderModal()
-            const firstNameInput = screen.getByRole('textbox', { name: /First Name/i })
+            const firstNameInput = screen.getByRole('textbox', {name: /First Name/i})
 
-            fireEvent.change(firstNameInput, { target: { value: '123' } })
+            fireEvent.change(firstNameInput, {target: {value: '123'}})
             expect(screen.getByText(/Invalid first name/i)).toBeInTheDocument()
 
-            fireEvent.change(firstNameInput, { target: { value: 'Han' } })
+            fireEvent.change(firstNameInput, {target: {value: 'Han'}})
             expect(screen.queryByText(/Invalid first name/i)).not.toBeInTheDocument()
         })
 
         it('validates last name field', () => {
             renderModal()
-            const lastNameInput = screen.getByRole('textbox', { name: /Last Name/i })
+            const lastNameInput = screen.getByRole('textbox', {name: /Last Name/i})
 
-            fireEvent.change(lastNameInput, { target: { value: '123' } })
+            fireEvent.change(lastNameInput, {target: {value: '123'}})
             expect(screen.getByText(/Invalid last name/i)).toBeInTheDocument()
 
-            fireEvent.change(lastNameInput, { target: { value: 'Solo' } })
+            fireEvent.change(lastNameInput, {target: {value: 'Solo'}})
             expect(screen.queryByText(/Invalid last name/i)).not.toBeInTheDocument()
         })
 
         it('validates email field', () => {
             renderModal()
-            const emailInput = screen.getByRole('textbox', { name: /E-Mail/i })
+            const emailInput = screen.getByRole('textbox', {name: /E-Mail/i})
 
-            fireEvent.change(emailInput, { target: { value: 'invalid-email' } })
+            fireEvent.change(emailInput, {target: {value: 'invalid-email'}})
             expect(screen.getByText(/Invalid email address/i)).toBeInTheDocument()
 
-            fireEvent.change(emailInput, { target: { value: 'solo@smuggler.com' } })
+            fireEvent.change(emailInput, {target: {value: 'solo@smuggler.com'}})
             expect(screen.queryByText(/Invalid email address/i)).not.toBeInTheDocument()
         })
 
         it('enables create button when form is valid', () => {
             renderModal()
-            const firstNameInput = screen.getByRole('textbox', { name: /First Name/i })
-            const lastNameInput = screen.getByRole('textbox', { name: /Last Name/i })
-            const emailInput = screen.getByRole('textbox', { name: /E-Mail/i })
+            const firstNameInput = screen.getByRole('textbox', {name: /First Name/i})
+            const lastNameInput = screen.getByRole('textbox', {name: /Last Name/i})
+            const emailInput = screen.getByRole('textbox', {name: /E-Mail/i})
 
-            fireEvent.change(firstNameInput, { target: { value: 'Han' } })
-            fireEvent.change(lastNameInput, { target: { value: 'Solo' } })
-            fireEvent.change(emailInput, { target: { value: 'solo@smuggler.com' } })
+            fireEvent.change(firstNameInput, {target: {value: 'Han'}})
+            fireEvent.change(lastNameInput, {target: {value: 'Solo'}})
+            fireEvent.change(emailInput, {target: {value: 'solo@smuggler.com'}})
 
-            expect(screen.getByRole('button', { name: /Create/i })).not.toBeDisabled()
+            expect(screen.getByRole('button', {name: /Create/i})).not.toBeDisabled()
         })
     })
 
@@ -104,16 +105,16 @@ describe('CreateStudentModal', () => {
                 email: 'solo@smuggler.com'
             }
 
-            const responseData = { ...newStudent, id: 1 }
-            mockedAxios.post.mockResolvedValueOnce({ data: responseData })
+            const responseData = {...newStudent, id: 1}
+            mockedAxios.post.mockResolvedValueOnce({responseData} as ResolvedValue<unknown>)
 
             renderModal()
 
-            fireEvent.change(screen.getByRole('textbox', { name: /First Name/i }), { target: { value: newStudent.firstName } })
-            fireEvent.change(screen.getByRole('textbox', { name: /Last Name/i }), { target: { value: newStudent.lastName } })
-            fireEvent.change(screen.getByRole('textbox', { name: /E-Mail/i }), { target: { value: newStudent.email } })
+            fireEvent.change(screen.getByRole('textbox', {name: /First Name/i}), {target: {value: newStudent.firstName}})
+            fireEvent.change(screen.getByRole('textbox', {name: /Last Name/i}), {target: {value: newStudent.lastName}})
+            fireEvent.change(screen.getByRole('textbox', {name: /E-Mail/i}), {target: {value: newStudent.email}})
 
-            fireEvent.click(screen.getByRole('button', { name: /Create/i }))
+            fireEvent.click(screen.getByRole('button', {name: /Create/i}))
 
             await waitFor(() => {
                 expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -138,11 +139,11 @@ describe('CreateStudentModal', () => {
 
             renderModal()
 
-            fireEvent.change(screen.getByRole('textbox', { name: /First Name/i }), { target: { value: 'Han' } })
-            fireEvent.change(screen.getByRole('textbox', { name: /Last Name/i }), { target: { value: 'Solo' } })
-            fireEvent.change(screen.getByRole('textbox', { name: /E-Mail/i }), { target: { value: 'solo@smuggler.com' } })
+            fireEvent.change(screen.getByRole('textbox', {name: /First Name/i}), {target: {value: 'Han'}})
+            fireEvent.change(screen.getByRole('textbox', {name: /Last Name/i}), {target: {value: 'Solo'}})
+            fireEvent.change(screen.getByRole('textbox', {name: /E-Mail/i}), {target: {value: 'solo@smuggler.com'}})
 
-            fireEvent.click(screen.getByRole('button', { name: /Create/i }))
+            fireEvent.click(screen.getByRole('button', {name: /Create/i}))
 
             await waitFor(() => {
                 expect(handleError).toHaveBeenCalledWith('1003')
@@ -155,18 +156,18 @@ describe('CreateStudentModal', () => {
         it('closes modal and resets form on cancel', () => {
             renderModal()
 
-            fireEvent.change(screen.getByRole('textbox', { name: /First Name/i }), { target: { value: 'Han' } })
-            fireEvent.change(screen.getByRole('textbox', { name: /Last Name/i }), { target: { value: 'Solo' } })
-            fireEvent.change(screen.getByRole('textbox', { name: /E-Mail/i }), { target: { value: 'solo@smuggler.com' } })
+            fireEvent.change(screen.getByRole('textbox', {name: /First Name/i}), {target: {value: 'Han'}})
+            fireEvent.change(screen.getByRole('textbox', {name: /Last Name/i}), {target: {value: 'Solo'}})
+            fireEvent.change(screen.getByRole('textbox', {name: /E-Mail/i}), {target: {value: 'solo@smuggler.com'}})
 
-            fireEvent.click(screen.getByRole('button', { name: /Cancel/i }))
+            fireEvent.click(screen.getByRole('button', {name: /Cancel/i}))
 
             expect(defaultProps.onClose).toHaveBeenCalled()
 
             renderModal()
-            expect(screen.getByRole('textbox', { name: /First Name/i })).toHaveValue('')
-            expect(screen.getByRole('textbox', { name: /Last Name/i })).toHaveValue('')
-            expect(screen.getByRole('textbox', { name: /E-Mail/i })).toHaveValue('')
+            expect(screen.getByRole('textbox', {name: /First Name/i})).toHaveValue('')
+            expect(screen.getByRole('textbox', {name: /Last Name/i})).toHaveValue('')
+            expect(screen.getByRole('textbox', {name: /E-Mail/i})).toHaveValue('')
         })
     })
 })

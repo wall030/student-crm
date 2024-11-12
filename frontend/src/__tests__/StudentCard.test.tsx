@@ -27,7 +27,7 @@ jest.mock('@mui/material', () => ({
         return <div>{children}</div>
     },
     TableCell: ({ children }: { children: React.ReactNode }) => <td>{children}</td>,
-    TableRow: ({ children, onClick, sx }: { children: React.ReactNode, onClick?: () => void, sx?: any }) => (
+    TableRow: ({ children, onClick }: { children: React.ReactNode, onClick?: () => void }) => (
         <tr onClick={onClick} data-testid="table-row">{children}</tr>
     ),
 }))

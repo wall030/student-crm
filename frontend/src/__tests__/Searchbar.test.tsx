@@ -1,27 +1,24 @@
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import Searchbar from '../components/Searchbar'
 
 jest.mock('@mui/material', () => ({
-    Box: ({ children, sx }: { children: React.ReactNode; sx?: any }) => (
+    Box: ({ children }: { children: React.ReactNode }) => (
         <div data-testid="box">{children}</div>
     ),
-    IconButton: ({ children, onClick, sx }: { children: React.ReactNode; onClick: () => void; sx?: any }) => (
+    IconButton: ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
         <button data-testid="search-button" onClick={onClick}>{children}</button>
     ),
     InputBase: ({
                     value,
                     onChange,
                     onKeyDown,
-                    placeholder,
-                    sx
+                    placeholder
                 }: {
         value: string
         onChange: (e: any) => void
         onKeyDown: (e: any) => void
         placeholder: string
-        sx?: any
     }) => (
         <input
             data-testid="search-input"

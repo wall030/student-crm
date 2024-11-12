@@ -20,7 +20,7 @@ const Navbar: React.FC<{
     }
 
     const handleClose = () => {
-        setAnchorEl(null)
+        setAnchorEl(undefined)
     }
 
     const handleChangeLanguage = (locale: string) => {

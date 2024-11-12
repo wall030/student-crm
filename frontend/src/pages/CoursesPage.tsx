@@ -1,7 +1,7 @@
 import {useState} from "react"
 import Searchbar from "../components/Searchbar"
 import CoursesList from "../components/course/CoursesList"
-import {FormattedMessage, useIntl} from "react-intl"
+import {useIntl} from "react-intl"
 import {Box} from "@mui/material"
 
 const CoursesPage = () => {

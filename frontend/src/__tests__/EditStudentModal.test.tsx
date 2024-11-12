@@ -1,16 +1,16 @@
-import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { IntlProvider } from 'react-intl'
-import axios from 'axios'
 import toast from 'react-hot-toast'
 import EditStudentModal from '../components/student/EditStudentModal'
 import { handleError } from '../error/handleError'
 import { Student } from '../types/Student'
+import ResolvedValue = jest.ResolvedValue;
 
 jest.mock('axios')
 jest.mock('react-hot-toast')
 jest.mock('../error/handleError')
 
+const axios = require('axios').default;
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
 describe('EditStudentModal', () => {
@@ -137,7 +137,7 @@ describe('EditStudentModal', () => {
             const firstNameInput = screen.getByRole('textbox', { name: /First Name/i })
             fireEvent.change(firstNameInput, { target: { value: 'Boba' } })
 
-            mockedAxios.put.mockResolvedValueOnce({ data: updatedData })
+            mockedAxios.put.mockResolvedValueOnce({ data: updatedData } as ResolvedValue<unknown>)
 
             const saveButton = screen.getByText(/Save/i)
             fireEvent.click(saveButton)

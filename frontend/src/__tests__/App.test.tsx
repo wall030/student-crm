@@ -1,5 +1,4 @@
 import 'jest-css-modules-transform'
-import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import App from '../App'
 

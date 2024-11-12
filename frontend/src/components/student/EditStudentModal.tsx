@@ -24,19 +24,19 @@ const EditStudentModal: React.FC<{
         setUpdatedStudent({...student})
     }, [student])
 
-    const handleEmailChange = (e) => {
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const email = e.target.value
         setUpdatedStudent({...updatedStudent, email})
         setEmailError(!emailRegex.test(email))
     }
 
-    const handleFirstNameChange = (e) => {
+    const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const firstName = e.target.value
         setUpdatedStudent({...updatedStudent, firstName})
         setFirstNameError(!nameRegex.test(firstName))
     }
 
-    const handleLastNameChange = (e) => {
+    const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const lastName = e.target.value
         setUpdatedStudent({...updatedStudent, lastName})
         setLastNameError(!nameRegex.test(lastName))
@@ -45,17 +45,17 @@ const EditStudentModal: React.FC<{
     const isFormValid = !firstNameError && !lastNameError && !emailError
 
     const handleUpdateStudent = async () => {
-        try {
-            await axios.put(`http://localhost:8080/api/student/${updatedStudent.id}/update`, updatedStudent)
-            setStudents((prevStudents) =>
-                prevStudents.map((student) => student.id === updatedStudent.id ? {...student, ...updatedStudent} : student)
-            )
-            toast.success(<FormattedMessage id="toast.success"/>)
-            onClose()
-        } catch (error) {
+        axios.put(`http://localhost:8080/api/student/${updatedStudent.id}/update`, updatedStudent)
+            .then(() => {
+                setStudents((prevStudents) =>
+                    prevStudents.map((student) => student.id === updatedStudent.id ? {...student, ...updatedStudent} : student)
+                )
+                toast.success(<FormattedMessage id="toast.success"/>)
+                onClose()
+            }).catch(function (error) {
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     return (
@@ -69,7 +69,8 @@ const EditStudentModal: React.FC<{
                         value={updatedStudent.firstName}
                         onChange={handleFirstNameChange}
                         error={firstNameError}
-                        helperText={firstNameError ? <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid first name"/> : ""}
+                        helperText={firstNameError ?
+                            <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid first name"/> : ""}
                         fullWidth
                         required
                         sx={{
@@ -86,7 +87,8 @@ const EditStudentModal: React.FC<{
                         value={updatedStudent.lastName}
                         onChange={handleLastNameChange}
                         error={lastNameError}
-                        helperText={lastNameError ? <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid last name"/> : ""}
+                        helperText={lastNameError ?
+                            <FormattedMessage id="validation.invalidName" defaultMessage="Enter a valid last name"/> : ""}
                         fullWidth
                         required
                         sx={{
@@ -104,7 +106,8 @@ const EditStudentModal: React.FC<{
                         value={updatedStudent.email}
                         onChange={handleEmailChange}
                         error={emailError}
-                        helperText={emailError ? <FormattedMessage id="validation.invalidEmail" defaultMessage="Enter a valid email address"/> : ""}
+                        helperText={emailError ?
+                            <FormattedMessage id="validation.invalidEmail" defaultMessage="Enter a valid email address"/> : ""}
                         fullWidth
                         required
                         sx={{

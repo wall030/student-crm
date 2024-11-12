@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { IntlProvider } from 'react-intl'
@@ -66,7 +65,7 @@ describe('Navbar', () => {
 
     it('opens language menu when clicking the language selector', () => {
         renderNavbar()
-        const languageButton = screen.getByTestId('globe-icon').parentElement
+        const languageButton = screen.getByTestId('globe-icon').parentElement!
         fireEvent.click(languageButton)
 
         expect(screen.getByText('English')).toBeInTheDocument()
@@ -76,7 +75,7 @@ describe('Navbar', () => {
     it('calls setLocale with correct language when selecting a language', async () => {
         renderNavbar()
 
-        const languageButton = screen.getByTestId('globe-icon').parentElement
+        const languageButton = screen.getByTestId('globe-icon').parentElement!
         fireEvent.click(languageButton)
 
         fireEvent.click(screen.getByText('English'))
@@ -92,7 +91,7 @@ describe('Navbar', () => {
     it('closes the language menu when a selection is made', async () => {
         renderNavbar()
 
-        const languageButton = screen.getByTestId('globe-icon').parentElement
+        const languageButton = screen.getByTestId('globe-icon').parentElement!
         fireEvent.click(languageButton)
 
         fireEvent.click(screen.getByText('English'))

@@ -29,17 +29,17 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [isManageCoursesModalOpen, setManageCoursesModalOpen] = useState(false)
-    const [selectedStudent, setSelectedStudent] = useState<Student>(null)
+    const [selectedStudent, setSelectedStudent] = useState<Student>()
     const [sortField, setSortField] = useState("lastName")
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
     const [count, setCount] = useState(0)
     const [rowsPerPage, setRowsPerPage] = useState<10 | 25 | 100>(10)
 
     useEffect(() => {
-            setPage(0)
-            setStudents([])
-            setSelectedStudents([])
-            fetchCount()
+        setPage(0)
+        setStudents([])
+        setSelectedStudents([])
+        fetchCount()
     }, [searchTerm])
 
     useEffect(() => {
@@ -96,20 +96,26 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleDelete = async () => {
-        axios.delete(`http://localhost:8080/api/student/delete`, {
+        try {
+            await axios.request({
+                method: 'delete',
+                url: 'http://localhost:8080/api/student/delete',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 data: selectedStudents,
-        }).then(() => {
-            setStudents((prevStudents) => prevStudents.filter((student) => !selectedStudents.includes(student.id)))
+            })
+            setStudents((prevStudents) =>
+                prevStudents.filter((student) => !selectedStudents.includes(student.id))
+            )
             setSelectedStudents([])
             toast.success(<FormattedMessage id="toast.success"/>)
-        }).catch(function (error) {
+        } catch (error: any) {
             setSelectedStudents([])
-            const errorCode = error.response.data.errorCode
+            let errorCode
+            if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        })
+        }
     }
 
     const handleOpenEditModal = () => {
@@ -140,6 +146,7 @@ const StudentsList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
+    // @ts-ignore
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage)
     }

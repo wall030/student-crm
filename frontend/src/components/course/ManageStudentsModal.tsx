@@ -24,15 +24,15 @@ const ManageStudentsModal: React.FC<{
     }, [course])
 
     const fetchStudents = async () => {
-        try {
-            const studentsResponse = await axios.get<Student[]>('http://localhost:8080/api/student/all')
-            setStudents(studentsResponse.data)
-            const enrolledStudents = course.students.map(student => student.id)
-            setSelectedStudents(enrolledStudents)
-        } catch (error) {
+        axios.get<Student[]>('http://localhost:8080/api/student/all')
+            .then(function (response) {
+                setStudents(response.data)
+                const enrolledStudents = course.students.map(student => student.id)
+                setSelectedStudents(enrolledStudents)
+            }).catch(function (error) {
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleStudentToggle = (studentId: number) => {
@@ -44,18 +44,16 @@ const ManageStudentsModal: React.FC<{
     }
 
     const handleSubmit = async () => {
-        try {
-            const response = await axios.put(`http://localhost:8080/api/course/${course.id}/assignStudents`, selectedStudents)
-            const updatedCourse = {...course, students: response.data}
-            onUpdate(updatedCourse)
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        axios.put<Student[]>(`http://localhost:8080/api/course/${course.id}/assignStudents`, selectedStudents)
+            .then(function (response) {
+                const updatedCourse = {...course, students: response.data}
+                onUpdate(updatedCourse)
+                toast.success(<FormattedMessage id="toast.success"/>)
+            }).catch(function (error) {
             onClose()
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        } finally {
-            onClose()
-        }
+        })
     }
 
     return (

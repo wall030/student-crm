@@ -1,9 +1,10 @@
 import React from 'react'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { IntlProvider } from 'react-intl'
-import axios from 'axios'
 import StudentsList from '../components/student/StudentsList'
 import { Student } from '../types/Student'
+
+const axios = require('axios').default;
 
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
@@ -40,7 +41,7 @@ describe('StudentsList', () => {
     beforeEach(() => {
         jest.clearAllMocks()
 
-        mockedAxios.get.mockImplementation((url) => {
+        mockedAxios.get.mockImplementation((url: string) => {
             if (url.includes('/api/student/count')) {
                 return Promise.resolve({ data: mockStudents.length })
             }
@@ -104,7 +105,7 @@ describe('StudentsList', () => {
     })
 
     it('handles pagination', async () => {
-        mockedAxios.get.mockImplementation((url) => {
+        mockedAxios.get.mockImplementation((url: string) => {
             if (url.includes('/api/student/count')) {
                 return Promise.resolve({ data: 25 })
             }
@@ -165,12 +166,14 @@ describe('StudentsList', () => {
         })
 
         await waitFor(() => {
-            expect(mockedAxios.delete).toHaveBeenCalledWith(
-                'http://localhost:8080/api/student/delete',
-                expect.objectContaining({
-                    data: [1]
-                })
-            )
+            expect(mockedAxios.request).toHaveBeenCalledWith({
+                method: 'delete',
+                url: 'http://localhost:8080/api/student/delete',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: [1]
+            })
         })
     })
 

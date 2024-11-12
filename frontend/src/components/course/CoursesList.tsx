@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react"
+import React, {useEffect, useState} from "react"
 import CourseCard from "./CourseCard"
 import {Course} from "../../types/Course"
 import axios from "axios"
@@ -6,7 +6,6 @@ import Actions from "../Actions"
 import CreateCourseModal from "./CreateCourseModal"
 import EditCourseModal from "./EditCourseModal"
 import ManageStudentsModal from "./ManageStudentsModal"
-import {Student} from "../../types/Student"
 import {FormattedMessage} from "react-intl"
 import toast from "react-hot-toast"
 import {
@@ -19,8 +18,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
-    TableSortLabel,
-    Typography
+    TableSortLabel
 } from "@mui/material"
 import {handleError} from "../../error/handleError"
 
@@ -31,8 +29,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     const [selectedCourses, setSelectedCourses] = useState<number[]>([])
     const [isEditModalOpen, setEditModalOpen] = useState(false)
     const [isManageStudentsModalOpen, setManageStudentsModalOpen] = useState(false)
-    const [selectedCourse, setSelectedCourse] = useState<Course>(null)
-    const [students, setStudents] = useState<Student[]>([])
+    const [selectedCourse, setSelectedCourse] = useState<Course>()
     const [sortField, setSortField] = useState("name")
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
     const [count, setCount] = useState(0)
@@ -100,21 +97,24 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
     }
 
     const handleDelete = async () => {
-        axios.delete(`http://localhost:8080/api/course/delete`, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            data: selectedCourses,
-        }).then(() => {
+        try {
+            await axios.request({
+                url: `http://localhost:8080/api/course/delete`,
+                method: 'delete',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: selectedCourses,
+            })
             setCourses((prevCourses) => prevCourses.filter((course) => !selectedCourses.includes(course.id)))
             setSelectedCourses([])
             toast.success(<FormattedMessage id="toast.success"/>)
-        }).catch(function (error) {
+        } catch (error: any) {
             setSelectedCourses([])
             let errorCode
             if (error.response) errorCode = error.response.data.errorCode
             handleError(errorCode)
-        })
+        }
     }
 
     const handleOpenEditModal = () => {
@@ -145,6 +145,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
         }
     }
 
+    // @ts-ignore
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage)
     }
@@ -198,7 +199,7 @@ const CoursesList: React.FC<{ searchTerm: string }> = ({searchTerm}) => {
                     onUpdate={handleManageStudents}
                     onClose={() => {
                         setManageStudentsModalOpen(false)
-                        setSelectedCourse(null)
+                        setSelectedCourse(undefined)
                         setSelectedCourses([])
                     }}
                 />

@@ -11,8 +11,9 @@
         "types": [
             "jest",
             "@testing-library/jest-dom",
-            "cypress"
-        ]
+            "cypress",
+            "node"
+        ],
     },
     "files": [],
     "references": [

@@ -20,22 +20,21 @@ const EditCourseModal: React.FC<{
     }, [course])
 
     const handleCourseUpdated = async () => {
-        try {
-            await axios.put(`http://localhost:8080/api/course/${updatedCourse.id}/update`, updatedCourse
-            )
-            onClose()
-            setCourses((prevCourses) =>
-                prevCourses.map((course) => (course.id === updatedCourse
-                    .id ? {
-                    ...course, ...updatedCourse
-                } : course))
-            )
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        axios.put(`http://localhost:8080/api/course/${updatedCourse.id}/update`, updatedCourse)
+            .then(() => {
+                onClose()
+                setCourses((prevCourses) =>
+                    prevCourses.map((course) => (course.id === updatedCourse
+                        .id ? {
+                        ...course, ...updatedCourse
+                    } : course))
+                )
+                toast.success(<FormattedMessage id="toast.success"/>)
+            }).catch(function (error) {
             onClose()
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     return (

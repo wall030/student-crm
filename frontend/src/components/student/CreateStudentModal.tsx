@@ -18,18 +18,18 @@ const CreateStudentModal: React.FC<{
     const nameRegex = /^[a-zA-Zà-ÿÀ-ß\s'-]+$/
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-    const handleEmailChange = (e) => {
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const email = e.target.value
         setNewStudent({...newStudent, email})
         setEmailError(!emailRegex.test(email))
     }
-    const handleFirstNameChange = (e) => {
+    const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const firstName = e.target.value
         setNewStudent({...newStudent, firstName})
         setFirstNameError(!nameRegex.test(firstName))
     }
 
-    const handleLastNameChange = (e) => {
+    const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const lastName = e.target.value
         setNewStudent({...newStudent, lastName})
         setLastNameError(!nameRegex.test(lastName))
@@ -40,16 +40,16 @@ const CreateStudentModal: React.FC<{
         newStudent.email && !emailError
 
     const handleCreateStudent = async () => {
-        try {
-            const response = await axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
-            setStudents((prev) => [response.data, ...prev])
-            onClose()
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        axios.post<Student>(`http://localhost:8080/api/student/create`, newStudent)
+            .then(function (response) {
+                setStudents((prev) => [response.data, ...prev])
+                onClose()
+                toast.success(<FormattedMessage id="toast.success"/>)
+            }).catch(function (error) {
             onClose()
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     return (

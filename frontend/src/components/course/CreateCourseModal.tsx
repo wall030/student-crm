@@ -14,18 +14,18 @@ const CreateCourseModal: React.FC<{
     const [newCourse, setNewCourse] = useState({name: ''})
 
     const handleCreateCourse = async () => {
-        try {
-            const response = await axios.post<Course>(`http://localhost:8080/api/course/create`, newCourse)
-            setCourses((prev) => [response.data, ...prev])
-            onClose()
-            setNewCourse({name: ''})
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        axios.post<Course>(`http://localhost:8080/api/course/create`, newCourse)
+            .then(function (response) {
+                setCourses((prev) => [response.data, ...prev])
+                onClose()
+                setNewCourse({name: ''})
+                toast.success(<FormattedMessage id="toast.success"/>)
+            }).catch(function (error) {
             onClose()
             setNewCourse({name: ''})
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     return (

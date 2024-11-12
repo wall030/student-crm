@@ -21,15 +21,15 @@ const ManageCoursesModal: React.FC<{
     }, [student])
 
     const fetchCourses = async () => {
-        try {
-            const coursesResponse = await axios.get<Course[]>('http://localhost:8080/api/course/all')
-            setCourses(coursesResponse.data)
-            const enrolledCourses = student.courses.map((course) => course.id)
-            setSelectedCourses(enrolledCourses)
-        } catch (error) {
+        axios.get<Course[]>('http://localhost:8080/api/course/all')
+            .then(function (response) {
+                setCourses(response.data)
+                const enrolledCourses = student.courses.map((course) => course.id)
+                setSelectedCourses(enrolledCourses)
+            }).catch(function (error) {
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        }
+        })
     }
 
     const handleCourseToggle = (courseId: number) => {
@@ -41,24 +41,23 @@ const ManageCoursesModal: React.FC<{
     }
 
     const handleSubmit = async () => {
-        try {
-            const response = await axios.put(`http://localhost:8080/api/student/${student.id}/assignCourses`, selectedCourses)
-            const updatedStudent = {...student, courses: response.data}
-            onUpdate(updatedStudent)
-            toast.success(<FormattedMessage id="toast.success"/>)
-        } catch (error) {
+        axios.put<Course[]>(`http://localhost:8080/api/student/${student.id}/assignCourses`, selectedCourses)
+            .then(function (response) {
+                const updatedStudent = {...student, courses: response.data}
+                onUpdate(updatedStudent)
+                toast.success(<FormattedMessage id="toast.success"/>)
+            }).catch(function (error) {
             const errorCode = error.response.data.errorCode
             handleError(errorCode)
-        } finally {
             onClose()
-        }
+        })
     }
 
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>
                 <FormattedMessage id="actions.manage.courses.title" defaultMessage="Manage Courses for "/>
-                <Typography>{student.firstName} {student.lastName}</Typography>
+                <span>{student.firstName} {student.lastName}</span>
             </DialogTitle>
             <DialogContent>
                 <Box sx={{maxHeight: 300, overflowY: 'auto'}}>
