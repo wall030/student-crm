@@ -19,7 +19,7 @@ import org.jboss.resteasy.reactive.ResponseStatus
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class StudentResource(
-    val studentService: StudentService,
+    var studentService: StudentService,
 ) {
     @GET
     @ResponseStatus(200)
@@ -47,7 +47,7 @@ class StudentResource(
     @GET
     @ResponseStatus(200)
     @Path("/{id}")
-    fun findStudentByID(
+    fun findStudent(
         @PathParam("id") id: Long,
     ) = studentService.findStudent(id)
 

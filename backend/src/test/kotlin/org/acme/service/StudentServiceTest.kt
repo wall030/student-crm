@@ -1,15 +1,12 @@
 package org.acme.service
 
 import io.mockk.every
-import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.acme.model.CourseEntity
 import org.acme.model.StudentEntity
-import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.StudentCreateUpdateDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
 import org.junit.jupiter.api.Test

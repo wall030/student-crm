@@ -1,16 +1,12 @@
 package org.acme.service
 
 import io.mockk.every
-import io.mockk.verify
 import io.quarkiverse.test.junit.mockk.InjectMock
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.acme.model.CourseEntity
 import org.acme.model.StudentEntity
-import org.acme.model.dto.CourseCreateUpdateDTO
-import org.acme.model.dto.CourseDTO
-import org.acme.model.dto.StudentCreateUpdateDTO
 import org.acme.model.dto.StudentDTO
 import org.acme.repository.CourseRepository
 import org.acme.repository.StudentRepository
@@ -82,7 +78,6 @@ class CourseServiceTest {
         every { courseRepository.deleteByIds(courseIDs) } returns courseIDs.size.toLong()
         val result = courseService.deleteCourses(courseIDs)
         expectThat(result).isTrue()
-
     }
 
     @Test
@@ -95,8 +90,8 @@ class CourseServiceTest {
         expectThat(result).isEqualTo(
             listOf(
                 StudentDTO(student1.id, student1.firstName, student1.lastName, student1.email),
-                StudentDTO(student2.id, student2.firstName, student2.lastName, student2.email)
-            )
+                StudentDTO(student2.id, student2.firstName, student2.lastName, student2.email),
+            ),
         )
     }
 }
