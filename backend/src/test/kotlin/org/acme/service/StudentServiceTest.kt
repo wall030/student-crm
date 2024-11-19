@@ -15,6 +15,7 @@ import org.acme.repository.StudentRepository
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import strikt.assertions.isTrue
 
 @QuarkusTest
 class StudentServiceTest {
@@ -108,9 +109,9 @@ class StudentServiceTest {
 
         every { studentRepository.findByIds(studentIDs) } returns students
         every { studentRepository.deleteByIds(studentIDs) } returns 2
-        studentService.deleteStudents(studentIDs)
-
+        val result = studentService.deleteStudents(studentIDs)
         verify { studentRepository.deleteByIds(studentIDs) }
+        expectThat(result).isTrue()
     }
 
     @Test

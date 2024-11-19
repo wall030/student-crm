@@ -68,7 +68,7 @@ class StudentService(
     }
 
     @Transactional
-    fun deleteStudents(studentIDs: List<Long>) {
+    fun deleteStudents(studentIDs: List<Long>): Boolean {
         if (studentIDs.isNotEmpty()) {
             val students = studentRepository.findByIds(studentIDs)
             val missingStudents = studentIDs.filter { id -> students.none { it.id == id } }
@@ -76,7 +76,9 @@ class StudentService(
             if (missingStudents.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudents.toString())
 
             studentRepository.deleteByIds(studentIDs)
+            return true
         }
+        return false
     }
 
     @Transactional

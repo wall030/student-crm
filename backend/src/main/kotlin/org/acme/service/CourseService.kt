@@ -59,7 +59,7 @@ class CourseService(
     }
 
     @Transactional
-    fun deleteCourses(courseIDs: List<Long>) {
+    fun deleteCourses(courseIDs: List<Long>): Boolean {
         if (courseIDs.isNotEmpty()) {
             val courses = courseRepository.findByIds(courseIDs)
             val missingCourses = courseIDs.filter { id -> courses.none { it.id == id } }
@@ -67,7 +67,9 @@ class CourseService(
             if (missingCourses.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingCourses.toString())
 
             courseRepository.deleteByIds(courseIDs)
+            return true
         }
+        return false
     }
 
     @Transactional
