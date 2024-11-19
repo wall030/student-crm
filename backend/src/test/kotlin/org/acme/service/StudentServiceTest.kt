@@ -32,7 +32,6 @@ class StudentServiceTest {
     private val student2 = StudentEntity(2L, "Han", "Solo", "solo@smuggler.com")
     private val studentsList = listOf(student1, student2)
     private val studentIDs = listOf(student1.id, student2.id)
-    private val studentDTO = StudentCreateUpdateDTO("Darth", "Vader", "vader@sith.com")
 
     private val course1 = CourseEntity(1L, "Piloting 101")
     private val course2 = CourseEntity(2L, "Lightsaber Combat")
@@ -48,7 +47,7 @@ class StudentServiceTest {
 
     @Test
     fun `find student by id`() {
-        every { studentRepository.findById(student1.id) } returns student1
+        every { studentRepository.findById(any()) } returns student1
         val result = studentService.findStudent(student1.id)
         expectThat(result).isEqualTo(student1.toStudentDTO())
     }
@@ -56,8 +55,9 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `create Student`() {
+        val studentDTO = student1.toStudentDTO()
         every { studentRepository.persist(any<StudentEntity>()) } returns Unit
-        every { studentRepository.findByEmail(studentDTO.email) } returns null
+        every { studentRepository.findByEmail(any()) } returns null
         val result = studentService.createStudent(studentDTO.firstName, studentDTO.lastName, studentDTO.email)
         expectThat(result)
             .and {
@@ -75,9 +75,9 @@ class StudentServiceTest {
     @Transactional
     fun `should update student attributes`() {
         val studentDTO = student1.toStudentDTO()
-        every { studentRepository.findById(studentDTO.id) } returns student1
-        every { studentRepository.findByEmail(studentDTO.email) } returns student1
-        every { studentRepository.persist(student1) } returns Unit
+        every { studentRepository.findById(any()) } returns student1
+        every { studentRepository.findByEmail(any()) } returns student1
+        every { studentRepository.persist(any<StudentEntity>()) } returns Unit
         val result =
             studentService.updateStudent(
                 studentDTO.id,
@@ -91,8 +91,8 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `should delete a list of students`() {
-        every { studentRepository.findByIds(studentIDs) } returns studentsList
-        every { studentRepository.deleteByIds(studentIDs) } returns studentIDs.size.toLong()
+        every { studentRepository.findByIds(any()) } returns studentsList
+        every { studentRepository.deleteByIds(any()) } returns studentIDs.size.toLong()
         val result = studentService.deleteStudents(studentIDs)
         expectThat(result).isTrue()
     }
@@ -100,10 +100,11 @@ class StudentServiceTest {
     @Test
     @Transactional
     fun `should assign a list of courses to a student`() {
-        every { courseRepository.findByIds(courseIDs) } returns coursesList
+        every { courseRepository.findByIds(any()) } returns coursesList
         every { studentRepository.findById(any()) } returns student1
-        every { studentRepository.persist(student1) } returns Unit
+        every { studentRepository.persist(any<StudentEntity>()) } returns Unit
         val result = studentService.assignCourses(student1.id, courseIDs)
         expectThat(result).isEqualTo(listOf(course1.toCourseDTO(), course2.toCourseDTO()))
+        System.out.println(listOf(course1.toCourseDTO(), course2.toCourseDTO()))
     }
 }

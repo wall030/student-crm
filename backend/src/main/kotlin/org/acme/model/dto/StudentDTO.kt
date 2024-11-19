@@ -14,5 +14,5 @@ data class StudentDTO(
     @field:Email(message = "Invalid email format")
     val email: String,
     @JsonIgnoreProperties("students")
-    val courses: List<CourseDTO>,
+    val courses: List<CourseDTO> = emptyList(),
 )

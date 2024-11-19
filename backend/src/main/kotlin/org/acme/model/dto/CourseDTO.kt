@@ -13,5 +13,5 @@ data class CourseDTO(
     @field:Size(min = 1, max = 35, message = "Max 35 characters for name")
     val name: String,
     @JsonIgnoreProperties("courses")
-    val students: List<StudentDTO>,
+    val students: List<StudentDTO> = emptyList(),
 )
