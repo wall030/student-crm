@@ -1,0 +1,424 @@
+---
+openapi: 3.0.3
+info:
+  title: backend API
+  version: 1.0.0-SNAPSHOT
+paths:
+  /api/course:
+    get:
+      tags:
+      - Course Resource
+      parameters:
+      - name: page
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: rowsPerPage
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: search
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: sortField
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: sortOrder
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseDTO"
+  /api/course/all:
+    get:
+      tags:
+      - Course Resource
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseDTO"
+  /api/course/count:
+    get:
+      tags:
+      - Course Resource
+      parameters:
+      - name: search
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                format: int64
+                type: integer
+  /api/course/create:
+    post:
+      tags:
+      - Course Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseCreateUpdateDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTO"
+  /api/course/delete:
+    delete:
+      tags:
+      - Course Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                format: int64
+                type: integer
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/course/{id}:
+    get:
+      tags:
+      - Course Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTO"
+  /api/course/{id}/assignStudents:
+    put:
+      tags:
+      - Course Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                format: int64
+                type: integer
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentDTO"
+  /api/course/{id}/update:
+    put:
+      tags:
+      - Course Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseCreateUpdateDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDTO"
+  /api/student:
+    get:
+      tags:
+      - Student Resource
+      parameters:
+      - name: page
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: rowsPerPage
+        in: query
+        schema:
+          format: int32
+          type: integer
+      - name: search
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: sortField
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: sortOrder
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentDTO"
+  /api/student/all:
+    get:
+      tags:
+      - Student Resource
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentDTO"
+  /api/student/count:
+    get:
+      tags:
+      - Student Resource
+      parameters:
+      - name: search
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                format: int64
+                type: integer
+  /api/student/create:
+    post:
+      tags:
+      - Student Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentCreateUpdateDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDTO"
+  /api/student/delete:
+    delete:
+      tags:
+      - Student Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                format: int64
+                type: integer
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/student/{id}:
+    get:
+      tags:
+      - Student Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDTO"
+  /api/student/{id}/assignCourses:
+    put:
+      tags:
+      - Student Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                format: int64
+                type: integer
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CourseDTO"
+  /api/student/{id}/update:
+    put:
+      tags:
+      - Student Resource
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentCreateUpdateDTO"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentDTO"
+components:
+  schemas:
+    CourseCreateUpdateDTO:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          maxLength: 35
+          minLength: 1
+          pattern: \S
+          type: string
+    CourseDTO:
+      required:
+      - name
+      - students
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          maxLength: 35
+          minLength: 1
+          pattern: \S
+          type: string
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentDTO"
+    StudentCreateUpdateDTO:
+      required:
+      - firstName
+      - lastName
+      - email
+      type: object
+      properties:
+        firstName:
+          maxLength: 20
+          minLength: 1
+          pattern: \S
+          type: string
+        lastName:
+          maxLength: 20
+          minLength: 1
+          pattern: \S
+          type: string
+        email:
+          pattern: \S
+          type: string
+    StudentDTO:
+      required:
+      - firstName
+      - lastName
+      - email
+      type: object
+      properties:
+        id:
+          format: int64
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
