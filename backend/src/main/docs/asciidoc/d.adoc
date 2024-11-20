@@ -1,17 +1,16 @@
-
 = Student CRM API Documentation
 
-v1.0, 19.10.2024
+v2.0, 20.11.2024
 
 == Introduction
 This documentation provides an overview of the Student CRM API, including the available endpoints, their use cases, and example requests/responses.
-
 
 === Change History
 [cols="1,3"]
 |===
 | Version | Description
 | 1.0    | Start version
+| 2.0    | Final version :)
 |===
 
 
@@ -41,20 +40,24 @@ This service can manage students and courses. You can perform basic CRUD operati
 - `name`: Name of the course
 - `students`: List of students in the course
 
-== APIs
+== Endpoints
 
----
-=== Student Endpoints
+=== Student Resource
 
----
-==== Get All Students
-**Description**: Retrieves a list of all students.
+==== 1. Get a paginated list of students
+`GET /api/student`
 
-**Endpoint**: `GET /api/student/all`
+*Query Parameters:*
 
-**Example Response**:
-[source,json]
-----
+- `page` (optional, integer): The page number for pagination +
+- `rowsPerPage` (optional, integer): The number of records per page +
+- `search` (required, string): Search keyword +
+- `sortField` (required, string): Field by which to sort +
+- `sortOrder` (required, string): Order of sorting (asc or desc) +
+
+Response: 200 OK +
+Content: Array of StudentDTO
+```json
 [
     {
       "id": 1,
@@ -80,19 +83,14 @@ This service can manage students and courses. You can perform basic CRUD operati
       "courses": []
     }
 ]
-----
+```
 
----
-==== Find Students by Name or Email
-**Description**: Retrieves a list of students by a search term (name or email).
+==== 2. Get all students
+`GET /api/student/all`
 
-**Endpoint**: `GET /api/student?page={pageNumber}&limit={limit}&search={searchTerm}`
-
-
-
-**Example Response**:
-[source,json]
-----
+Response: 200 OK +
+Content: Array of StudentDTO
+```json
 [
     {
       "id": 1,
@@ -118,54 +116,69 @@ This service can manage students and courses. You can perform basic CRUD operati
       "courses": []
     }
 ]
-----
+```
+
+==== 3. Count students
+`GET /api/student/count`
+
+Query Parameters:
+
+- `search` (required, string): Search keyword
+
+Response: 200 OK +
+Content: Integer representing the count of students
+```json
+2
+```
 
 
+==== 4. Create a student
+`POST /api/student/create`
 
----
-==== Get Student by ID
-**Description**: Retrieves a student by their ID.
-
-**Endpoint**: `GET /api/student/{id}`
-
-
-
-**Example Response**:
-[source,json]
-----
-{
-  "id": 1,
-  "firstname": "Han",
-  "lastname": "Solo",
-  "email": "han.solo@example.com",
-  "courses": [
-      {
-        "id": 3,
-        "name": "Smuggling for Beginners"
-      }
-  ]
-}
-----
-
----
-==== Create Student
-**Description**: Creates a new student.
-
-**Endpoint**: `POST /api/student/create`
-
-**Example Request**:
-[source,json]
-----
+*Request Body:* StudentCreateUpdateDTO +
+Example:
+```json
 {
   "firstname": "Han",
   "lastname": "Solo",
   "email": "han.solo@example.com"
 }
-----
+```
 
-**Example Response**:
-[source,json]
-----
+Response: 200 OK +
+Content: Created StudentDTO
+```json
+{
+  "id": 3,
+  "firstname": "Han",
+  "lastname": "Duo",
+  "email": "han.duo@example.com",
+  "courses": []
+}
+```
+
+==== 5. Delete students
+`DELETE /api/student/delete`
+
+*Request Body:* Array of integers (student IDs to delete)
+```json
+[
+  1, 3
+]
+```
+
+Response: 204 No Content
+
+==== 6. Get a student by ID
+`GET /api/student/{id}`
+
+Path Parameters: +
+
+- `id` (required, integer): ID of the student
+
+Response: 200 OK +
+Content: StudentDTO
+```json
 {
   "id": 1,
   "firstname": "Han",
@@ -178,29 +191,64 @@ This service can manage students and courses. You can perform basic CRUD operati
       }
   ]
 }
-----
+```
 
 
----
-==== Update Student
-**Description**: Updates an existing student's information (**excluding courses**).
+==== 7. Assign courses to a student
+`PUT /api/student/{id}/assignCourses`
 
-**Endpoint**: `PUT /api/student/{id}/update`
+*Path Parameters:*
 
-**Example Request**:
-[source,json]
-----
+- `id` (required, integer): ID of the student
+
+*Request Body:* Array of integers (course IDs to assign).
+
+Response: 200 OK +
+Content: Array of CourseDTO +
+It returns the list of assigned courses (excluding students).
+```json
+[
+    {
+        "id": 3,
+        "name": "Smuggling for Beginners",
+        "students": []
+    },
+    {
+        "id": 4,
+            "name": "Piloting",
+        "students": []
+    },
+    {
+        "id": 1,
+        "name": "Starship Engineering",
+        "students": []
+    }
+]
+```
+
+
+==== 8. Update a student
+`PUT /api/student/{id}/update`
+
+*Path Parameters:*
+
+- `id` (required, integer): ID of the student
+
+*Request Body:* StudentCreateUpdateDTO +
+Example:
+```json
 {
   "firstname": "Han",
-  "lastname": "Duo",
-  "email": "han.duo@newemail.com"
+  "lastname": "Trio",
+  "email": "han.trio@newemail.com"
 }
-----
-The ID needs to exist. The updated email can't be an in the database existing one (unique attribute).
+```
+The ID needs to exist. The updated email can't be an in the database existing one (unique attribute). It Updates an existing student's information (**excluding courses**)
 
-**Example Response**:
-[source,json]
-----
+
+Response: 200 OK +
+Content: Updated StudentDTO
+```json
 {
   "id": 1,
   "firstname": "Han",
@@ -213,85 +261,25 @@ The ID needs to exist. The updated email can't be an in the database existing on
       }
   ]
 }
-----
+```
 
----
-==== Delete Student
-**Description**: Deletes a list of students by their ID (if only one student needs to be deleted, pass a list with one ID).
 
-**Endpoint**: `DELETE /api/student/delete`
+=== Course Resource
 
-**Example Request**:
-[source,json]
-----
-[
-  1, 3, 4, 7
-]
-----
+==== 1. Get a paginated list of courses
+`GET /api/course`
 
-**Example Response**:
-[source,json]
-----
-204 No Content
-----
+*Query Parameters:* +
+- `page` (optional, integer): The page number for pagination. +
+- `rowsPerPage` (optional, integer): The number of records per page. +
+- `search` (required, string): Search keyword. +
+- `sortField` (required, string): Field by which to sort. +
+- `sortOrder` (required, string): Order of sorting (`asc` or `desc`). +
 
----
-==== Assign a Student's Courses
-**Description**: Assigns a list of courses to a student. The list removes courses that were not in the list before and adds new ones. So the list you provide is always exactly the list of courses a student is enrolled in.
+*Response:* `200 OK` +
+Content: Array of `CourseDTO`.
 
-**Endpoint**: `PUT /api/student/{id}/assignCourses`
-
-**Example Request**:
-[source,json]
-----
-[
-  3, 5, 1
-]
-----
-The IDs need to exist.
-
-**Example Response**:
-[source,json]
-----
-[
-    {
-        "id": 5,
-        "name": "History",
-        "students": []
-    },
-    {
-        "id": 18,
-        "name": "Business Management",
-        "students": []
-    },
-    {
-        "id": 1,
-        "name": "Maths",
-        "students": []
-    }
-]
-----
-It returns the list of assigned courses (excluding students).
-
----
----
----
-=== Course Endpoints
----
-==== Get All Courses
-**Description**: Retrieves a list of all courses.
-
-**Endpoint**: `GET /api/course/all`
-
-**Example Request**:
-[source,json]
-----
-GET /api/course/all
-----
-
-**Example Response**:
-[source,json]
-----
+```json
 [
   {
     "id": 1,
@@ -317,88 +305,62 @@ GET /api/course/all
     "students":[]
   }
 ]
-----
+```
 
----
-==== Find Courses by Search Term
-**Description**: Retrieves a list of courses by a search term (name).
+==== 3. Count courses
+`GET /api/course/count`
 
-**Endpoint**: `GET /api/course?page={pageNumber}&limit={limit}&search={searchTerm}`
+*Query Parameters:* +
+- `search` (required, string): Search keyword. +
 
+*Response:* 200 OK +
+Content: Integer representing the count of courses.
 
+```json
+7
+```
 
-**Example Response**:
-[source,json]
-----
-[
-  {
-    "id": 1,
-    "name": "Starcraft Engineering",
-    "students": [
-        {
-            "id": 1,
-            "firstname": "Han",
-            "lastname": "Solo",
-            "email": "han.solo@example.com"
-        },
-        {
-            "id": 2,
-            "firstname": "Boba",
-            "lastname": "Fett",
-            "email": "boba.fett@example.com"
-        }
-    ]
-  },
-  {
-    "id": 2,
-    "name": "Piloting 101",
-    "students":[]
-  }
-]
-----
+==== 4. Create a course
+`POST /api/course/create`
 
----
-==== Create Course
-**Description**: Creates a new course.
-
-**Endpoint**: `POST /api/course/create`
-
-**Example Request**:
-[source,json]
-----
+*Request Body:* CourseCreateUpdateDTO +
+Example:
+```json
 {
   "name": "Starship Engineering"
 }
-----
-
-**Example Response**:
-[source,json]
-----
+```
+Response: 200 OK +
+Content: Created CourseDTO.
+```json
 {
   "id": 1,
   "name": "Starship Engineering",
-  "students": []
+  "students":[]
 }
-----
+```
 
----
-==== Update Course
-**Description**: Updates an existing course's name.
+==== 5. Delete courses
+`DELETE /api/course/delete`
 
-**Endpoint**: `PUT /api/course/{id}/update`
+Request Body: Array of integers (course IDs to delete). +
+```json
+[
+  7, 10, 4
+]
+```
+Response: 204 No Content +
 
-**Example Request**:
-[source,json]
-----
-{
-  "name": "Spacecraft Engineering"
-}
-----
-The ID needs to exist. The updated name can't be an in the database existing one (unique attribute).
+==== 6. Get a course by ID
+`GET /api/course/{id}`
 
-**Example Response**:
-[source,json]
-----
+Path Parameters:
+
+- `id` (required, integer): ID of the course.
+
+Response: 200 OK +
+Content: CourseDTO
+```json
 {
     "id": 1,
     "name": "Starcraft Engineering",
@@ -416,48 +378,26 @@ The ID needs to exist. The updated name can't be an in the database existing one
             "email": "boba.fett@example.com"
         }
     ]
-}
-----
+  }
+```
 
----
-==== Delete Course
-**Description**: Deletes a list of courses by their ID (if only one course needs to be deleted, pass a list with one ID)
+==== 7. Assign students to a course
+`PUT /api/course/{id}/assignStudents`
 
-**Endpoint**: `DELETE /api/course/delete`
+Path Parameters:
 
-**Example Request**:
-[source,json]
-----
+- `id` (required, integer): ID of the course. +
+
+Request Body: Array of integers (student IDs to assign).
+```json
 [
-  3, 5, 1
+  3, 4, 5
 ]
-----
-
-**Example Response**:
-[source,json]
-----
-204 No Content
-----
-
-
----
-==== Assign a Course's Students
-**Description**: Assigns a list of students to a course. The list removes students that were not in the list before and adds new ones. So the list you provide is always exactly the list of students enrolled in the course.
-
-**Endpoint**: `PUT /api/course/{id}/assignStudents`
-
-**Example Request**:
-[source,json]
-----
-[
-  3, 5, 1
-]
-----
-The IDs need to exist.
-
-**Example Response**:
-[source,json]
-----
+```
+Response: 200 OK +
+Content: Array of StudentDTO. +
+It returns the list of assigned students (excluding courses).
+```json
 [
     {
       "id": 1,
@@ -474,5 +414,44 @@ The IDs need to exist.
       "courses": []
     }
 ]
-----
-It returns the list of assigned students (excluding courses).
+```
+
+
+
+==== 8. Update a course
+`PUT /api/course/{id}/update`
+
+Path Parameters: +
+
+- `id` (required, integer): ID of the course.
+
+Request Body: CourseCreateUpdateDTO +
+Example:
+```json
+{
+  "name": "Spacecraft Engineering"
+}
+```
+
+Response: 200 OK +
+Content: Updated CourseDTO.
+```json
+{
+    "id": 1,
+    "name": "Ship Engineering",
+    "students": [
+        {
+            "id": 1,
+            "firstname": "Han",
+            "lastname": "Solo",
+            "email": "han.solo@example.com"
+        },
+        {
+            "id": 2,
+            "firstname": "Boba",
+            "lastname": "Fett",
+            "email": "boba.fett@example.com"
+        }
+    ]
+}
+```
