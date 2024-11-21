@@ -62,10 +62,9 @@ class CourseService(
     fun deleteCourses(courseIDs: List<Long>): Boolean {
         if (courseIDs.isNotEmpty()) {
             val courses = courseRepository.findByIds(courseIDs)
-            val missingCourses = courseIDs.filter { id -> courses.none { it.id == id } }
-
+            val fetchedCourseIds = courses.map { it.id }
+            val missingCourses = courseIDs - fetchedCourseIds.toSet()
             if (missingCourses.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingCourses.toString())
-
             courseRepository.deleteByIds(courseIDs)
             return true
         }
@@ -77,18 +76,13 @@ class CourseService(
         id: Long,
         students: List<Long>,
     ): List<StudentDTO> {
-        val missingStudentsList = mutableListOf<Long>()
         val course =
             courseRepository.findById(id)
                 ?: throw ServiceException.CourseNotFoundException(id.toString())
 
         val fetchedStudents = studentRepository.findByIds(students)
         val fetchedStudentIds = fetchedStudents.map { it.id }
-        students.forEach { studentId ->
-            if (!fetchedStudentIds.contains(studentId)) {
-                missingStudentsList.add(studentId)
-            }
-        }
+        val missingStudentsList = students - fetchedStudentIds.toSet()
         if (missingStudentsList.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudentsList.toString())
         course.students.forEach { student ->
             if (!students.contains(student.id)) {

@@ -69,16 +69,13 @@ class StudentService(
 
     @Transactional
     fun deleteStudents(studentIDs: List<Long>): Boolean {
-        if (studentIDs.isNotEmpty()) {
-            val students = studentRepository.findByIds(studentIDs)
-            val missingStudents = studentIDs.filter { id -> students.none { it.id == id } }
-
-            if (missingStudents.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudents.toString())
-
-            studentRepository.deleteByIds(studentIDs)
-            return true
-        }
-        return false
+        if (studentIDs.isEmpty()) return false
+        val students = studentRepository.findByIds(studentIDs)
+        val fetchedStudentsIDs = students.map { it.id }
+        val missingStudents = studentIDs - fetchedStudentsIDs.toSet()
+        if (missingStudents.isNotEmpty()) throw ServiceException.StudentNotFoundException(missingStudents.toString())
+        studentRepository.deleteByIds(studentIDs)
+        return true
     }
 
     @Transactional
@@ -86,19 +83,12 @@ class StudentService(
         id: Long,
         courses: List<Long>,
     ): List<CourseDTO> {
-        val missingCoursesList = mutableListOf<Long>()
         val student =
             studentRepository.findById(id)
                 ?: throw ServiceException.StudentNotFoundException(id.toString())
-
         val fetchedCourses = courseRepository.findByIds(courses)
-        val fetchedCourseIds = fetchedCourses.map { it.id }
-
-        courses.forEach { courseId ->
-            if (!fetchedCourseIds.contains(courseId)) {
-                missingCoursesList.add(courseId)
-            }
-        }
+        val fetchedCourseIDs = fetchedCourses.map { it.id }
+        val missingCoursesList = courses - fetchedCourseIDs.toSet()
         if (missingCoursesList.isNotEmpty()) throw ServiceException.CourseNotFoundException(missingCoursesList.toString())
         student.courses = fetchedCourses.toMutableList()
         studentRepository.persist(student)
